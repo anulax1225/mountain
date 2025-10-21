@@ -1,0 +1,10 @@
+<template x-component:element="container" class="flex flex-col">
+    <slot></slot>
+    <script>
+        return {
+            onMounted() {
+                console.log("container init");
+            }
+        }
+    </script>
+</template>
