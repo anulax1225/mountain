@@ -1,193 +1,142 @@
 @import "tailwindcss";
-
-
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=Roboto+Slab:wght@100..900&display=swap');
 
 @theme {
-  --color-primary-start: oklab(40% 0 0);
-  --color-primary-end: oklab(0% 0 0);
-  --color-primary-text: oklab(1 0 0);
-  
-  --color-secondary-start: oklab(70% 0 0);
-  --color-secondary-end: oklab(40% 0 0);
-  --color-secondary-text: oklab(1 0 0);
-  
-  --color-accent-start: oklab(0.75 0.1 0.15);
-  --color-accent-end: oklab(0.65 0.1 0.15);
-  --color-accent-text: oklab(0.2 0 0);
-  
-  --color-neutral-start: oklab(0.95 0 0);
-  --color-neutral-end: oklab(0.9 0 0);
-  --color-neutral-text: oklab(0.25 0 0);
-  
-  --color-surface: oklab(1 0 0);
-  --color-background: oklab(0.98 0 0);
-  --color-border: oklab(0.85 0 0);
-  --color-text-primary: oklab(0.2 0 0);
-  --color-text-secondary: oklab(0.45 0 0);
-  --color-text-muted: oklab(0.6 0 0);
-  
-  /* --- Gradient Controls --- */
-  --gradient-type: linear-gradient; /* can be: linear-gradient, radial-gradient, conic-gradient */
-  --gradient-direction: 135deg; /* for linear gradients */
-  --gradient-position: circle at center; /* for radial/conic gradients */
-  
-  /* --- Spacing System --- */
-  --spacing-2xs: 0.25rem;
-  --spacing-xs: 0.5rem;
-  --spacing-sm: 0.75rem;
-  --spacing-md: 1rem;
-  --spacing-lg: 1.5rem;
-  --spacing-xl: 2rem;
-  --spacing-2xl: 3rem;
-  
-  /* Component specific spacing */
-  --spacing-btn-x: var(--spacing-xl);
-  --spacing-btn-y: var(--spacing-sm);
-  --btn-gap: var(--spacing-xl);
-  
-  --spacing-card-x: var(--spacing-lg);
-  --spacing-card-y: var(--spacing-md);
-  --card-gap: var(--spacing-md);
-  
-  --spacing-input-x: var(--spacing-md);
-  --spacing-input-y: var(--spacing-sm);
-  
-  /* --- Border System --- */
-  --border-radius-xs: 0.5rem;
-  --border-radius-sm: 0.75rem;
-  --border-radius-md: 1rem;
-  --border-radius-lg: 1.5rem;
-  --border-radius-xl: 2.5rem;
-  --border-radius-full: 9999px;
-  
-  --border-width-thin: 1px;
-  --border-width-medium: 2px;
-  --border-width-thick: 3px;
-  
-  /* Component specific borders */
-  --button-radius: var(--border-radius-md);
-  --button-border-width: var(--border-width-thin);
-  
-  --card-radius: var(--border-radius-lg);
-  --card-border-width: var(--border-width-thin);
-  
-  --input-radius: var(--border-radius-md);
-  --input-border-width: var(--border-width-medium);
-  
-  /* --- Shadow System --- */
-  --shadow-sm: 0 0 2px 0 oklab(0 0 0 / 0.25);
-  --shadow-md: 0 0 6px 1px oklab(0 0 0 / 0.25), 0 0 4px 2px oklab(0 0 0 / 0.1);
-  --shadow-lg: 0 0 15px 3px oklab(0 0 0 / 0.25), 0 0 6px 4px oklab(0 0 0 / 0.1);
-  --shadow-xl: 0 0 25px 5px oklab(0 0 0 / 0.5), 0 0 10px 6px oklab(0 0 0 / 0.1);
-  --shadow-2xl: 0 0 25px 12px oklab(0 0 0 / 0.5);
-  --shadow-inner: inset 0 2px 4px 0 oklab(0 0 0 / 0.2);
-  
-  /* Component specific shadows */
-  --button-shadow: var(--shadow-sm);
-  --button-shadow-hover: var(--shadow-md);
-  
-  --card-shadow: var(--shadow-md);
-  --card-shadow-hover: var(--shadow-lg);
-  
-  --input-shadow: var(--shadow-sm);
-  --input-shadow-focus: 0 0 0 3px oklab(0.65 0.15 0.1 / 0.1);
-  
-  /* --- Typography System --- */
-  --font-family-sans: ui-sans-serif, system-ui, sans-serif;
-  --font-family-serif: ui-serif, Georgia, serif;
-  --font-family-mono: ui-monospace, monospace;
-  
-  --font-weight-normal: 400;
-  --font-weight-medium: 500;
-  --font-weight-semibold: 600;
-  --font-weight-bold: 700;
-  
-  /* Component specific typography */
-  --button-font-family: var(--font-family-sans);
-  --button-font-weight: var(--font-weight-semibold);
-  
-  --card-title-font-weight: var(--font-weight-bold);
-  --card-body-font-weight: var(--font-weight-normal);
-  
-  /* --- Border Lighting / Glow Effects --- */
-  --glow-color: oklab(0.75 0.1 0.15 / 0.5);
-  --glow-size: 0 0 20px;
-  --border-glow: var(--glow-size) var(--glow-color);
-  
-  /* --- Animation / Transition --- */
-  --transition-speed: 200ms;
-  --transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
+    --font-family-sans: 'Roboto Condensed';
+    --font-family-serif: 'Roboto Slab';
+    --font-family-mono: 'Roboto Mono';
+
+    --color-primary-start: oklab(40% 0 0);
+    --color-primary-start: oklab(40% 0 0);
+    --color-primary-end: oklab(0% 0 0);
+    --color-primary-text: oklab(1 0 0);
+
+    --color-secondary-start: oklab(70% 0 0);
+    --color-secondary-end: oklab(40% 0 0);
+    --color-secondary-text: oklab(1 0 0);
+
+    --color-accent-start: oklab(0.75 0.1 0.15);
+    --color-accent-end: oklab(0.65 0.1 0.15);
+    --color-accent-text: oklab(0.2 0 0);
+
+    --color-neutral-start: oklab(0.95 0 0);
+    --color-neutral-end: oklab(0.9 0 0);
+    --color-neutral-text: oklab(0.25 0 0);
+
+    --color-surface: oklab(1 0 0);
+    --color-background: oklab(0.98 0 0);
+    --color-border: oklab(0.85 0 0);
+    --color-text-primary: oklab(0.2 0 0);
+    --color-text-secondary: oklab(0.45 0 0);
+    --color-text-muted: oklab(0.6 0 0);
+
+    --gradient-type: linear-gradient;
+    --gradient-direction: 135deg;
+    --gradient-position: circle at center;
+
+    --spacing-2xs: 0.25rem;
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 0.75rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-2xl: 3rem;
+
+    --border-width-tiny: 0.5px;
+    --border-width-thin: 1px;
+    --border-width-medium: 2px;
+    --border-width-thick: 3px;
+    --border-width-thicker: 5px;
+
+    --glow-color: oklab(0.75 0.1 0.15 / 0.5);
+    --glow-size: 0 0 20px;
+    --border-glow: var(--glow-size) var(--glow-color);
+
+    /* Button styling */
+    --radius-button: var(--radius-md);
+    --button-border-width: var(--border-width-thin);
+    --spacing-btn-x: var(--spacing-xl);
+    --spacing-btn-y: var(--spacing-sm);
+    --btn-gap: var(--spacing-xl);
+    --button-shadow: var(--shadow-sm);
+    --button-shadow-hover: var(--shadow-md);
+    --button-font-family: var(--font-family-sans);
+    --button-font-weight: var(--font-weight-semibold);
+    /* End */
+
+    /* Card styling */
+    --spacing-card-x: var(--spacing-lg);
+    --spacing-card-y: var(--spacing-md);
+    --card-gap: var(--spacing-md);
+    --card-radius: var(--radius-lg);
+    --card-border-width: var(--border-width-thin);
+    --card-shadow: var(--shadow-md);
+    --card-shadow-hover: var(--shadow-lg);
+    --card-title-font-weight: var(--font-weight-bold);
+    --card-body-font-weight: var(--font-weight-normal);
+    /* End */
+
+    /* Input styling */
+    --spacing-input-x: var(--spacing-md);
+    --spacing-input-y: var(--spacing-sm);
+    --input-shadow: var(--shadow-sm);
+    --input-shadow-focus: 0 0 0 3px oklab(0.65 0.15 0.1 / 0.1);
+    --input-radius: var(--radius-md);
+    --input-border-width: var(--border-width-medium);
+    /* End */
 }
 
-/* ============================================
-   GRADIENT UTILITY CLASSES
-   These create backgrounds using the theme's gradient system
-   ============================================ */
-
 @layer utilities {
-  .bg-gradiant-primary {
-    background: linear-gradient(
-      var(--gradient-direction, 135deg),
-      var(--color-primary-start),
-      var(--color-primary-end)
-    );
-  }
-  
-  .bg-gradiant-secondary {
-    background: linear-gradient(
-      var(--gradient-direction, 135deg),
-      var(--color-secondary-start),
-      var(--color-secondary-end)
-    );
-  }
-  
-  .bg-gradiant-accent {
-    background: linear-gradient(
-      var(--gradient-direction, 135deg),
-      var(--color-accent-start),
-      var(--color-accent-end)
-    );
-  }
-  
-  .bg-gradiant-neutral {
-    background: linear-gradient(
-      var(--gradient-direction, 135deg),
-      var(--color-neutral-start),
-      var(--color-neutral-end)
-    );
-  }
-  
-  /* Border gradient utilities */
-  .border-primary {
-    border-image: linear-gradient(
-      var(--gradient-direction, 135deg),
-      var(--color-primary-start),
-      var(--color-primary-end)
-    );
-  }
-  
-  .border-secondary {
-    border-image: linear-gradient(
-      var(--gradient-direction, 135deg),
-      var(--color-secondary-start),
-      var(--color-secondary-end)
-    ) 1;
-  }
-  
-  /* Border glow effect */
-  .border-glow {
-    box-shadow: var(--border-glow);
-  }
-  
-  .border-glow-primary {
-    box-shadow: 0 0 20px oklab(from var(--color-primary-start) l a b / 0.5);
-  }
-  
-  .border-glow-secondary {
-    box-shadow: 0 0 20px oklab(from var(--color-secondary-start) l a b / 0.5);
-  }
-  
-  .border-glow-accent {
-    box-shadow: 0 0 20px oklab(from var(--color-accent-start) l a b / 0.5);
-  }
+    .bg-gradiant-primary {
+        background: linear-gradient(var(--gradient-direction, 135deg),
+                var(--color-primary-start),
+                var(--color-primary-end));
+    }
+
+    .bg-gradiant-secondary {
+        background: linear-gradient(var(--gradient-direction, 135deg),
+                var(--color-secondary-start),
+                var(--color-secondary-end));
+    }
+
+    .bg-gradiant-accent {
+        background: linear-gradient(var(--gradient-direction, 135deg),
+                var(--color-accent-start),
+                var(--color-accent-end));
+    }
+
+    .bg-gradiant-neutral {
+        background: linear-gradient(var(--gradient-direction, 135deg),
+                var(--color-neutral-start),
+                var(--color-neutral-end));
+    }
+
+    /* Border gradient utilities */
+    .border-primary {
+        border-image: linear-gradient(var(--gradient-direction, 135deg),
+                var(--color-primary-start),
+                var(--color-primary-end));
+    }
+
+    .border-secondary {
+        border-image: linear-gradient(var(--gradient-direction, 135deg),
+                var(--color-secondary-start),
+                var(--color-secondary-end)) 1;
+    }
+
+    .border-glow {
+        box-shadow: var(--border-glow);
+    }
+
+    .border-glow-primary {
+        box-shadow: 0 0 20px oklab(from var(--color-primary-start) l a b / 0.5);
+    }
+
+    .border-glow-secondary {
+        box-shadow: 0 0 20px oklab(from var(--color-secondary-start) l a b / 0.5);
+    }
+
+    .border-glow-accent {
+        box-shadow: 0 0 20px oklab(from var(--color-accent-start) l a b / 0.5);
+    }
 }
