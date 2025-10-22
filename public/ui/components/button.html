@@ -1,13 +1,19 @@
-<template x-component="button">
-    <button class="flex border px-btn-x py-btn-y gap-[var(--btn-gap)] border-primary">
+<template x-component.unwrap="button" variant="primary">
+    <button class="w-fit flex!  
+    rounded-xl px-btn-x py-btn-y font-medium text-xl
+    gap-(--btn-gap)"
+    :class="{
+        'text-primary-text bg-gradiant-primary border-thin border-primary-start shadow-lg': $prop('variant') == 'primary',
+        'text-secondary-text bg-gradiant-secondary shadow-md': $prop('variant') == 'secondary',
+    }"
+    >
         <slot></slot>
-        <p>text</p>
     </button>
     <script>
-        return {
+        return $vui.Component({
             onMounted() {
                 console.log("button init");
             }
-        }
+        }, $el);
     </script>
 </template>

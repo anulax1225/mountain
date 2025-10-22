@@ -1,8 +1,20 @@
 <template x-component.unwrap:page="home">
-    <div class="w-full flex flex-col items-center justify-center space-x-2 space-y-5">
-      <h1 class="text-5xl font-bold mb-10">Components libreary</h1>
-      <element-container>
-          <ui-button>Hello</ui-button>
-      </element-container>
+    <div class="w-full flex flex-col justify-center space-x-2 space-y-5">
+        <h1 class="text-5xl font-bold p-20">Components libreary</h1>
+        <element-container class="px-20 space-y-5">
+            <h2 class="text-4xl font-bold">Buttons and actions</h2>
+            <element-container :direction="1" class="space-x-5 items-center mb-10">
+                <ui-button variant="primary" @click="console.log('primary click')">primary</ui-button>
+                <ui-button variant="secondary" @click="console.log('secondary click')">secondary</ui-button>
+                <ui-link variant="sober">Sober link</ui-link>
+                <ui-link variant="classic">Classic link</ui-link>
+            </element-container>
+            <h2 class="text-4xl font-bold">Inline decorations</h2>
+            <element-container :direction="1" class="space-x-5 items-center mb-10">
+                <ui-badge variant="info">info</ui-badge>
+                <ui-badge variant="warning">warning</ui-badge>
+                <ui-badge variant="error">error</ui-badge>
+            </element-container>
+        </element-container>
     </div>
 </template>

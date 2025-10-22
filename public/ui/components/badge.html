@@ -1,0 +1,18 @@
+<template x-data="" x-component.unwrap="badge" variant="info">
+    <span class="inline! rounded-full font-medium px-4 py-1 text-lg text-center"
+    :class="{
+        'bg-blue-200 text-blue-600': $prop('variant') == 'info',
+        'bg-yellow-200 text-yellow-600': $prop('variant') == 'warning',
+        'bg-red-200 text-red-600': $prop('variant') == 'error',
+    }"
+    >
+        <slot></slot>
+    </span>
+    <script>
+        return $vui.Component({
+            onMounted() {
+                console.log("badge init");
+            }
+        }, $el);
+    </script>
+</template>

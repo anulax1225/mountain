@@ -1,4 +1,4 @@
-<template x-component:element="container" class="w-full flex!" direction="vertical" :class="$prop('direction') == 'vertical' ? 'flex-col' : ''">
+<template x-component:element="container" class="w-full flex!" :direction="0" :class="$prop('direction') == 0 ? 'flex-col' : ''">
     <slot></slot>
     <script>
         return {
