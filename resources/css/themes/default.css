@@ -1,12 +1,14 @@
 @import "tailwindcss";
 
+
+
 @theme {
-  --color-primary-start: oklab(0.65 0.15 0.1);
-  --color-primary-end: oklab(0.55 0.15 0.1);
+  --color-primary-start: oklab(40% 0 0);
+  --color-primary-end: oklab(0% 0 0);
   --color-primary-text: oklab(1 0 0);
   
-  --color-secondary-start: oklab(0.45 0.05 -0.15);
-  --color-secondary-end: oklab(0.35 0.05 -0.15);
+  --color-secondary-start: oklab(70% 0 0);
+  --color-secondary-end: oklab(40% 0 0);
   --color-secondary-text: oklab(1 0 0);
   
   --color-accent-start: oklab(0.75 0.1 0.15);
@@ -30,15 +32,16 @@
   --gradient-position: circle at center; /* for radial/conic gradients */
   
   /* --- Spacing System --- */
-  --spacing-xs: 0.25rem;
-  --spacing-sm: 0.5rem;
+  --spacing-2xs: 0.25rem;
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 0.75rem;
   --spacing-md: 1rem;
   --spacing-lg: 1.5rem;
   --spacing-xl: 2rem;
   --spacing-2xl: 3rem;
   
   /* Component specific spacing */
-  --spacing-btn-x: var(--spacing-lg);
+  --spacing-btn-x: var(--spacing-xl);
   --spacing-btn-y: var(--spacing-sm);
   --btn-gap: var(--spacing-xl);
   
@@ -46,14 +49,15 @@
   --spacing-card-y: var(--spacing-md);
   --card-gap: var(--spacing-md);
   
-  --input-padding-x: var(--spacing-md);
-  --input-padding-y: var(--spacing-sm);
+  --spacing-input-x: var(--spacing-md);
+  --spacing-input-y: var(--spacing-sm);
   
   /* --- Border System --- */
-  --border-radius-sm: 0.25rem;
-  --border-radius-md: 0.5rem;
-  --border-radius-lg: 0.75rem;
-  --border-radius-xl: 1rem;
+  --border-radius-xs: 0.5rem;
+  --border-radius-sm: 0.75rem;
+  --border-radius-md: 1rem;
+  --border-radius-lg: 1.5rem;
+  --border-radius-xl: 2.5rem;
   --border-radius-full: 9999px;
   
   --border-width-thin: 1px;
@@ -71,12 +75,12 @@
   --input-border-width: var(--border-width-medium);
   
   /* --- Shadow System --- */
-  --shadow-sm: 0 1px 2px 0 oklab(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px oklab(0 0 0 / 0.1), 0 2px 4px -2px oklab(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px oklab(0 0 0 / 0.1), 0 4px 6px -4px oklab(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px oklab(0 0 0 / 0.1), 0 8px 10px -6px oklab(0 0 0 / 0.1);
-  --shadow-2xl: 0 25px 50px -12px oklab(0 0 0 / 0.25);
-  --shadow-inner: inset 0 2px 4px 0 oklab(0 0 0 / 0.05);
+  --shadow-sm: 0 0 2px 0 oklab(0 0 0 / 0.25);
+  --shadow-md: 0 0 6px 1px oklab(0 0 0 / 0.25), 0 0 4px 2px oklab(0 0 0 / 0.1);
+  --shadow-lg: 0 0 15px 3px oklab(0 0 0 / 0.25), 0 0 6px 4px oklab(0 0 0 / 0.1);
+  --shadow-xl: 0 0 25px 5px oklab(0 0 0 / 0.5), 0 0 10px 6px oklab(0 0 0 / 0.1);
+  --shadow-2xl: 0 0 25px 12px oklab(0 0 0 / 0.5);
+  --shadow-inner: inset 0 2px 4px 0 oklab(0 0 0 / 0.2);
   
   /* Component specific shadows */
   --button-shadow: var(--shadow-sm);
@@ -121,32 +125,32 @@
    ============================================ */
 
 @layer utilities {
-  .bg-primary {
-    background: var(--gradient-type, linear-gradient)(
+  .bg-gradiant-primary {
+    background: linear-gradient(
       var(--gradient-direction, 135deg),
       var(--color-primary-start),
       var(--color-primary-end)
     );
   }
   
-  .bg-secondary {
-    background: var(--gradient-type, linear-gradient)(
+  .bg-gradiant-secondary {
+    background: linear-gradient(
       var(--gradient-direction, 135deg),
       var(--color-secondary-start),
       var(--color-secondary-end)
     );
   }
   
-  .bg-accent {
-    background: var(--gradient-type, linear-gradient)(
+  .bg-gradiant-accent {
+    background: linear-gradient(
       var(--gradient-direction, 135deg),
       var(--color-accent-start),
       var(--color-accent-end)
     );
   }
   
-  .bg-neutral {
-    background: var(--gradient-type, linear-gradient)(
+  .bg-gradiant-neutral {
+    background: linear-gradient(
       var(--gradient-direction, 135deg),
       var(--color-neutral-start),
       var(--color-neutral-end)
@@ -159,7 +163,7 @@
       var(--gradient-direction, 135deg),
       var(--color-primary-start),
       var(--color-primary-end)
-    ) 1;
+    );
   }
   
   .border-secondary {
