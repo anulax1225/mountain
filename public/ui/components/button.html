@@ -1,10 +1,10 @@
 <template x-component.unwrap="button" variant="primary">
     <button class="w-fit flex! items-center justify-center
-    rounded-button px-btn-x py-btn-y font-medium text-xl
-    gap-x-(--btn-gap) border-glow-primary"
+    rounded-btn px-btn-x py-btn-y text-xl font-wbtn font-btn
+    gap-x-(--btn-gap) shadow-btn hover:shadow-btn-hover"
     :class="{
-        'text-primary-text bg-gradiant-primary border-thin border-primary-start shadow-lg': $prop('variant') == 'primary',
-        'text-secondary-text bg-gradiant-secondary shadow-md': $prop('variant') == 'secondary',
+        'text-primary-text bg-gradiant-primary border-thin border-primary-start hover:bg-': $prop('variant') == 'primary',
+        'text-secondary-text bg-gradiant-secondary': $prop('variant') == 'secondary',
     }"
     >
         <slot></slot>

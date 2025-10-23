@@ -10,11 +10,23 @@
         @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
             @vite(['resources/css/app.css', 'resources/js/app.js'])
         @endif
-        <style>
-            [v-ui] {}
-        </style>
     </head>
-    <body x-cloak x-import="page:app" class="w-screen">
-        <page-home></page-home>
+    <body x-cloak class="w-screen">
+
+          <h1>Minimal Example</h1>
+
+        <!-- Define component using x-component -->
+        <template x-component="click-counter">
+            <div x-data="{ count: 0 }">
+            <button @click="count++">
+                Clicked: <span x-text="count"></span> times
+            </button>
+            </div>
+        </template>
+
+        <!-- Use the components -->
+        <h2>Components in Action:</h2>
+        <click-counter></click-counter>
+        <click-counter></click-counter>
     </body>
 </html>

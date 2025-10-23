@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=Roboto+Slab:wght@100..900&display=swap');
 
 @theme {
     --font-family-sans: 'Roboto Condensed';
@@ -53,15 +52,15 @@
     --border-glow: var(--glow-size) var(--glow-color);
 
     /* Button styling */
-    --radius-button: var(--radius-md);
-    --button-border-width: var(--border-width-thin);
-    --spacing-btn-x: var(--spacing-xl);
+    --radius-btn: var(--radius-xl);
+    --border-width-btn: var(--border-width-thin);
+    --spacing-btn-x: var(--spacing-md);
     --spacing-btn-y: var(--spacing-sm);
-    --btn-gap: var(--spacing-xl);
-    --button-shadow: var(--shadow-sm);
-    --button-shadow-hover: var(--shadow-md);
-    --button-font-family: var(--font-family-sans);
-    --button-font-weight: var(--font-weight-semibold);
+    --btn-gap: var(--spacing-sm);
+    --shadow-btn: var(--shadow-sm);
+    --shadow-btn-hover: var(--shadow-md);
+    --font-family-btn: var(--font-family-sans);
+    --font-weight-wbtn: var(--font-weight-semibold);
     /* End */
 
     /* Card styling */

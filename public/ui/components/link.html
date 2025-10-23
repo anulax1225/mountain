@@ -7,11 +7,11 @@
     }"
     :href="$prop('href', '#')"
     >
-        <div>
-            <slot>See also</slot>
-        </div>
         <icon-arrow-right x-show="$prop('variant') == 'classic'" class="text-white w-lg h-lg ml-xs"></icon-arrow-right>
         <icon-box-link x-show="$prop('variant') == 'sober'" class="text-blue-700 w-lg h-lg ml-sm"></icon-box-link>
+        <slot>
+            See also
+        </slot>
     </a>
     <script>
         return $vui.Component({
