@@ -13,18 +13,14 @@
     </head>
     <body x-cloak class="w-screen">
 
-          <h1>Minimal Example</h1>
+        <h1>Minimal Example</h1>
 
-        <!-- Define component using x-component -->
-        <template x-component="click-counter">
-            <div x-data="{ count: 0 }">
+        <template x-component="click-counter" x-data="{ count: 0 }" class="block">
             <button @click="count++">
                 Clicked: <span x-text="count"></span> times
             </button>
-            </div>
         </template>
 
-        <!-- Use the components -->
         <h2>Components in Action:</h2>
         <click-counter></click-counter>
         <click-counter></click-counter>
