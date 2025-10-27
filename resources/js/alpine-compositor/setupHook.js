@@ -10,7 +10,7 @@ const defineProps = (props) => {
         else if (config.type === Number && typeof propData !== 'number') console.warn(`prop ${prop} data type should be number`, propData);
         else if (config.type === Array && typeof propData !== 'object') console.warn(`prop ${prop} data type should be array ${typeof propData}`, propData);
         else if (config.type === Object && typeof propData !== 'object') console.warn(`prop ${prop} data type should be object`, propData);
-        
+
         _props[prop] = propData;
     })
     return new Proxy(_props, {

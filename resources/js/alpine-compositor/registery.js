@@ -1,14 +1,14 @@
 const registeredComponents = new Set();
 
 
-function getRootNode(el) {
+function getRootNode(el, parent = null) {
     const template = el.tagName === 'TEMPLATE' ? el.content.cloneNode(true) : el.cloneNode(true);
-    if (el.tagName === 'TEMPLATE') mergeAttributes(template, el.attributes);
+    if (el.tagName === 'TEMPLATE' && parent) mergeAttributes(parent, el.attributes);
     return template;
 }
 
 export function mergeAttributes(el, attributes) {
-    if (attributes) Array.from(attributes).forEach(attr => {
+    if (el && attributes) Array.from(attributes).forEach(attr => {
         if (!el.hasAttribute(attr.name) && attr.name !== "x-component") {
             el.setAttribute(attr.name, attr.value);
         }
@@ -36,52 +36,50 @@ export function registerComponent(el, componentName, setupFunction = ($host) => 
         registeredComponents.add(componentName);
         return;
     }
-    const template = getRootNode(el);
+    const template = el.cloneNode(true);
 
     class AlpineWebComponent extends HTMLElement {
         constructor() {
             super();
-            let shadow = false;
-            this.root = shadow ? this.attachShadow({ mode: 'open' }) : this;
+            this.shadowMode = false;
+            this.unwrap = false;
+            this.root = this.shadowMode ? this.attachShadow({ mode: 'open' }) : this;
         }
 
         connectedCallback() {
-            const content = template.cloneNode(true);
+            const content = getRootNode(template, this.root);
             const slots = this.root.cloneNode(true);
-            const namedSlots = {};
-            slots.querySelectorAll("template").forEach(template => {
-                if (template.hasAttribute("name")) {
-                    namedSlots[template.getAttribute("name")] = template.innerHTML;
-                }   
-                template.remove();
-            });
-            const defaultSlot = slots.innerHTML;
-            content.querySelectorAll("slot").forEach(slot => {
-                if (slot.hasAttribute("name")) {
-                    slot.innerHTML = namedSlots[slot.getAttribute("name")];
-                    slot.childNodes.forEach(child => slot.parentNode.insertBefore(child.cloneNode(true), slot))
-                    slot.remove();
-                } else {
-                    slot.innerHTML = defaultSlot;
-                    slot.childNodes.forEach(child => slot.parentNode.insertBefore(child.cloneNode(true), slot))
-                    slot.remove();
-                }
-            });
-            this.root.innerHTML = "";
-            mergeAttributes(this.root, content.attributes);
+            this.discoverSlots(slots, content);
             this.root.appendChild(content);
-            
             const internalName = `comp-${componentName}-${Date.now()}_${Math.random().toString(36).substring(2, 9)}`.replaceAll("-", "_");
             Alpine.data(internalName, () => setupFunction(this.root));
             this.root.setAttribute('x-data', internalName);
             
             requestAnimationFrame(() => {
-                Alpine.initTree(this.root);
+                if(!this.unwrap) Alpine.initTree(this.root);
             });
         }
 
         disconnectedCallback() {
-            Alpine.destroyTree(this.root);
+            if(!this.unwrap) Alpine.destroyTree(this.root);
+        }
+
+        discoverSlots(slots, templates) {
+            const namedSlots = {};
+            slots.querySelectorAll("template").forEach(template => {
+                if (template.hasAttribute("name") && !template.hasAttribute("x-for") && !template.hasAttribute("x-if")) {
+                    namedSlots[template.getAttribute("name")] = template.innerHTML;
+                    template.remove();
+                }   
+            });
+            const defaultSlot = slots.innerHTML;
+            templates.querySelectorAll("slot").forEach(slot => {
+                if (slot.hasAttribute("name")) slot.innerHTML = namedSlots[slot.getAttribute("name")];
+                else slot.innerHTML = defaultSlot;
+                slot.childNodes.forEach(child => slot.parentNode.insertBefore(child.cloneNode(true), slot))
+                slot.remove();
+            });
+            this.root.innerHTML = "";
         }
     }
 
