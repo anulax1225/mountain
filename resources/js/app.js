@@ -14,8 +14,10 @@ compositor.fromFolderMap(import.meta.glob("./spa/**/*.alpine.html", {
 }));
 
 const router = createRouter("home", [
+    { path: '/about', component: 'page-about' },
     { path: '/welcome', component: 'page-home' },
-    { path: '(.*)', component: 'page-home' }
+    { path: '/', component: 'page-home' },
+    { path: '', component: 'page-home' }
 ]);
 
 compositor.findComponentsAndLoad(document);

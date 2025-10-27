@@ -9,7 +9,7 @@ const namespaces = {
     page: { folder: `./${appType}/pages/`, uri: `/${appType}/pages/` },
     layout: { folder: `./${appType}/layouts/`, uri: `/${appType}/layouts/` },
     router: { folder: `./${appType}/router/`, uri: `/${appType}/router/` },
-    base: { folder: `./${appType}/`, uri: `/${appType}/` },
+    app: { folder: `./${appType}/`, uri: `/${appType}/` },
 };
 
 export function getUndefinedCustomElements(el) {

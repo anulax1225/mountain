@@ -1,11 +1,16 @@
 import Alpine from "alpinejs";
-import { $ref } from "./alpine-compositor/utils";
+import UniversalRouter from "universal-router";
 
 export function createRouter(currentPage = "", routes = []) {
+
     Alpine.store('router', {
-        currentPage, routes,
-        init() {
-            const router = new UniversalRouter(this.routes, {
+        _router: null,
+        $route: null,
+        currentPage, 
+        routes,
+        init()  {
+            this._router = new UniversalRouter(routes, {
+                baseUrl: '/',
                 context: { self: this },
                 resolveRoute(context, params) {
                     context.self.$route = { params, path: context.pathname }
@@ -14,26 +19,22 @@ export function createRouter(currentPage = "", routes = []) {
                     }
                     return context.route.component
                 }
-            })
-            Object.assign(this, router);
-            console.log(this, router);
+            });
             this.onUrlChange();
             window.addEventListener('popstate', e => this.onUrlChange());
         },
+        visit(path) {
+            window.location.href = path;
+        },
         onUrlChange() {
             let match = window.location.href.match(/#(.*)$/)
-            let fragment = match ? match[1] : ''
-            this.resolve({ pathname: fragment }).then(component => {
-                if (component) {
-                    let pos = component.indexOf('@')
-                    let from = pos !== -1 ? component.substring(pos + 1) : component.replace('-', ':').replace('-', '/')
-                    if (pos !== -1) component = component.substring(0, pos)
-                    this.pageToImport = from
-                    this.pageContent = `<${component}></${component}>`
-                }
+            let fragment = match ? match[1] : '';
+            this._router.resolve({ pathname: fragment }).then(component => {
+                if (component) this.currentPage = component;
             })
         },
     });
+
     return Alpine.store('router');
 }
 

@@ -1,6 +1,8 @@
 <template class="block">
     <ui-nav>
         <div class="flex">
+            <nav-item :item="{ name: 'home link', path: '/' }"></nav-item>
+            <nav-item :item="{ name: 'about link', path: '/about' }"></nav-item>
             <template x-for="(item, index) in mainItems" :key="index">
                 <nav-item :item="item"></nav-item>
             </template>

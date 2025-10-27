@@ -1,4 +1,4 @@
-<template @click>
+<template @click="$store.router.visit($props.href)">
     <slot></slot>
 </template>
 <script setup>
@@ -6,6 +6,6 @@
         href: {
             type: String,
             default: "",
-        } 
+        },
     });
 </script>
