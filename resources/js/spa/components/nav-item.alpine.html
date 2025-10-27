@@ -1,5 +1,7 @@
 <template class="block">
-    <router-link :href="$props.item.href" x-text="$props.item.name"></router-link>
+    <router-link :href="$props.item.href">
+        <p x-text="$props.item.name"></p>
+    </router-link>
 </template>
 <script setup>
     const props = defineProps({

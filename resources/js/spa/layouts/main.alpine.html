@@ -1,7 +1,7 @@
 <template class="block">
     <ui-nav>
-        <div x-data class="flex">
-            <template x-for="item in mainItems">
+        <div class="flex">
+            <template x-for="(item, index) in mainItems" :key="index">
                 <nav-item :item="item"></nav-item>
             </template>
         </div>
