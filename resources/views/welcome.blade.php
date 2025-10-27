@@ -11,18 +11,7 @@
             @vite(['resources/css/app.css', 'resources/js/app.js'])
         @endif
     </head>
-    <body x-cloak class="w-screen">
-
-        <h1>Minimal Example</h1>
-
-        <template x-component="click-counter" x-data="{ count: 0 }" class="block">
-            <button @click="count++">
-                Clicked: <span x-text="count"></span> times
-            </button>
-        </template>
-
-        <h2>Components in Action:</h2>
-        <click-counter></click-counter>
-        <click-counter></click-counter>
+    <body x-cloak x-data class="w-screen">
+        <base-app></base-app>
     </body>
 </html>

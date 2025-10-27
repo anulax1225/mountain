@@ -1,0 +1,34 @@
+<template class="block">
+    <ui-nav>
+        <div x-data class="flex">
+            <template x-for="item in mainItems">
+                <nav-item :item="item"></nav-item>
+            </template>
+        </div>
+        <div class="flex" x-text="mainItems[1].name">
+
+        </div>
+    </ui-nav>
+    <slot></slot>
+</template>
+
+<script setup>
+    return {
+        mainItems: [
+            {
+                name: "home",
+                path: "/",
+            },
+            {
+                name: "about",
+                path: "/about",
+            },
+        ],
+        secondaryItems: [
+            {
+                name: "docs",
+                path: "/docs",
+            },
+        ],
+    }
+</script>
