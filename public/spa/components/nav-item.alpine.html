@@ -1,6 +1,6 @@
-<template class="block">
-    <router-link :href="$props.item.href">
-        <p x-text="$props.item.name"></p>
+<template>
+    <router-link :href="$props.href">
+        <p id="my-text" x-text="$props.href">default text</p>
     </router-link>
 </template>
 <script setup>
@@ -14,5 +14,4 @@
             default: "",
         },
     });
-    console.log("Nav item props", props);
 </script>

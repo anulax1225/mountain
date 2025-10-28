@@ -1,11 +1,8 @@
 <template>
     <ui-nav>
-        <div class="h-full flex">
+        <div class="flex h-full">
             <slot name="header"></slot>
-            <ui-nav-item :name="mainItems[1].name" :href="mainItems[1].href"></ui-nav-item>
-            <!-- <template x-for="(item, index) in mainItems" :key="index">
-                <ui-nav-item :item="item"></ui-nav-item>
-            </template> -->
+            <ui-nav-item name="about" href="/about"></ui-nav-item>
         </div>
     </ui-nav>
     <slot></slot>
