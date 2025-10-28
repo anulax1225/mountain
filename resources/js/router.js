@@ -1,8 +1,6 @@
-import Alpine from "alpinejs";
 import UniversalRouter from "universal-router";
 
 export function createRouter(currentPage = "", routes = []) {
-
     Alpine.store('router', {
         _router: null,
         $route: null,
@@ -31,6 +29,7 @@ export function createRouter(currentPage = "", routes = []) {
             let fragment = match ? match[1] : '';
             this._router.resolve({ pathname: fragment }).then(component => {
                 if (component) this.currentPage = component;
+                console.log("current page", this.currentPage);
             })
         },
     });
