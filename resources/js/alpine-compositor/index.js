@@ -1,6 +1,7 @@
 
 import xComponent from "./directives/x-component";
 import xLoad from "./directives/x-load";
+import xFormat from "./directives/x-format";
 import { 
     fromFolderMap,
     createComponent, 
@@ -10,7 +11,12 @@ import {
     createStyleSheet, 
 } from "./importer";
 
+import { 
+    hasComponent 
+} from "./registery";
+
 export default {
+    hasComponent,
     loadComponent,
     loadStyleSheet,
     findComponentsAndLoad,
@@ -18,10 +24,9 @@ export default {
     createStyleSheet,
     fromFolderMap,
     plugin: function (Alpine) {
-        // Also scan after Alpine starts (in case of dynamic content)
         Alpine.directive('component', xComponent).before("data");
-
         Alpine.directive('load', xLoad);
-        //document.addEventListener('alpine:init', scanForComponents)
+        //Alpine.directive("format", xFormat);
+        
     },
 }

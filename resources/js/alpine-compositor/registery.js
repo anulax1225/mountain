@@ -3,6 +3,11 @@ const componentStyleSheet = new CSSStyleSheet();
 componentStyleSheet.replaceSync(`
     :host {
         display: block;
+        padding: 0;
+        margin: 0;
+        width: auto;
+        height: auto;
+        box-sizing: content-box;
     }
 `);
 const sheets = [componentStyleSheet];
@@ -25,7 +30,11 @@ export function registerStyleSheet(sheet) {
     console.log("[Alpine Styles] ✓ Registered new style sheet")
 }
 
-export function registerComponent(el, componentName, setupFunction = ($host, $shadow) => ({ $host, $shadow })) {
+export function hasComponent(name) {
+    registeredComponents.has(name);
+}
+
+export function registerComponent(el, componentName, setupFunction = ($host, $shadow, $compositor) => ({ $host, $shadow })) {
     if (!componentName) {
         console.error('[Alpine Component] Component name is required');
         return;
@@ -54,8 +63,6 @@ export function registerComponent(el, componentName, setupFunction = ($host, $sh
             this.shadow = this.shadowMode ? this.attachShadow({ mode: 'open' }) : null;
             if (this.shadowMode) {
                 this.shadow.adoptedStyleSheets = sheets;
-                this.shadow.innerHTML = this.innerHTML;
-                this.innerHTML = "";
                 this.root = this.shadow;
             } else {
                 this.root = this;
@@ -63,15 +70,26 @@ export function registerComponent(el, componentName, setupFunction = ($host, $sh
         }
 
         connectedCallback() {
+            if (this.shadowMode) {
+                this.shadow.innerHTML = this.innerHTML;
+                this.innerHTML = "";
+            }
             const template = el;
+            mergeAttributes(this, el.attributes);
             const content = this.discoverSlots(this.root, template);
             this.root.innerHTML = "";
-            this.root.appendChild(content);
-            const internalName = `comp-${componentName}-${Date.now()}_${Math.random().toString(36).substring(2, 9)}`.replaceAll("-", "_");
-            Alpine.data(internalName, () => setupFunction(this, this.shadow));
-            this.setAttribute('x-data', internalName);
             requestAnimationFrame(() => {
-                if (!this.unwrap) Alpine.initTree(this);
+                this.root.appendChild(content);
+                const internalName = `component-${componentName}-${Date.now().toString().substring(9)}_${Math.random().toString(36).substring(2, 7)}`.replaceAll("-", "_");
+                console.log(`[Alpine Component] Initializing new ${componentName} (${internalName})`);
+                this.setAttribute('x-format', '');
+                this.setAttribute('x-data', internalName);
+                Alpine.data(internalName, () => setupFunction(this, this.shadow));
+                requestAnimationFrame(() => {
+                    console.log(`[Alpine Component] Initializing alpine for ${componentName} (${internalName})`)
+                    Alpine.initTree(this);
+                    console.log(`[Alpine Component] Finished setup of ${componentName} (${internalName})`);
+                });
             });
         }
 

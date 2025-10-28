@@ -3,6 +3,8 @@ import evaluateScriptSetup from "./evaluator";
 
 const appType = "spa";
 
+const autoImport = true;
+
 const namespaces = {
     ui: { folder: `./${appType}/components/`, uri: `/${appType}/components/` },
     icon: { folder: `./${appType}/icons/`, uri: `/${appType}/icons/` },
@@ -51,9 +53,14 @@ export function fromFolderMap(map) {
 }
 
 export async function findComponentsAndLoad(el) {
+    console.log(`[Alpine Component] Looking up the element (${el.tagName ? el.tagName : el.firstElementChild.tagName}) for unimported components`);
     let undefines = getUndefinedCustomElements(el);
-    let promises = undefines.map(subComponent => loadComponent(subComponent));
-    await Promise.all(promises);
+    console.log(`[Alpine Component] Found ${undefines.length} components (${undefines}) now waiting for import`);
+    requestAnimationFrame(async () => {
+        let promises = undefines.map(subComponent => loadComponent(subComponent));
+        await Promise.all(promises);
+    })
+
 }
 
 export async function loadComponent(name) {
@@ -63,7 +70,7 @@ export async function loadComponent(name) {
     let response = await fetch(`${namespaces[namespace].uri}${componentName}.alpine.html`);
     let html = await response.text();
     let template = createComponent(componentName, html, namespace);
-    await findComponentsAndLoad(template);
+    if (autoImport) await findComponentsAndLoad(template);
 }  
 
 export async function loadStyleSheet(url) {
