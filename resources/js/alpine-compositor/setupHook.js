@@ -3,9 +3,11 @@ const _props = Alpine.reactive({});
 const defineProps = (props) => {
     Object.entries(props).forEach(([prop, config]) => {
         let propData = config.default;
-        if ($host.hasAttribute(`:${prop}`)) propData =  Alpine.evaluate($host, Alpine.bound($host, `:${prop}`, config.default)); 
-        else propData = Alpine.bound($host, `${prop}`, config.default);
-
+        console.log($host, $host.attributes);
+        propData = Alpine.bound($host, `${prop}`, config.default);
+        console.log(`prop name :${prop}, value :${propData}`);
+        propData =  Alpine.evaluate($host, Alpine.bound($host, `:${prop}`, propData)); 
+        console.log(`prop name :${prop}, value :${propData}`);
         if (config.type === String && typeof propData !== 'string') console.warn(`prop ${prop} data type should be string`, propData);
         else if (config.type === Number && typeof propData !== 'number') console.warn(`prop ${prop} data type should be number`, propData);
         else if (config.type === Array && typeof propData !== 'object') console.warn(`prop ${prop} data type should be array ${typeof propData}`, propData);
@@ -26,6 +28,7 @@ const $dispatch = (event, detail) => {
 
 const $ref = (value) => Alpine.reactive({ value });
 const $reactive = (value) => Alpine.reactive(value);
+const $effect = (fn) => Alpine.effect(fn);
 const $computed = (fn) => {
     const state = Alpine.reactive({ value: fn() });
     Alpine.effect(() => { state.value = fn(); });
@@ -49,5 +52,6 @@ return {
         }
     }),
     $host,
+    $shadow,
     ...(userCode() || {}),
 };

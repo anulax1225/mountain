@@ -1,4 +1,4 @@
-import { registerComponent } from "./registery";
+import { registerComponent, registerStyleSheet } from "./registery";
 import evaluateScriptSetup from "./evaluator";
 
 const appType = "spa";
@@ -64,4 +64,17 @@ export async function loadComponent(name) {
     let html = await response.text();
     let template = createComponent(componentName, html, namespace);
     await findComponentsAndLoad(template);
+}  
+
+export async function loadStyleSheet(url) {
+    console.log("[Alpine Styles] Loading style sheet from " + url);
+    let response = await fetch(url);
+    let css = await response.text();
+    createStyleSheet(css);
 }   
+
+export function createStyleSheet(content) {
+    const sheet = new CSSStyleSheet();
+    sheet.replaceSync(content);
+    registerStyleSheet(sheet);
+}

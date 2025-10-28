@@ -5,5 +5,5 @@ export default (el, { expression, value }) => {
     const namespace = value;
     el.removeAttribute('x-component');
     registerComponent(el, namespace && namespace.length ? `${namespace}-${name}` : name);
-    el.remove();
+    el.style.display = "none";
 }
