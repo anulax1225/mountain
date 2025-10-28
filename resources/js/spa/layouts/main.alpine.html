@@ -1,14 +1,11 @@
-<template class="block">
+<template>
     <ui-nav>
-        <div class="flex">
-            <nav-item :item="{ name: 'home link', path: '/' }"></nav-item>
-            <nav-item :item="{ name: 'about link', path: '/about' }"></nav-item>
+        <div class="h-full flex">
+            <slot name="header"></slot>
+            <ui-nav-item :item="mainItems[1]"></ui-nav-item>
             <template x-for="(item, index) in mainItems" :key="index">
-                <nav-item :item="item"></nav-item>
+                <ui-nav-item :item="item"></ui-nav-item>
             </template>
-        </div>
-        <div class="flex" x-text="mainItems[1].name">
-
         </div>
     </ui-nav>
     <slot></slot>

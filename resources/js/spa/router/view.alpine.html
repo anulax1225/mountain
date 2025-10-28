@@ -1,3 +1,15 @@
-<template x-html="`<${$store.router.currentPage}></${$store.router.currentPage}>`">
+<template>
 
 </template>
+
+<script setup>
+    return {
+        page: null,
+        init() {
+            $effect(() => {
+                let page = this.$store.router.currentPage;
+                this.$shadow.innerHTML = `<${page}></${page}>`;
+            });
+        }
+    }
+</script>

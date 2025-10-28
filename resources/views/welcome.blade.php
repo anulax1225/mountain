@@ -13,5 +13,8 @@
     </head>
     <body x-cloak x-data class="w-screen">
         <app-base></app-base>
+        <ui-button>
+            My button
+        </ui-button>
     </body>
 </html>

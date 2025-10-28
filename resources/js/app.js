@@ -7,6 +7,8 @@ window.Alpine = Alpine;
 
 Alpine.plugin([compositor.plugin, tash]);
 
+await compositor.loadStyleSheet("http://localhost:8000/app-DhCLVA5H.css");
+
 compositor.fromFolderMap(import.meta.glob("./spa/**/*.alpine.html", {
     query: "?raw",
     eager: true,
