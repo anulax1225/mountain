@@ -8,7 +8,7 @@ window.Alpine = Alpine;
 Alpine.compositor = compositor;
 
 Alpine.plugin([compositor.plugin, tash]);
-
+Alpine.magic("compositor", () => compositor);
 compositor.createStyleSheet(css);
 
 // compositor.fromFolderMap(import.meta.glob("./spa/**/*.alpine.html", {
