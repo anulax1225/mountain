@@ -27,6 +27,5 @@ export default {
         Alpine.directive('component', xComponent).before("data");
         Alpine.directive('load', xLoad);
         //Alpine.directive("format", xFormat);
-        
     },
 }

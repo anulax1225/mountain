@@ -26,10 +26,6 @@ const defineProps = (props) => {
     });
 };
 
-const $dispatch = (event, detail) => {
-    $host.dispatchEvent(new CustomEvent(event, { detail, bubbles: true, composed: true }));
-};
-
 const $ref = (value) => Alpine.reactive({ value });
 const $reactive = (value) => Alpine.reactive(value);
 const $effect = (fn) => Alpine.effect(fn);

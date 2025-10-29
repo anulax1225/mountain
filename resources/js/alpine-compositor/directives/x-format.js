@@ -1,4 +1,4 @@
-// Code from https://github.com/racha/alpinejs-jsz - src/index.js
+// from https://github.com/racha/alpinejs-jsz - src/index.js
 
 export default (el, _, { evaluate, effect }) => {
     const unescapeIt = (str) => {
