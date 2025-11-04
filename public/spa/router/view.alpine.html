@@ -1,5 +1,5 @@
 <template>
-    <button class="border p-2 m-2" @click="showPage()" x-text="show.value"></button>
+    <button class="border p-2 m-2" @click="showPage()" x-text="show">show</button>
     <div x-ref="routerView">
 
     </div>
@@ -8,19 +8,22 @@
 
 <script setup>
     return {
-        show: $ref(false),
+        show: false,
         init() {
-            $effect(() => {
+            console.log("init router view")
+            effect(() => {
                 let page = this.$store.router.currentPage;
                 if (this.show.value && !Alpine.compositor.hasComponent(page)) {
                     console.log("[Alpine router] Dynamic page load of " + page)
                     !Alpine.compositor.loadComponent(page);
                 }
-                if (this.show.value) this.$ref.routerView.innerHTML = `<${page}></${page}>`;
+                console.log($refs, page)
+                if($refs.routerView) $refs.routerView.innerHTML = `<${page}></${page}>`;
             });
         },
         showPage() {
-            this.show.value = !this.show.value;
+            console.log("show")
+            this.show = !this.show;
         }
     }
 </script>

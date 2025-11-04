@@ -13,7 +13,8 @@ import {
 
 import { 
     hasComponent 
-} from "./registery";
+} from "./cregistery";
+import xRoot from "./directives/x-root";
 
 export default {
     hasComponent,
@@ -25,6 +26,8 @@ export default {
     fromFolderMap,
     plugin: function (Alpine) {
         Alpine.directive('component', xComponent).before("data");
+        //Alpine.directive('root', xRoot);
+        //Alpine.addRootSelector(() => `[${Alpine.prefix('root')}]`);
         Alpine.directive('load', xLoad);
         //Alpine.directive("format", xFormat);
     },

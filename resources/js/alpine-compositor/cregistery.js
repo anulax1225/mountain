@@ -1,7 +1,5 @@
-import { addScopeToNode, prefixed } from "alpinejs";
 import evaluateScriptSetup from "./evaluator.js";
 import { ref, reactive, computed, effect, propsBuilder  } from "./utils.js"
-import { injectMagics } from "alpinejs/src/magics";
 
 const registeredComponents = new Set();
 const componentStyleSheet = new CSSStyleSheet();
@@ -16,9 +14,6 @@ componentStyleSheet.replaceSync(`
     }
 `);
 const sheets = [componentStyleSheet];
-
-const DIR_DATA = prefixed('data')
-const DIR_INIT = prefixed('init')
 
 function getRootNode(el) {
     const template = el.tagName === 'TEMPLATE' ? el.content.cloneNode(true) : el.cloneNode(true);
@@ -43,14 +38,16 @@ export function hasComponent(name) {
 }
 // from https://github.com/vimeshjs/vimesh-ui - src/x-component.js
 function copyAttributes(elFrom, elTo) {
+    const DIR_DATA = Alpine.prefixed('data');
+    const DIR_INIT = Alpine.prefixed('init');
     Array.from(elFrom.attributes).forEach(attr => {
         //if (DIR_COMP === attr.name || attr.name.startsWith(DIR_COMP)) return
         try {
             let name = attr.name
             if (name.startsWith('@'))
-                name = `${prefixed('on')}:${name.substring(1)}`
+                name = `${Alpine.prefixed('on')}:${name.substring(1)}`
             else if (name.startsWith(':'))
-                name = `${prefixed('bind')}:${name.substring(1)}`
+                name = `${Alpine.prefixed('bind')}:${name.substring(1)}`
             if (DIR_INIT === name && elTo.getAttribute(DIR_INIT)) {
                 elTo.setAttribute(name, attr.value + ';' + elTo.getAttribute(DIR_INIT))
             } else if (DIR_DATA === name) {
@@ -66,7 +63,8 @@ function copyAttributes(elFrom, elTo) {
     })
 }
 
-export function registerComponent(el, componentName, setupScript) {
+export function registerComponent(el, componentName, setupScript = "return {}") {
+    console.log("[Alpine Global] New component in registration " + componentName)
     if (!componentName) {
         console.error('[Alpine Component] Component name is required');
         return;
@@ -93,7 +91,7 @@ export function registerComponent(el, componentName, setupScript) {
         constructor() {
             super();
             this.shadowMode = true;
-            console.log(`Should unwrap ${template.hasAttribute("unwrap")}`)
+            console.log(`[Alpine Component] ${componentName} should unwrap ${template.hasAttribute("unwrap")}`)
             this.unwrap = false;
             this.shadow = this.shadowMode ? this.attachShadow({ mode: 'open' }) : null;
             if (this.shadowMode) {
@@ -105,34 +103,33 @@ export function registerComponent(el, componentName, setupScript) {
         }
 
         connectedCallback() {
+            console.log(`[Alpine Component] Initializing new ${componentName}`);
             if (this.shadowMode) {
                 this.shadow.innerHTML = this.innerHTML;
                 this.innerHTML = "";
             }
-            console.log(`[Alpine Component] Initializing new ${componentName} (${internalName})`);
+            console.log(`[Alpine Component] Initializing alpine for ${componentName}`)
+            copyAttributes(template, this);
+            const props = Alpine.reactive({});
+            let data = evaluateScriptSetup(
+                this, 
+                setupScript, 
+                [ this, this.shadow ], 
+                { ref, reactive, effect, computed, defineProps: propsBuilder(this, props) }
+            )
+            //this.setAttribute("x-root", null);
             requestAnimationFrame(() => {
-                console.log(`[Alpine Component] Initializing alpine for ${componentName} (${internalName})`)
                 Alpine.initTree(this);
-                copyAttributes(template, this);
-                //const content = this.discoverSlots(this.root, template);
+                Alpine.bind(this, { "x-data": () => data});
+                const content = this.discoverSlots(this.root, template, data);
                 this.root.innerHTML = "";
                 this.root.appendChild(content);
-                const props = Alpine.reactive({});
-                let data = evaluateScriptSetup(
-                    this, 
-                    setupScript, 
-                    [ this, this.shadow ], 
-                    { ref, reactive, effect, computed, defineProps: propsBuilder(this, props) }
-                )
-                injectMagics(data);
-                const componentData = Alpine.reactive(data);
-                console.log(data);
-                addScopeToNode(this.root, data);
-                console.log(`[Alpine Component] Finished setup of ${componentName} (${internalName})`);
+                requestAnimationFrame(() => Array.from(this.root.children).forEach(el => Alpine.initTree(el)))
+                console.log(`[Alpine Component] Finished setup of ${componentName} \n${Object.entries(data)}`);
             });
         }
 
-        discoverSlots(el, component) {
+        discoverSlots(el, component, data) {
             const namedSlots = {};
             el.querySelectorAll("template").forEach(template => {
                 if (template.hasAttribute("name") && !template.hasAttribute("x-for") && !template.hasAttribute("x-if")) {
@@ -160,7 +157,8 @@ export function registerComponent(el, componentName, setupScript) {
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = slotContent;
                 while (tempDiv.firstChild) {
-                    slot.parentNode.insertBefore(tempDiv.firstChild, slot);
+                    const node = slot.parentNode.insertBefore(tempDiv.firstChild, slot);
+                    addScopeToNode(node, data, el);
                 }
                 slot.remove();
             });
@@ -171,8 +169,8 @@ export function registerComponent(el, componentName, setupScript) {
     try {
         customElements.define(componentName, AlpineWebComponent);
         registeredComponents.add(componentName);
-        console.log(`[Alpine Component] ✓ Registered: ${componentName}`);
+        console.log(`[Alpine Globals] ✓ Registered: ${componentName}`);
     } catch (error) {
-        console.error(`[Alpine Component] Failed to register "${componentName}":`, error);
+        console.error(`[Alpine Globals] Failed to register "${componentName}":`, error);
     }
 }

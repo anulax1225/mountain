@@ -1,4 +1,4 @@
-import { registerComponent, registerStyleSheet } from "./registery";
+import { registerComponent, registerStyleSheet } from "./cregistery";
 import evaluateScriptSetup from "./evaluator";
 
 const appType = "spa";
@@ -34,8 +34,7 @@ export function createComponent(name, component, namespace) {
     let template = root.querySelector("template") || root.firstElementChild;
     let script = root.querySelector("script[setup]");
     if (script) {
-        const setupFunction = evaluateScriptSetup(script.innerHTML);
-        registerComponent(template, namespace.length ? `${namespace}-${name}` : name, setupFunction);
+        registerComponent(template, namespace.length ? `${namespace}-${name}` : name, script.innerHTML);
         return template;
     }
     registerComponent(template, namespace.length ? `${namespace}-${name}` : name);
@@ -57,7 +56,9 @@ export async function findComponentsAndLoad(el) {
     let undefines = getUndefinedCustomElements(el);
     console.log(`[Alpine Component] Found ${undefines.length} components (${undefines}) now waiting for import`);
     requestAnimationFrame(async () => {
-        let promises = undefines.map(subComponent => loadComponent(subComponent));
+        let promises = undefines.map(subComponent => {
+            return loadComponent(subComponent);
+        });
         await Promise.all(promises);
     })
 
