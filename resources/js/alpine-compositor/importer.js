@@ -1,5 +1,4 @@
 import { registerComponent, registerStyleSheet } from "./cregistery";
-import evaluateScriptSetup from "./evaluator";
 
 const appType = "spa";
 

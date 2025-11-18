@@ -1,4 +1,5 @@
 import evaluateScriptSetup from "./evaluator.js";
+import Alpine from "../alpinejs";
 import { ref, reactive, computed, effect, propsBuilder  } from "./utils.js"
 
 const registeredComponents = new Set();
@@ -36,6 +37,7 @@ export function registerStyleSheet(sheet) {
 export function hasComponent(name) {
     registeredComponents.has(name);
 }
+
 // from https://github.com/vimeshjs/vimesh-ui - src/x-component.js
 function copyAttributes(elFrom, elTo) {
     const DIR_DATA = Alpine.prefixed('data');
@@ -86,14 +88,17 @@ export function registerComponent(el, componentName, setupScript = "return {}") 
         return;
     }
 
-    const template = el.cloneNode(true);
     class AlpineWebComponent extends HTMLElement {
         constructor() {
             super();
             this.shadowMode = true;
-            console.log(`[Alpine Component] ${componentName} should unwrap ${template.hasAttribute("unwrap")}`)
+            console.log(`[Alpine Component] ${componentName} should unwrap ${el.hasAttribute("unwrap")}`)
             this.unwrap = false;
             this.shadow = this.shadowMode ? this.attachShadow({ mode: 'open' }) : null;
+            const { component, slots } = this.processComponent(el);
+            this._slots = slots;
+            this._component = component;
+            console.log(this._slots); 
             if (this.shadowMode) {
                 this.shadow.adoptedStyleSheets = sheets;
                 this.root = this.shadow;
@@ -104,66 +109,63 @@ export function registerComponent(el, componentName, setupScript = "return {}") 
 
         connectedCallback() {
             console.log(`[Alpine Component] Initializing new ${componentName}`);
-            if (this.shadowMode) {
-                this.shadow.innerHTML = this.innerHTML;
-                this.innerHTML = "";
-            }
-            console.log(`[Alpine Component] Initializing alpine for ${componentName}`)
-            copyAttributes(template, this);
+            copyAttributes(el, this);
+            this.setAttribute("x-root", "");
             const props = Alpine.reactive({});
-            let data = evaluateScriptSetup(
-                this, 
-                setupScript, 
-                [ this, this.shadow ], 
-                { ref, reactive, effect, computed, defineProps: propsBuilder(this, props) }
-            )
-            //this.setAttribute("x-root", null);
-            requestAnimationFrame(() => {
-                Alpine.initTree(this);
-                Alpine.bind(this, { "x-data": () => data});
-                const content = this.discoverSlots(this.root, template, data);
-                this.root.innerHTML = "";
-                this.root.appendChild(content);
-                requestAnimationFrame(() => Array.from(this.root.children).forEach(el => Alpine.initTree(el)))
-                console.log(`[Alpine Component] Finished setup of ${componentName} \n${Object.entries(data)}`);
+
+            let data = evaluateScriptSetup(this, setupScript, [], 
+                { 
+                    $host: this, 
+                    $shadow: this.shadow,
+                    defineProps: propsBuilder(this, props), 
+                    ref, reactive, effect, computed, 
+                },
+            ) || {};
+            data = { $props: props, ...data };
+            Alpine.injectMagics(data, this);
+            this.reactiveData = Alpine.reactive(data);
+            Alpine.initInterceptors(this.reactiveData);
+            this.undo = Alpine.addScopeToNode(this, this.reactiveData);
+
+            this.applySlots();
+            this.root.appendChild(this._component);
+            Alpine.initTree(this.root);
+            this.reactiveData['init'] &&  Alpine.evaluate(this, this.reactiveData['init']);
+            console.log(`[Alpine Component] Finished setup of ${componentName}`);
+        }
+
+        disconnectCallback() {
+            this.reactiveData['destroy'] && Alpine.evaluate(this, this.reactiveData['destroy'])
+            this.undo()
+        }
+
+        processComponent(node) {
+            const component = node.tagName === "TEMPLATE" ? node.content.cloneNode(true) : node.cloneNode(true);
+            return { component, slots: Array.from(component.querySelectorAll("slot")) };
+        }
+
+        scopeElements(elements) {
+            Array.from(elements).filter(el => !el._x_dataStack).forEach(el => {
+                console.log("adding scope to ", el);
+                Alpine.addScopeToNode(el, {}, this);
             });
         }
 
-        discoverSlots(el, component, data) {
-            const namedSlots = {};
-            el.querySelectorAll("template").forEach(template => {
-                if (template.hasAttribute("name") && !template.hasAttribute("x-for") && !template.hasAttribute("x-if")) {
-                    const div = document.createElement('div');
-                    div.appendChild(template.content.cloneNode(true));
-                    namedSlots[template.getAttribute("name")] = div.innerHTML;
-                }
-            });
-            const slots = document.createElement("div");
-            slots.innerHTML = el.innerHTML;
-            slots.querySelectorAll("template").forEach(template => {
-                if (template.hasAttribute("name") && !template.hasAttribute("x-for") && !template.hasAttribute("x-if")) {
-                    template.remove();
-                }
-            });
-            const defaultSlot = slots.innerHTML;
-            const templates = component.tagName === "TEMPLATE" ? component.content.cloneNode(true) : component.cloneNode(true);
-            templates.querySelectorAll("slot").forEach(slot => {
-                let slotContent;
-                if (slot.hasAttribute("name")) {
-                    slotContent = namedSlots[slot.getAttribute("name")] || slot.innerHTML;
-                } else {
-                    slotContent = defaultSlot || slot.innerHTML;
-                }
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = slotContent;
-                while (tempDiv.firstChild) {
-                    const node = slot.parentNode.insertBefore(tempDiv.firstChild, slot);
-                    addScopeToNode(node, data, el);
-                }
-                slot.remove();
-            });
-
-            return templates;
+        applySlots() {
+            if (this._slots) {
+                const scopable = this.querySelectorAll("*");
+                const defaultContent = Array.from(this.children).filter(el => el.tagName !== 'template');
+                Array.from(this.children).forEach(child => child.remove());
+                const textContent = this.textContent;
+                this.textContent = "";
+                this.scopeElements(scopable);
+                console.log(defaultContent, scopable, textContent);
+                this._slots.forEach(slot => {
+                    if (!slot.hasAttribute("name")) {
+                        slot.replaceWith(...defaultContent, textContent);
+                    }
+                })
+            }
         }
     }
     try {

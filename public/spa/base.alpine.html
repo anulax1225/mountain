@@ -1,3 +1,20 @@
 <template>
-    <router-view></router-view>
+    <app-test>
+        <ui-button>
+            <p x-text="$props.test"></p>
+        </ui-button>
+        <ui-button @click="$props.test++">
+            Click
+        </ui-button>
+    </app-test>
+    <!-- <router-view></router-view> -->
 </template>
+
+<script setup>
+    const props = defineProps({
+        test: {
+            type: Number,
+            default: 0,
+        }
+    })
+</script>

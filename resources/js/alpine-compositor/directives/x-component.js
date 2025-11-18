@@ -1,4 +1,4 @@
-import { registerComponent } from "../registery";
+import { registerComponent } from "../cregistery";
 
 export default (el, { expression, value }) => {
     const name = expression.trim();

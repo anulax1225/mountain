@@ -1,4 +1,4 @@
-import Alpine from 'alpinejs';
+import Alpine from './alpinejs';
 import tash from 'alpinejs-tash';
 import compositor from './alpine-compositor';
 import css from '../css/app.css?inline'

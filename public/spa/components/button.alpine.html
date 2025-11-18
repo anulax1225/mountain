@@ -1,5 +1,15 @@
 <template>
     <button>
         <slot></slot>
+        <p x-text="$props.test"></p>
     </button>
 </template>
+
+<script setup>
+    const props = defineProps({
+        test: {
+            type: String,
+            default: "no probleme",
+        }
+    })
+</script>

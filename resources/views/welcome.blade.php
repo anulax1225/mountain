@@ -11,7 +11,7 @@
             @vite(['resources/css/app.css', 'resources/js/app.js'])
         @endif
     </head>
-    <body x-cloak x-data class="w-screen">
+    <body x-cloak class="w-screen">
         <app-base></app-base>
     </body>
 </html>

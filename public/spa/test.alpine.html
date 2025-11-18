@@ -1,0 +1,19 @@
+<template>
+    <slot></slot>
+</template>
+
+<script setup>
+    const props = defineProps({
+        test: {
+            type: Number,
+            default: 0,
+        }
+    })
+    return {
+        init() {
+            effect(() => {
+                console.log(props);
+            })
+        }
+    }
+</script>

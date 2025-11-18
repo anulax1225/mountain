@@ -26,8 +26,8 @@ export default {
     fromFolderMap,
     plugin: function (Alpine) {
         Alpine.directive('component', xComponent).before("data");
-        //Alpine.directive('root', xRoot);
-        //Alpine.addRootSelector(() => `[${Alpine.prefix('root')}]`);
+        Alpine.directive('root', xRoot);
+        Alpine.addRootSelector(() => `[${Alpine.prefixed('root')}]`);
         Alpine.directive('load', xLoad);
         //Alpine.directive("format", xFormat);
     },
