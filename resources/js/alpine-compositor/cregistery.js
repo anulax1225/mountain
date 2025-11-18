@@ -126,7 +126,6 @@ export function registerComponent(el, componentName, setupScript = "return {}") 
             this.reactiveData = Alpine.reactive(data);
             Alpine.initInterceptors(this.reactiveData);
             this.undo = Alpine.addScopeToNode(this, this.reactiveData);
-
             this.applySlots();
             this.root.appendChild(this._component);
             Alpine.initTree(this.root);
@@ -137,6 +136,10 @@ export function registerComponent(el, componentName, setupScript = "return {}") 
         disconnectCallback() {
             this.reactiveData['destroy'] && Alpine.evaluate(this, this.reactiveData['destroy'])
             this.undo()
+        }
+
+        attributeChangedCallback() {
+            
         }
 
         processComponent(node) {
