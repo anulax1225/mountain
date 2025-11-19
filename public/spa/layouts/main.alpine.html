@@ -1,16 +1,17 @@
 <template>
     <ui-nav>
         <div class="flex h-full">
-            <slot name="header"></slot>
-            <ui-nav-item name="about" href="/about"></ui-nav-item>
+            <ui-nav-item :name="mainItems.value[0].name" :href="mainItems.value[0].path"></ui-nav-item>
         </div>
     </ui-nav>
-    <slot></slot>
+    <div>
+        <slot></slot>
+    </div>
 </template>
 
 <script setup>
     return {
-        mainItems: [
+        mainItems: ref([
             {
                 name: "home",
                 path: "/",
@@ -19,7 +20,7 @@
                 name: "about",
                 path: "/about",
             },
-        ],
+        ]),
         secondaryItems: [
             {
                 name: "docs",
