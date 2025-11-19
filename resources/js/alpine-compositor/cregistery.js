@@ -92,6 +92,11 @@ function applySlots(slots, parent) {
     }
 }
 
+function appendElement(parent, elements) {
+    if (parent._m_shadow) parent._m_shadow.append(...elements)
+    else parent.append(...elements)
+}
+
 export function registerComponent(el, componentName, setupScript = "return {}") {
     console.log("[Alpine Global] New component in registration " + componentName)
     if (!componentName) {
@@ -121,7 +126,7 @@ export function registerComponent(el, componentName, setupScript = "return {}") 
             super();
             console.log(`[Alpine Component] ${componentName} should unwrap ${el.hasAttribute("unwrap")}`)
             this._m_unwrap = el.hasAttribute("unwrap");
-            this._m_shadowMode = !this._m_unwrap;
+            this._m_shadowMode = !this._m_unwrap || !el.hasAttribute("light");
             this._m_shadow = this._m_shadowMode ? this.attachShadow({ mode: 'open' }) : null;
             this._m_slots = slots;
             this._m_component = component;
@@ -129,7 +134,6 @@ export function registerComponent(el, componentName, setupScript = "return {}") 
                 this._m_shadow.adoptedStyleSheets = sheets;
                 this._m_root = this._m_shadow;
             } else this._m_root = this;
-            this._m_test = "test";
         }
 
         connectedCallback() {
@@ -145,8 +149,9 @@ export function registerComponent(el, componentName, setupScript = "return {}") 
                 root = firstChild;
                 firstChild.innerHTML = "";
                 firstChild.append(...this.children);
-                const parent = this.parentNode.host ? this.parentNode.host : this.parentElement;
-                (parent._m_shadow ?  parent._m_shadow : parent).append(firstChild);
+                const parent = !!this.parentElement ? this.parentElement : this.parentNode.host;
+                console.log("unwrap", this.parentNode, this.parentElement, parent);
+                (parent._m_shadow ?  parent._m_shadow : parent).appendChild(firstChild);
                 this.remove();
                 Alpine.onElRemoved(firstChild, () => {
                     root._m_reactiveData['destroy'] && Alpine.evaluate(this, this._m_reactiveData['destroy'])
@@ -174,8 +179,8 @@ export function registerComponent(el, componentName, setupScript = "return {}") 
             root._m_undo = Alpine.addScopeToNode(root, root._m_reactiveData);
 
             applySlots(this._m_slots, this._m_root);
-            if (this._m_unwrap) this._m_root.append(...this._m_component);
-            else this._m_root.append(this._m_component);
+            if (this._m_unwrap) (!!root._m_shadow ? root._m_shadow : root).append(...Array.from(this._m_component).toReversed());
+            else (!!root._m_shadow ? root._m_shadow : root).appendChild(this._m_component);
             Alpine.initTree(this._m_root);
             root._m_reactiveData['init'] && Alpine.evaluate(root, root._m_reactiveData['init']);
         }

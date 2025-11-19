@@ -1,6 +1,7 @@
 <template>
-    <ui-button class="border p-2 m-2" @click="showPage()" x-text="show.value ? 'shown' : 'hidden'">
-        
+    <ui-button class="border p-2 m-2" @click="showPage()">
+        text
+        <p x-text="show.value ? 'shown' : 'hidden'"></p>
     </ui-button>
     <div x-ref="routerView">
 
