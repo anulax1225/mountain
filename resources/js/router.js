@@ -29,7 +29,7 @@ export function createRouter(currentPage = "", routes = []) {
             let fragment = match ? match[1] : '';
             this._router.resolve({ pathname: fragment }).then(component => {
                 if (component) this.currentPage = component;
-                console.log("[Alpine router] Visited page", this.currentPage);
+                //console.log("[Alpine router] Visited page", this.currentPage);
             })
         },
     });

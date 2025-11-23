@@ -51,9 +51,9 @@ export function fromFolderMap(map) {
 }
 
 export async function findComponentsAndLoad(el) {
-    console.log(`[Alpine Component] Looking up the element (${el.tagName ? el.tagName : el.firstElementChild.tagName}) for unimported components`);
+    //console.log(`[Alpine Component] Looking up the element (${el.tagName ? el.tagName : el.firstElementChild.tagName}) for unimported components`);
     let undefines = getUndefinedCustomElements(el);
-    console.log(`[Alpine Component] Found ${undefines.length} components (${undefines}) now waiting for import`);
+    //console.log(`[Alpine Component] Found ${undefines.length} components (${undefines}) now waiting for import`);
     requestAnimationFrame(async () => {
         let promises = undefines.map(subComponent => {
             return loadComponent(subComponent);
@@ -74,7 +74,7 @@ export async function loadComponent(name) {
 }  
 
 export async function loadStyleSheet(url) {
-    console.log("[Alpine Styles] Loading style sheet from " + url);
+    //console.log("[Alpine Styles] Loading style sheet from " + url);
     let response = await fetch(url);
     let css = await response.text();
     createStyleSheet(css);

@@ -24,8 +24,9 @@
                     console.log("[Alpine router] Dynamic page load of " + page)
                     Alpine.compositor.loadComponent(page);
                 }
-                
-                $refs.routerView.innerHTML = `<${page}></${page}>`;
+                $refs.routerView.innerHTML = ``;
+                const pageNode = document.createElement(page);
+                $refs.routerView.appendChild(pageNode);
             });
         },
         showPage() {

@@ -11,7 +11,7 @@ componentStyleSheet.replaceSync(`
         margin: 0;
         width: auto;
         height: auto;
-        box-sizing: content-box;
+        box-sizing: content;
     }
 `);
 const sheets = [componentStyleSheet];
@@ -92,13 +92,13 @@ function applySlots(slots, parent) {
     }
 }
 
-function appendElement(parent, elements) {
+function appendElements(parent, elements) {
     if (parent._m_shadow) parent._m_shadow.append(...elements)
     else parent.append(...elements)
 }
 
 export function registerComponent(el, componentName, setupScript = "return {}") {
-    console.log("[Alpine Global] New component in registration " + componentName)
+    //console.log("[Alpine Global] New component in registration " + componentName)
     if (!componentName) {
         console.error('[Alpine Component] Component name is required');
         return;
@@ -120,14 +120,14 @@ export function registerComponent(el, componentName, setupScript = "return {}") 
         return;
     }
 
-    const { component, slots } = processComponent(el);
     class AlpineWebComponent extends HTMLElement {
         constructor() {
             super();
-            console.log(`[Alpine Component] ${componentName} should unwrap ${el.hasAttribute("unwrap")}`)
+            //console.log(`[Alpine Component] ${componentName} should unwrap ${el.hasAttribute("unwrap")}`)
             this._m_unwrap = el.hasAttribute("unwrap");
             this._m_shadowMode = !this._m_unwrap || !el.hasAttribute("light");
             this._m_shadow = this._m_shadowMode ? this.attachShadow({ mode: 'open' }) : null;
+            const { component, slots } = processComponent(el);
             this._m_slots = slots;
             this._m_component = component;
             if (this._m_shadowMode) {
@@ -138,6 +138,7 @@ export function registerComponent(el, componentName, setupScript = "return {}") 
 
         connectedCallback() {
             let root = this;
+            const parent = !!this.parentElement ? this.parentElement : this.parentNode.host;
             if (this._m_unwrap) {
                 const firstChild = el.tagName === "TEMPLATE" ? el.content.firstElementChild.cloneNode(true) : el.firstElementChild.cloneNode(true);
                 copyAttributes(this, firstChild);
@@ -148,14 +149,13 @@ export function registerComponent(el, componentName, setupScript = "return {}") 
                 firstChild._m_unwrappedRef = this;
                 root = firstChild;
                 firstChild.innerHTML = "";
-                firstChild.append(...this.children);
-                const parent = !!this.parentElement ? this.parentElement : this.parentNode.host;
-                console.log("unwrap", this.parentNode, this.parentElement, parent);
+                firstChild.append(...this.childNodes);
+                console.log("unwrap", this.cloneNode(true), this.childNodes, this.children);
                 (parent._m_shadow ?  parent._m_shadow : parent).appendChild(firstChild);
                 this.remove();
                 Alpine.onElRemoved(firstChild, () => {
                     root._m_reactiveData['destroy'] && Alpine.evaluate(this, this._m_reactiveData['destroy'])
-                    root._m_undo()
+                    root._m_undo();
                 });
             }
 
@@ -178,9 +178,8 @@ export function registerComponent(el, componentName, setupScript = "return {}") 
             Alpine.initInterceptors(root._m_reactiveData);
             root._m_undo = Alpine.addScopeToNode(root, root._m_reactiveData);
 
-            applySlots(this._m_slots, this._m_root);
-            if (this._m_unwrap) (!!root._m_shadow ? root._m_shadow : root).append(...Array.from(this._m_component).toReversed());
-            else (!!root._m_shadow ? root._m_shadow : root).appendChild(this._m_component);
+            applySlots(this._m_slots, root);
+            appendElements(root, this._m_unwrap ? this._m_component : [this._m_component]);
             Alpine.initTree(this._m_root);
             root._m_reactiveData['init'] && Alpine.evaluate(root, root._m_reactiveData['init']);
         }
