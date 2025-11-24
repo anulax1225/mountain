@@ -1,4 +1,4 @@
-import { registerComponent, registerStyleSheet } from "./dregistery";
+import { registerComponent, registerStyleSheet } from "./cregistery";
 
 const appType = "spa";
 
@@ -42,6 +42,7 @@ export function createComponent(name, component, namespace) {
 
 export function fromFolderMap(map) {
     Object.entries(map).forEach(([path, content]) => {
+
         const name = path.split('/').pop().replace('.alpine.html', '');
         const namespace = Object.entries(namespaces).find(
             ([ namespace, { folder } ]) => path.startsWith(folder)

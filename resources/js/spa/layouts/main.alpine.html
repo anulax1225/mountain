@@ -1,19 +1,10 @@
 <template>
-    <ui-nav>
-        <div class="yes">
+        <div class="w-full flex h-16 gap-1">
+            <ui-nav-item :name="mainItems[0].name" :href="mainItems[0].path"></ui-nav-item>
             <template x-for="item in mainItems">
                 <ui-nav-item :name="item.name" :href="item.path"></ui-nav-item>
             </template>
         </div>
-        <ui-nav-item :name="mainItems[0].name" :href="mainItems[0].path"></ui-nav-item>
-        <ui-nav-item :name="mainItems[1].name" :href="mainItems[1].path"></ui-nav-item>
-    </ui-nav>
-    <template x-for="(value, index) in [1,2,3,4,5]" :key="index">
-        <div class="flex gap-1 border w-fit m-1">
-            <p x-text="index"></p>
-            <p x-text="value"></p>
-        </div>
-    </template>
     <div>
         <slot></slot>
     </div>

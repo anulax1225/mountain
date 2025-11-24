@@ -3,6 +3,14 @@
  * Abstracts light DOM, shadow DOM, and unwrap modes behind a unified interface
  */
 
+import { getDebugMode } from "./cregistery.js";
+
+function debugLog(strategy, phase, ...args) {
+    if (!getDebugMode()) return;
+    const componentName = strategy.host?.tagName?.toLowerCase() || 'unknown';
+    console.log(`[DOM Strategy] ${componentName} | ${phase}`, ...args);
+}
+
 /**
  * Clone and process a component template
  * Returns the cloned content and slots found within it
@@ -33,6 +41,76 @@ class BaseDOMStrategy {
     /** Initialize the strategy - called in constructor */
     init() { throw new Error('Not implemented'); }
 
+    /**
+     * Mark all elements in the component template as authored by the host
+     * This should be called after cloning the template, before appending
+     */
+    markTemplateElements() {
+        if (!this.component) return;
+        
+        const markAsAuthored = (element, owner) => {
+            // Skip if already marked
+            if (element._m_parentComponent) return;
+            
+            const tagName = element.tagName.toLowerCase();
+            
+            // Special handling for <template> elements (e.g., x-for, x-if)
+            // Don't mark the template itself, only its content
+            if (tagName === 'template' && element.content) {
+                // Mark elements inside the template content
+                Array.from(element.content.children).forEach(contentChild => {
+                    markAsAuthored(contentChild, owner);
+                });
+                return; // Don't mark the template itself or recurse into its children
+            }
+            
+            // Mark this element
+            element._m_parentComponent = owner;
+            
+            if (getDebugMode()) {
+                debugLog(this, 'MARK_TEMPLATE', 
+                    `Marked ${element.tagName.toLowerCase()} as authored by ${owner.tagName.toLowerCase()}`);
+            }
+            
+            // Recurse into children, but stop at custom elements
+            Array.from(element.children).forEach(child => {
+                const childTagName = child.tagName.toLowerCase();
+                if (!customElements.get(childTagName)) {
+                    markAsAuthored(child, owner);
+                }
+            });
+        };
+        
+        // Handle different component types
+        let elementsToMark = [];
+        
+        if (this.component instanceof DocumentFragment) {
+            // Shadow/Light DOM: component is a DocumentFragment
+            elementsToMark = Array.from(this.component.children);
+        } else if (this.component instanceof HTMLCollection) {
+            // Unwrap mode: component is HTMLCollection of children
+            elementsToMark = Array.from(this.component);
+        } else if (this.component instanceof Element) {
+            // Single element
+            elementsToMark = [this.component];
+        }
+        
+        // Mark each top-level element
+        elementsToMark.forEach(child => {
+            const tagName = child.tagName.toLowerCase();
+            
+            // If it's a custom element, mark its slot content (children)
+            if (customElements.get(tagName)) {
+                Array.from(child.children).forEach(slotContent => {
+                    markAsAuthored(slotContent, this.root);
+                });
+            } else {
+                // Regular element, mark it and recurse
+                markAsAuthored(child, this.root);
+            }
+        });
+    }
+
     /** Check if host is inside a shadow DOM */
     isInShadowDOM() {
         return this.host.getRootNode() instanceof ShadowRoot;
@@ -60,35 +138,149 @@ class BaseDOMStrategy {
     getShadow() { return null; }
 
     /**
-     * Apply slots - extracts content from root and replaces slots in component
-     * This matches the original applySlots behavior exactly
+     * Apply slots - properly scopes slot content to authoring context, then distributes
+     * 
+     * Key insight: Slot content should be scoped to where it was AUTHORED (parent component),
+     * not where it's RENDERED (this component with <slot>).
+     * 
+     * The _m_parentComponent property tracks authoring context and is set during connectedCallback.
+     * We use it here to scope elements to the correct Alpine context before distribution.
      */
-    applySlots(scopeElementsFn) {
-        if (!this.slots) return;
+    applySlots() {
+        if (!this.slots || this.slots.length === 0) {
+            debugLog(this, 'APPLY_SLOTS', 'No slots found, skipping');
+            return;
+        }
 
+        debugLog(this, 'APPLY_SLOTS', `Found ${this.slots.length} slot(s)`);
+        
         const root = this.root;
-        // Get scopable elements BEFORE any DOM manipulation
-        const scopables = Array.from(root.querySelectorAll("*")).filter(scopable => !scopable._m_parentComponent);
-        // Note: original uses lowercase 'template' which never matches (tagName is uppercase)
-        // Keeping same behavior for compatibility
+        
+        // 1. Extract slot content from root
         const defaultContent = Array.from(root.children);
+        debugLog(this, 'EXTRACT', `Extracted ${defaultContent.length} child element(s) from root`);
         
-        // Remove children from root
-        Array.from(root.children).forEach(child => child.remove());
-        
-        // Capture and clear text content
-        const textContent = root.textContent;
-        root.textContent = "";
-        
-        // Scope the extracted elements to the parent (for Alpine reactivity)
-        scopeElementsFn(scopables, root);
-        
-        // Replace unnamed slots with the extracted content
-        this.slots.forEach(slot => {
-            if (!slot.hasAttribute("name")) {
-                slot.replaceWith(...defaultContent, textContent);
+        // 2. Collect all elements in slot content (direct children + nested)
+        // Start with direct children, then recursively collect nested elements
+        const allSlotElements = [...defaultContent];
+        const collectNestedElements = (parent) => {
+            Array.from(parent.children).forEach(child => {
+                allSlotElements.push(child);
+                
+                const tagName = child.tagName.toLowerCase();
+                
+                // Special handling for <template> elements (e.g., x-for, x-if)
+                if (tagName === 'template' && child.content) {
+                    // Collect elements from inside the template content
+                    Array.from(child.content.children).forEach(contentChild => {
+                        allSlotElements.push(contentChild);
+                        const contentTagName = contentChild.tagName.toLowerCase();
+                        if (!customElements.get(contentTagName)) {
+                            collectNestedElements(contentChild);
+                        }
+                    });
+                }
+                
+                // Don't recurse into custom elements - they handle their own content
+                if (!customElements.get(tagName)) {
+                    collectNestedElements(child);
+                }
+            });
+        };
+        // Collect nested elements from each direct child (but not from custom elements)
+        defaultContent.forEach(parent => {
+            const tagName = parent.tagName.toLowerCase();
+            
+            // Special handling for <template> at root level
+            if (tagName === 'template' && parent.content) {
+                Array.from(parent.content.children).forEach(contentChild => {
+                    allSlotElements.push(contentChild);
+                    const contentTagName = contentChild.tagName.toLowerCase();
+                    if (!customElements.get(contentTagName)) {
+                        collectNestedElements(contentChild);
+                    }
+                });
+            } else if (!customElements.get(tagName)) {
+                collectNestedElements(parent);
             }
         });
+        
+        debugLog(this, 'COLLECT', `Collected ${allSlotElements.length} element(s) total (including nested)`);
+        
+        // 3. Scope each element to its authoring context BEFORE moving it
+        // Elements with _m_parentComponent were authored elsewhere and need scoping to that context
+        let scopedCount = 0;
+        let rescoped = 0;
+        let skipped = 0;
+        
+        allSlotElements.forEach(el => {
+            // Skip template elements - Alpine handles these
+            if (el.tagName === 'TEMPLATE') return;
+            
+            // Only scope elements that have an authoring component
+            if (!el._m_parentComponent) {
+                if (getDebugMode()) {
+                    debugLog(this, 'SCOPE', `Skipping ${el.tagName.toLowerCase()} - no _m_parentComponent`);
+                }
+                return;
+            }
+            
+            // Check if already correctly scoped to the right parent
+            const currentScope = el._x_dataStack?.[0];
+            const targetScope = el._m_parentComponent._x_dataStack?.[0];
+            
+            // If already scoped to the correct parent, skip
+            if (currentScope && targetScope && currentScope === targetScope) {
+                skipped++;
+                if (getDebugMode()) {
+                    debugLog(this, 'SCOPE', 
+                        `${el.tagName.toLowerCase()} already correctly scoped to ${el._m_parentComponent.tagName.toLowerCase()}`);
+                }
+                return;
+            }
+            
+            // Clear any existing Alpine state before re-scoping
+            if (el._x_dataStack) {
+                rescoped++;
+                if (getDebugMode()) {
+                    debugLog(this, 'RESCOPE', 
+                        `Clearing old scope from ${el.tagName.toLowerCase()} before re-scoping`);
+                }
+                delete el._x_dataStack;
+                delete el._x_inlineBindings;
+                delete el._x_effects;
+                delete el._x_ignoreSelf;
+                // Clear any other Alpine-specific properties
+                Object.keys(el).forEach(key => {
+                    if (key.startsWith('_x_')) delete el[key];
+                });
+            }
+            
+            // Scope to the component that authored this element
+            this.Alpine.addScopeToNode(el, {}, el._m_parentComponent);
+            scopedCount++;
+            
+            if (getDebugMode()) {
+                debugLog(this, 'SCOPE', 
+                    `Scoped ${el.tagName.toLowerCase()} to ${el._m_parentComponent.tagName.toLowerCase()}`);
+            }
+        });
+        
+        debugLog(this, 'SCOPE_SUMMARY', 
+            `Scoped: ${scopedCount}, Re-scoped: ${rescoped}, Already correct: ${skipped}`);
+        
+        // 4. Remove children from root (now that they're scoped)
+        defaultContent.forEach(child => child.remove());
+        
+        // 5. Distribute scoped content to slots
+        this.slots.forEach(slot => {
+            if (!slot.hasAttribute("name")) {
+                debugLog(this, 'DISTRIBUTE', `Replacing default slot with ${defaultContent.length} element(s)`);
+                slot.replaceWith(...defaultContent);
+            }
+        });
+        
+        debugLog(this, 'APPLY_SLOTS', 'Slot processing complete');
     }
 
     /**

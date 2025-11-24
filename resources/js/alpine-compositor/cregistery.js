@@ -17,6 +17,22 @@ componentStyleSheet.replaceSync(`
 `);
 const sheets = [componentStyleSheet];
 
+// Debug mode
+let DEBUG = false;
+
+export function setDebugMode(enabled) {
+    DEBUG = enabled;
+}
+
+export function getDebugMode() {
+    return DEBUG;
+}
+
+function debugLog(componentName, phase, ...args) {
+    if (!DEBUG) return;
+    console.log(`[Alpine Component] ${componentName} | ${phase}`, ...args);
+}
+
 // Initialization batching system
 // All components defer to microtask to ensure parent DOM is ready before children init
 let pendingInits = [];
@@ -34,6 +50,8 @@ function scheduleInit(host, initFn) {
 function processBatch() {
     batchScheduled = false;
     
+    if (DEBUG) console.log('[Alpine Component] Processing batch of', pendingInits.length, 'components');
+    
     // Take current batch
     const batch = pendingInits;
     pendingInits = [];
@@ -43,15 +61,19 @@ function processBatch() {
         // Skip disconnected elements
         if (!item.host.isConnected) {
             item.host._m_scheduled = false;
+            if (DEBUG) console.log('[Alpine Component] Skipping disconnected:', item.host.tagName);
             return false;
         }
         // Skip already initialized (safety check)
         if (item.host._m_initialized) {
             item.host._m_scheduled = false;
+            if (DEBUG) console.log('[Alpine Component] Skipping already initialized:', item.host.tagName);
             return false;
         }
         return true;
     });
+    
+    if (DEBUG) console.log('[Alpine Component] Connected components:', connected.length);
     
     // Sort by DOM order (parents before children)
     connected.sort((a, b) => {
@@ -61,10 +83,17 @@ function processBatch() {
         return 0;
     });
     
+    if (DEBUG) {
+        console.log('[Alpine Component] Initialization order:', 
+            connected.map(item => item.host.tagName.toLowerCase()).join(' → '));
+    }
+    
     // Initialize in order
     for (const item of connected) {
         item.init();
     }
+    
+    if (DEBUG) console.log('[Alpine Component] Batch complete\n');
 }
 
 
@@ -117,17 +146,6 @@ function copyAttributes(elFrom, elTo) {
     });
 }
 
-function scopeElements(elements, parent) {
-    Array.from(elements).forEach(el => {
-        // Skip if already scoped
-        if (el._x_dataStack) return;
-        
-        // Only scope elements owned by this component
-        if (el._m_parentComponent !== parent) return;
-        
-        Alpine.addScopeToNode(el, {}, parent);
-    });
-}
 
 
 export function registerComponent(el, componentName, setupScript = "return {}") {
@@ -151,35 +169,53 @@ export function registerComponent(el, componentName, setupScript = "return {}") 
         registeredComponents.add(componentName);
         return;
     }
-    let count = 0;
+    
     class AlpineWebComponent extends HTMLElement {
         constructor() {
             super();
-            console.log(`[Alpine Component] "${componentName}" constructor ${this.innerHTML}`)
             this._m_strategy = createDOMStrategy(this, el, sheets, Alpine);
             this._m_strategy.init();
-            this.localCount = count++;
             this._m_initialized = false;
             this._m_scheduled = false;
+            
+            debugLog(componentName, 'CONSTRUCTOR', 'Created new instance');
         }
 
         connectedCallback() {
-            console.log(`[Alpine Component] Initializing ${componentName} N°${this.localCount} ${this.innerHTML}`);
-            // Prevent double initialization
-            if (this._m_initialized) return;
+            debugLog(componentName, 'CONNECTED', 'Element connected to DOM');
             
-            // Prevent duplicate scheduling (can happen if disconnected/reconnected before microtask)
-            if (this._m_scheduled) return;
+            if (this._m_initialized || this._m_scheduled) {
+                debugLog(componentName, 'CONNECTED', 'Already initialized or scheduled, skipping');
+                return;
+            }
             
-            // Mark slot content as belonging to this component
-            // Uses recursive traversal but stops at nested custom elements
-            // (they will mark their own slot content in their connectedCallback)
+            // Mark slot content with authoring context
+            // This tracks which component authored each element, enabling proper scope resolution
+            // Recursively marks children but stops at custom elements (they mark their own content)
             const markSlotContent = (parent, owner) => {
                 Array.from(parent.children).forEach(child => {
                     if (child._m_parentComponent) return;
-                    child._m_parentComponent = owner;
-                    // Don't recurse into custom elements - they own their own slot content
+                    
                     const tagName = child.tagName.toLowerCase();
+                    
+                    // Special handling for <template> elements (e.g., x-for, x-if)
+                    // Don't mark the template itself, only its content
+                    if (tagName === 'template' && child.content) {
+                        // Mark the content inside the template
+                        Array.from(child.content.children).forEach(contentChild => {
+                            markSlotContent(contentChild, owner);
+                        });
+                        return; // Don't mark the template itself or recurse normally
+                    }
+                    
+                    child._m_parentComponent = owner;
+                    
+                    if (DEBUG) {
+                        debugLog(componentName, 'MARK_SLOT', 
+                            `Marked ${child.tagName.toLowerCase()} as authored by ${owner.tagName.toLowerCase()}`);
+                    }
+                    
+                    // Don't recurse into custom elements - they own their own slot content
                     if (!customElements.get(tagName)) {
                         markSlotContent(child, owner);
                     }
@@ -187,54 +223,74 @@ export function registerComponent(el, componentName, setupScript = "return {}") 
             };
             markSlotContent(this, this);
             
-            // Mark to skip during any early initTree calls
             this.setAttribute('x-ignore', '');
-            
-            // Mark as scheduled
             this._m_scheduled = true;
             
-            // Defer to microtask - allows all sync DOM operations to complete
-            // and ensures we can sort by DOM order
+            debugLog(componentName, 'CONNECTED', 'Scheduled for initialization');
             scheduleInit(this, () => this._doInit());
         }
 
         _doInit() {
-            // Clear scheduled flag
-            this._m_scheduled = false;
+            debugLog(componentName, 'DO_INIT', 'Starting initialization');
             
-            // Always remove skip marker (must happen before guards to ensure cleanup)
+            this._m_scheduled = false;
             this.removeAttribute('x-ignore');
             
-            // Prevent double initialization
-            if (this._m_initialized) return;
-            
-            // Skip if no longer connected
-            if (!this.isConnected) return;
+            if (this._m_initialized || !this.isConnected) {
+                debugLog(componentName, 'DO_INIT', 'Already initialized or disconnected, skipping');
+                return;
+            }
             
             this._m_initialized = true;
             this._initComponent();
         }
 
         _initComponent() {
-            console.log(`[Alpine Component] Initializing ${componentName} N°${this.localCount}`);
+            debugLog(componentName, 'INIT_COMPONENT', 'Beginning component initialization');
+            
             const strategy = this._m_strategy;
             const isUnwrap = el.hasAttribute('unwrap');
 
-            // For unwrap mode, mount first to get the real root element
+            // Unwrap mode: mount first to get the real root element
             if (isUnwrap) {
+                debugLog(componentName, 'UNWRAP', 'Unwrapping component');
+                
                 const mounted = strategy.mount(copyAttributes);
-                if (!mounted) return;
+                if (!mounted) {
+                    debugLog(componentName, 'UNWRAP', 'Mount failed');
+                    return;
+                }
 
-                // Update _m_parentComponent on slot content to point to new root
-                // (was set to host in connectedCallback, now needs to be unwrappedEl)
                 const newRoot = strategy.getScopeTarget();
                 const updateOwner = (parent) => {
                     Array.from(parent.children).forEach(child => {
                         if (child._m_parentComponent === this) {
                             child._m_parentComponent = newRoot;
+                            if (DEBUG) {
+                                debugLog(componentName, 'UNWRAP', 
+                                    `Updated ${child.tagName.toLowerCase()} owner to unwrapped element`);
+                            }
                         }
-                        // Don't descend into custom elements
+                        
                         const tagName = child.tagName.toLowerCase();
+                        
+                        // Special handling for <template> elements
+                        if (tagName === 'template' && child.content) {
+                            Array.from(child.content.children).forEach(contentChild => {
+                                if (contentChild._m_parentComponent === this) {
+                                    contentChild._m_parentComponent = newRoot;
+                                    if (DEBUG) {
+                                        debugLog(componentName, 'UNWRAP', 
+                                            `Updated ${contentChild.tagName.toLowerCase()} (inside template) owner to unwrapped element`);
+                                    }
+                                }
+                                const contentTagName = contentChild.tagName.toLowerCase();
+                                if (!customElements.get(contentTagName)) {
+                                    updateOwner(contentChild);
+                                }
+                            });
+                        }
+                        
                         if (!customElements.get(tagName)) {
                             updateOwner(child);
                         }
@@ -242,8 +298,8 @@ export function registerComponent(el, componentName, setupScript = "return {}") 
                 };
                 updateOwner(newRoot);
 
-                // Setup cleanup for unwrap mode (must be done early, before any errors)
                 strategy.cleanup(() => {
+                    debugLog(componentName, 'CLEANUP', 'Running unwrap cleanup');
                     const root = strategy.getScopeTarget();
                     if (root._m_reactiveData?.destroy) {
                         Alpine.evaluate(root, root._m_reactiveData.destroy);
@@ -254,15 +310,20 @@ export function registerComponent(el, componentName, setupScript = "return {}") 
                 });
             }
 
+            // Mark all template elements as authored by this component
+            // For unwrap mode, this happens after mount() when component is set
+            // For other modes, this happens now (component was set in init())
+            strategy.markTemplateElements();
+
             const root = strategy.getScopeTarget();
 
-            // Store references on custom element for compatibility
             this._m_shadow = strategy.getShadow();
             this._m_root = strategy.getInitRoot();
 
-            // Copy template attributes to root
             copyAttributes(el, root);
             root.setAttribute('x-root', '');
+
+            debugLog(componentName, 'ALPINE_SETUP', 'Setting up Alpine reactivity');
 
             // Setup Alpine reactivity
             root._m_props = Alpine.reactive({});
@@ -280,48 +341,104 @@ export function registerComponent(el, componentName, setupScript = "return {}") 
             Alpine.initInterceptors(root._m_reactiveData);
             root._m_undo = Alpine.addScopeToNode(root, root._m_reactiveData);
 
-            // Apply slots (extracts from root, replaces in component)
-            strategy.applySlots((scopables, parent) => {
-                console.log(`[Alpine Component] Scoping ${componentName} N°${this.localCount}`, scopables);
-                scopeElements(scopables, parent);
-            });
+            if (DEBUG) {
+                debugLog(componentName, 'PROPS', 'Defined props:', Object.keys(root._m_props));
+            }
 
-            // Append the processed component first
+            // Apply slots: scope content to authoring context, then distribute
+            debugLog(componentName, 'APPLY_SLOTS', 'Processing slots');
+            strategy.applySlots();
+
             strategy.appendComponent();
+            debugLog(componentName, 'APPEND', 'Component appended to DOM');
 
-            console.log(`[Alpine Component] Finished ${componentName} N°${this.localCount}`);
-
-            // Initialize Alpine tree once after everything is in place
             Alpine.initTree(strategy.getInitRoot());
+            debugLog(componentName, 'ALPINE_INIT', 'Alpine.initTree completed');
 
-            // Call init lifecycle
             if (root._m_reactiveData.init) {
+                debugLog(componentName, 'LIFECYCLE', 'Calling init() hook');
                 Alpine.evaluate(root, root._m_reactiveData.init);
             }
+            
+            debugLog(componentName, 'COMPLETE', 'Initialization complete ✓\n');
         }
 
         disconnectedCallback() {
-            console.log(`[Alpine Component] Disconnecting ${componentName} N°${this.localCount} init(${this._m_initialized})`);
-            if (!this._m_initialized) return;
-            // Clear scheduled flag if still pending
-            this._m_scheduled = false;
+            debugLog(componentName, 'DISCONNECTED', 'Element disconnected from DOM');
             
-            // Clean up x-ignore marker if still pending
+            if (!this._m_initialized) {
+                debugLog(componentName, 'DISCONNECTED', 'Never initialized, skipping cleanup');
+                return;
+            }
+            
+            this._m_scheduled = false;
             this.removeAttribute('x-ignore');
             
-            // Skip cleanup for unwrap mode (handled by onElRemoved)
-            if (el.hasAttribute('unwrap')) return;
+            // Clean up slot content elements
+            debugLog(componentName, 'CLEANUP', 'Cleaning up slot content');
+            const cleanupSlotContent = (parent) => {
+                Array.from(parent.children).forEach(child => {
+                    // Clear Alpine state
+                    if (child._x_dataStack) {
+                        Object.keys(child).forEach(key => {
+                            if (key.startsWith('_x_')) delete child[key];
+                        });
+                        if (DEBUG) {
+                            debugLog(componentName, 'CLEANUP', `Cleared Alpine state from ${child.tagName.toLowerCase()}`);
+                        }
+                    }
+                    // Clear parent component marker
+                    if (child._m_parentComponent === this) {
+                        delete child._m_parentComponent;
+                        if (DEBUG) {
+                            debugLog(componentName, 'CLEANUP', `Cleared ownership from ${child.tagName.toLowerCase()}`);
+                        }
+                    }
+                    
+                    const tagName = child.tagName.toLowerCase();
+                    
+                    // Special handling for <template> elements
+                    if (tagName === 'template' && child.content) {
+                        Array.from(child.content.children).forEach(contentChild => {
+                            if (contentChild._x_dataStack) {
+                                Object.keys(contentChild).forEach(key => {
+                                    if (key.startsWith('_x_')) delete contentChild[key];
+                                });
+                            }
+                            if (contentChild._m_parentComponent === this) {
+                                delete contentChild._m_parentComponent;
+                            }
+                            const contentTagName = contentChild.tagName.toLowerCase();
+                            if (!customElements.get(contentTagName)) {
+                                cleanupSlotContent(contentChild);
+                            }
+                        });
+                    }
+                    
+                    // Don't recurse into custom elements
+                    if (!customElements.get(tagName)) {
+                        cleanupSlotContent(child);
+                    }
+                });
+            };
+            cleanupSlotContent(this);
+            
+            if (el.hasAttribute('unwrap')) {
+                debugLog(componentName, 'CLEANUP', 'Unwrap mode, skipping root cleanup');
+                return;
+            }
 
-            // Only run cleanup if actually initialized
-            if (!this._m_initialized) return;
-
+            debugLog(componentName, 'CLEANUP', 'Cleaning up root component');
             const root = this._m_strategy.getScopeTarget();
             if (root._m_reactiveData?.destroy) {
+                debugLog(componentName, 'LIFECYCLE', 'Calling destroy() hook');
                 Alpine.evaluate(root, root._m_reactiveData.destroy);
             }
             if (root._m_undo) {
                 root._m_undo();
             }
+            
+            debugLog(componentName, 'CLEANUP', 'Cleanup complete\n');
         }
     }
 

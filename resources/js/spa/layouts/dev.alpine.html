@@ -1,0 +1,48 @@
+<template>
+    <template x-if="show">
+        <div>
+            <p>Visible</p>
+            <ui-nav>
+                <template x-for="item in mainItems">
+                    <ui-nav-item :name="item.name" :href="item.path"></ui-nav-item>
+                </template>
+            </ui-nav>
+        </div>
+    </template>
+    <button @click="show = !show">toggle</button>
+    <div>
+        <slot></slot>
+    </div>
+    <template x-if="show">
+        <div>
+            <template x-for="i in test">
+                <div class="flex gap-1 border w-fit m-1">
+                    <p x-text="i" x-init="console.log('x-for nav', i)"></p>
+                </div>
+            </template>
+        </div>
+    </template>
+</template>
+
+<script setup>
+    return {
+        show: false,
+        test: [1,2,3,4,5],
+        mainItems: [
+            {
+                name: "home",
+                path: "/",
+            },
+            {
+                name: "about",
+                path: "/about",
+            },
+        ],
+        secondaryItems: [
+            {
+                name: "docs",
+                path: "/docs",
+            },
+        ],
+    }
+</script>

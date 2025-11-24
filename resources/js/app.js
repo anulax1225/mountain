@@ -10,12 +10,13 @@ Alpine.compositor = compositor;
 Alpine.plugin([compositor.plugin, tash]);
 Alpine.magic("compositor", () => compositor);
 compositor.createStyleSheet(css);
+compositor.enableDebug(true);
 
-// compositor.fromFolderMap(import.meta.glob("./spa/**/*.alpine.html", {
-//     query: "?raw",
-//     eager: true,
-//     import: 'default',
-// }));
+compositor.fromFolderMap(import.meta.glob("./spa/**/*.alpine.html", {
+    query: "?raw",
+    eager: true,
+    import: 'default',
+}));
 
 createRouter("page-home", [
     { path: '/about', component: 'page-about' },
@@ -25,6 +26,6 @@ createRouter("page-home", [
 ]);
 
 //console.log("Loading document");
-await compositor.findComponentsAndLoad(document)
+//await compositor.findComponentsAndLoad(document)
 
 Alpine.start();

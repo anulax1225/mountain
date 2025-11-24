@@ -1,0 +1,13 @@
+<template>
+    <button @click="$store.router.visit($props.href)">
+        <slot></slot>
+    </button>
+</template>
+<script setup>
+    const props = defineProps({
+        href: {
+            type: String,
+            default: "",
+        },
+    });
+</script>

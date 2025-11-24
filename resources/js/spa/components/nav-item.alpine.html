@@ -1,0 +1,17 @@
+<template>
+    <router-link :href="$props.href">
+        <p id="my-text" x-text="$props.name || 'default'"></p>
+    </router-link>
+</template>
+<script setup>
+    const props = defineProps({
+        name: {
+            type: String,
+            default: "",
+        },
+        href: {
+            type: String,
+            default: "",
+        },
+    });
+</script>
