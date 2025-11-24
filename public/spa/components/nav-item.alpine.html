@@ -1,7 +1,6 @@
 <template>
-    <p x-text="'link props ' + $props.name + ' ' + $props.href"></p>
     <router-link :href="$props.href">
-        <p id="my-text" x-text="$props.name" x-init="console.log('ui-nav-item',$props)">default text</p>
+        <p id="my-text" x-text="$props.name || 'default'"></p>
     </router-link>
 </template>
 <script setup>

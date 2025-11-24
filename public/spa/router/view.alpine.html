@@ -1,8 +1,4 @@
 <template>
-    <ui-button class="border p-2 m-2" @click="showPage()">
-        text
-        <p x-text="show.value ? 'shown' : 'hidden'"></p>
-    </ui-button>
     <div x-ref="routerView">
 
     </div>
@@ -11,27 +7,20 @@
 
 <script setup>
     return {
-        show: ref(false),
+        prevPage: "",
         init() {
             effect(() => {
-                if(!this.show.value) {
-                    $refs.routerView.innerHTML = "";
-                    return;
-                }
-
                 let page = $store.router.currentPage;
+                if (page === this.prevPage) return;
+                else this.prevPage = page;
                 if (!Alpine.compositor.hasComponent(page)) {
-                    console.log("[Alpine router] Dynamic page load of " + page)
+                    //console.log("[Alpine router] Dynamic page load of " + page)
                     Alpine.compositor.loadComponent(page);
                 }
-                $refs.routerView.innerHTML = ``;
-                const pageNode = document.createElement(page);
-                $refs.routerView.appendChild(pageNode);
+                const pageElement = document.createElement(page);
+                $refs.routerView.innerHTML = "";
+                $refs.routerView.appendChild(pageElement);
             });
         },
-        showPage() {
-            console.log("show", $refs, $refs.routerView)
-            this.show.value = !this.show.value;
-        }
     }
 </script>

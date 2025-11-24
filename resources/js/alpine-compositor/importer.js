@@ -1,4 +1,4 @@
-import { registerComponent, registerStyleSheet } from "./cregistery";
+import { registerComponent, registerStyleSheet } from "./dregistery";
 
 const appType = "spa";
 

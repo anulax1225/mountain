@@ -4,14 +4,14 @@ export function createRouter(currentPage = "", routes = []) {
     Alpine.store('router', {
         _router: null,
         $route: null,
-        currentPage, 
+        currentPage,
         routes,
-        init()  {
+        init() {
             this._router = new UniversalRouter(routes, {
                 baseUrl: '/',
                 context: { self: this },
                 resolveRoute(context, params) {
-                    context.self.$route = { params, path: context.pathname }
+                    context.self.$route = { params, path: context.path }
                     if (typeof context.route.action === 'function') {
                         return context.route.action(context, params)
                     }
@@ -22,15 +22,24 @@ export function createRouter(currentPage = "", routes = []) {
             window.addEventListener('popstate', e => this.onUrlChange());
         },
         visit(path) {
-            window.location.href = path;
+            history.pushState({}, '', path);
+this.onUrlChange()
+        },
+        pathToPage(pathname) {
+            if (pathname === '/' || pathname === '') {
+                return 'page-home';
+            }
+            return 'page' + pathname.replaceAll('/', '-');
         },
         onUrlChange() {
-            let match = window.location.href.match(/#(.*)$/)
-            let fragment = match ? match[1] : '';
-            this._router.resolve({ pathname: fragment }).then(component => {
-                if (component) this.currentPage = component;
-                //console.log("[Alpine router] Visited page", this.currentPage);
-            })
+            const fragment = this.pathToPage(window.location.pathname);
+            this._router.resolve({ pathname: window.location.pathname }).then(component => {
+                this.currentPage = component || fragment;
+                console.log("[Alpine router] Visited page", this.currentPage);
+            }).catch(() => {
+                this.currentPage = fragment;
+                console.log("[Alpine router] Fallback to", this.currentPage);
+            });
         },
     });
 

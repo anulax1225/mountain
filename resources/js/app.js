@@ -24,7 +24,7 @@ createRouter("page-home", [
     { path: '', component: 'page-home' }
 ]);
 
-console.log("Loading document");
-compositor.findComponentsAndLoad(document)
+//console.log("Loading document");
+await compositor.findComponentsAndLoad(document)
 
 Alpine.start();

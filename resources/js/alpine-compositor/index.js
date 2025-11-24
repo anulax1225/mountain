@@ -13,7 +13,7 @@ import {
 
 import { 
     hasComponent 
-} from "./cregistery";
+} from "./dregistery";
 import xRoot from "./directives/x-root";
 
 export default {

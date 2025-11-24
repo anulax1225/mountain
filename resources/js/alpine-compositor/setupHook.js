@@ -1,7 +1,7 @@
 const _props = Alpine.reactive({});
 
 const defineProps = (props) => {
-    console.log(`Defining props for component ${$host.tagName}`);
+    //console.log(`Defining props for component ${$host.tagName}`);
     Object.entries(props).forEach(([prop, config]) => {
         const defaultData = config.default || null;
         if ($host.hasAttribute(prop) || $host.hasAttribute(":" + prop)) {

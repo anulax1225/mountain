@@ -4,8 +4,8 @@ export function setProps(props, defines, $host) {
         const defaultData = config.default !== undefined ? config.default : null;
         if ($host.hasAttribute(prop) || $host.hasAttribute(":" + prop)) {
             let propData = defaultData;
-            if ($host.hasAttribute(":" + prop)) propData = Alpine.evaluate($host, $host.getAttribute(`:${prop}`)) || null;
-            else if ($host.hasAttribute(prop)) propData = $host.getAttribute(prop) || null;
+            if ($host.hasAttribute(":" + prop)) propData = Alpine.evaluate($host, $host.getAttribute(`:${prop}`));
+            else if ($host.hasAttribute(prop)) propData = $host.getAttribute(prop);
             console.log(`Found props[${prop}] = ${propData}`);
             if (config.type === String && typeof propData !== 'string') console.warn(`prop ${prop} data type should be string`, propData);
             else if (config.type === Number && typeof propData !== 'number') console.warn(`prop ${prop} data type should be number`, propData);
@@ -13,7 +13,7 @@ export function setProps(props, defines, $host) {
             else if (config.type === Object && typeof propData !== 'object') console.warn(`prop ${prop} data type should be object`, propData);
             props[prop] = propData;
         } else {
-            //console.warn(`props[${prop}] data not found`);
+            console.warn(`props[${prop}] data not found`);
             props[prop] = defaultData;
         }
     });
@@ -21,7 +21,7 @@ export function setProps(props, defines, $host) {
 
 export function propsBuilder($host, props) {
     return (defines) => {
-        console.log(`Defining props for component ${$host.tagName}`);
+        //console.log(`Defining props for component ${$host.tagName}`);
         setProps(props, defines, $host);
         return new Proxy(props, {
             get(target, prop) {

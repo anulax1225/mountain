@@ -1,10 +1,10 @@
 <template>
-        <div class="w-full flex h-16 gap-1">
+        <ui-nav>
             <ui-nav-item :name="mainItems[0].name" :href="mainItems[0].path"></ui-nav-item>
             <template x-for="item in mainItems">
                 <ui-nav-item :name="item.name" :href="item.path"></ui-nav-item>
             </template>
-        </div>
+        </ui-nav>
     <div>
         <slot></slot>
     </div>
