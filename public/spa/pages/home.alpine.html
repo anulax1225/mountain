@@ -1,7 +1,18 @@
 <template>
     <layout-dev>
-        <div class="border border-gray-900 rounded-2xl mt-10">
-            <p class="text-6xl">Page Home</p>
+        <div class="border border-gray-900 rounded-2xl mt-10 gap-2 p-10 m-2">
+            <p class="text-6xl mb-10">Page Home</p>
+            <template x-for="btn in btns">
+                <ui-button @click="btn += 1">
+                    <p x-text="btn"></p>
+                </ui-button>
+            </template>
         </div>
     </layout-dev>
 </template>
+
+<script setup>
+return {
+    btns: [0, 0, 0, 0, 0]
+}
+</script>

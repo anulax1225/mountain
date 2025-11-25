@@ -15,7 +15,7 @@ directive('for', (el, { expression }, { effect, cleanup }) => {
         // the x-bind:key expression is stored for our use instead of evaluated.
         el._x_keyExpression || 'index'
     )
-    console.log("x-for init on", iteratorNames);
+
     el._x_prevKeys = []
     el._x_lookup = {}
 

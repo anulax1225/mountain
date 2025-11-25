@@ -1,25 +1,19 @@
 <template>
-    <template x-if="show">
-        <div>
-            <p>Visible</p>
-            <ui-nav>
-                <template x-for="item in mainItems">
-                    <ui-nav-item :name="item.name" :href="item.path"></ui-nav-item>
-                </template>
-            </ui-nav>
+    <ui-nav>
+        <div class="flex gap-2 px-2">
+            <template x-for="item in mainItems">
+                <ui-nav-item :name="item.name" :href="item.path"></ui-nav-item>
+            </template>
         </div>
-    </template>
-    <button @click="show = !show">toggle</button>
+        <div class="flex gap-2 px-2">
+            <template x-for="item in secondaryItems">
+                <ui-nav-item :name="item.name" :href="item.path"></ui-nav-item>
+            </template>
+        </div>
+    </ui-nav>
     <div>
         <slot></slot>
     </div>
-        <div>
-            <template x-for="i in [1,2,3,4,5]">
-                <div class="flex gap-1 border w-fit m-1">
-                    <p x-text="i" x-init="console.log('x-for nav', i)"></p>
-                </div>
-            </template>
-        </div>
 </template>
 
 <script setup>

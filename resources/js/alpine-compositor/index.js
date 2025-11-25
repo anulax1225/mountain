@@ -1,22 +1,26 @@
-import xComponent from "./directives/x-component";
-import xLoad from "./directives/x-load";
-import xFormat from "./directives/x-format";
+import xComponent from "./directives/x-component.js";
+import xLoad from "./directives/x-load.js";
+import xFormat from "./directives/x-format.js";
+import xElement from "./directives/x-element.js";
 import { 
-    fromFolderMap,
-    createComponent, 
-    loadComponent, 
-    findComponentsAndLoad, 
+    createComponentElement, 
     loadStyleSheet, 
     createStyleSheet, 
-} from "./importer";
+} from "./importer.js";
 
 import { 
     registerComponent,
     hasComponent,
     setDebugMode,
     getDebugMode
-} from "./cregistery";
-import xRoot from "./directives/x-root";
+} from "./registery.js";
+
+import { 
+    NamespaceRegistry,
+    ComponentNamespace,
+    BundledNamespace,
+    CDNNamespace,
+} from "./namespace.js";
 
 // Global debug configuration
 let DEBUG = false;
@@ -33,21 +37,32 @@ export function isDebugEnabled() {
     return DEBUG;
 }
 
-export default {
+const defaultRegistry = new NamespaceRegistry();
+
+export const Compositor = {
+    registry: defaultRegistry,
+    registerNamespace: (name, config) => defaultRegistry.register(name, config),
+    getNamespace: (name) => defaultRegistry.get(name),
+    loadComponent: (tagName) => defaultRegistry.load(tagName),
+    findAndLoad: (el) => defaultRegistry.findAndLoad(el),
+    fromGlob: (map) => defaultRegistry.fromGlob(map),
+
+    ComponentNamespace,
+    BundledNamespace,
+    CDNNamespace,
+    NamespaceRegistry,
     hasComponent,
-    loadComponent,
     loadStyleSheet,
-    findComponentsAndLoad,
-    createComponent,
     createStyleSheet,
-    fromFolderMap,
     enableDebug,
     isDebugEnabled,
-    plugin: function (Alpine) {
-        Alpine.directive('component', xComponent).before("data");
-        Alpine.directive('root', xRoot);
-        Alpine.addRootSelector(() => `[${Alpine.prefixed('root')}]`);
-        Alpine.directive('load', xLoad);
-        //Alpine.directive("format", xFormat);
-    },
+}
+
+export function plugin(Alpine) {
+    Alpine.directive('component', xComponent).before("data");
+    Alpine.directive('element', xElement);
+    Alpine.addRootSelector(() => `[${Alpine.prefixed('element')}]`);
+    Alpine.directive('load', xLoad);
+    Alpine.directive("format", xFormat);
+    Alpine.magic("compositor", () => Compositor);
 }

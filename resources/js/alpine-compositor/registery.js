@@ -1,5 +1,5 @@
 import evaluateScriptSetup from "./evaluator.js";
-import Alpine from "../alpinejs";
+import Alpine from "../alpinejs/index.js";
 import { ref, reactive, computed, effect, propsBuilder } from "./utils.js";
 import { createDOMStrategy } from "./dom.js";
 
@@ -136,7 +136,7 @@ function copyAttributes(elFrom, elTo) {
             if (DIR_INIT === name && elTo.getAttribute(DIR_INIT)) {
                 elTo.setAttribute(name, attr.value + ';' + elTo.getAttribute(DIR_INIT));
             } else if ('class' === name) {
-                elTo.setAttribute(name, attr.value + ' ' + (elTo.getAttribute('class') || ''));
+                elTo.setAttribute(name, ((elTo.getAttribute('class') || '') + " " + attr.value).trim());
             } else if (!elTo.hasAttribute(name)) {
                 elTo.setAttribute(name, attr.value);
             }
@@ -145,8 +145,6 @@ function copyAttributes(elFrom, elTo) {
         }
     });
 }
-
-
 
 export function registerComponent(el, componentName, setupScript = "return {}") {
     if (!componentName) {
@@ -192,50 +190,50 @@ export function registerComponent(el, componentName, setupScript = "return {}") 
             // Mark slot content with authoring context
             // This tracks which component authored each element, enabling proper scope resolution
             // Recursively marks children but stops at custom elements (they mark their own content)
-            const markSlotContent = (parent, owner) => {
-                Array.from(parent.children).forEach(child => {
-                    if (child._m_parentComponent) return;
-                    
-                    const tagName = child.tagName.toLowerCase();
-                    
-                    // Special handling for <template> elements (e.g., x-for, x-if)
-                    // Don't mark the template itself, only its content
-                    if (tagName === 'template' && child.content) {
-                        // Mark the content inside the template
-                        Array.from(child.content.children).forEach(contentChild => {
-                            markSlotContent(contentChild, owner);
-                        });
-                        return; // Don't mark the template itself or recurse normally
-                    }
-                    
-                    child._m_parentComponent = owner;
-                    
-                    if (DEBUG) {
-                        debugLog(componentName, 'MARK_SLOT', 
-                            `Marked ${child.tagName.toLowerCase()} as authored by ${owner.tagName.toLowerCase()}`);
-                    }
-                    
-                    // Don't recurse into custom elements - they own their own slot content
-                    if (!customElements.get(tagName)) {
-                        markSlotContent(child, owner);
-                    }
-                });
-            };
-            markSlotContent(this, this);
+            this.markSlotContent(this, this);
             
-            this.setAttribute('x-ignore', '');
             this._m_scheduled = true;
             
             debugLog(componentName, 'CONNECTED', 'Scheduled for initialization');
             scheduleInit(this, () => this._doInit());
         }
 
+        markSlotContent(parent, owner, override = false) {
+            Array.from(parent.children).forEach(child => {
+                if (child._m_parentComponent && !override) return;
+                
+                const tagName = child.tagName.toLowerCase();
+                
+                // Special handling for <template> elements (e.g., x-for, x-if)
+                // Don't mark the template itself, only its content
+                if (tagName === 'template' && child.content) {
+                    // Mark the content inside the template
+                    Array.from(child.content.children).forEach(contentChild => {
+                        if (!customElements.get(tagName)) {
+                            this.markSlotContent(contentChild, owner);
+                        }
+                    });
+                    return; // Don't mark the template itself or recurse normally
+                }
+                
+                child._m_parentComponent = owner;
+                
+                if (DEBUG) {
+                    debugLog(componentName, 'MARK_SLOT', 
+                        `Marked ${child.tagName.toLowerCase()} as authored by ${owner.tagName.toLowerCase()}`);
+                }
+                
+                // Don't recurse into custom elements - they own their own slot content
+                if (!customElements.get(tagName)) {
+                    this.markSlotContent(child, owner);
+                }
+            });
+        }
+
         _doInit() {
             debugLog(componentName, 'DO_INIT', 'Starting initialization');
             
             this._m_scheduled = false;
-            this.removeAttribute('x-ignore');
-            
             if (this._m_initialized || !this.isConnected) {
                 debugLog(componentName, 'DO_INIT', 'Already initialized or disconnected, skipping');
                 return;
@@ -262,41 +260,7 @@ export function registerComponent(el, componentName, setupScript = "return {}") 
                 }
 
                 const newRoot = strategy.getScopeTarget();
-                const updateOwner = (parent) => {
-                    Array.from(parent.children).forEach(child => {
-                        if (child._m_parentComponent === this) {
-                            child._m_parentComponent = newRoot;
-                            if (DEBUG) {
-                                debugLog(componentName, 'UNWRAP', 
-                                    `Updated ${child.tagName.toLowerCase()} owner to unwrapped element`);
-                            }
-                        }
-                        
-                        const tagName = child.tagName.toLowerCase();
-                        
-                        // Special handling for <template> elements
-                        if (tagName === 'template' && child.content) {
-                            Array.from(child.content.children).forEach(contentChild => {
-                                if (contentChild._m_parentComponent === this) {
-                                    contentChild._m_parentComponent = newRoot;
-                                    if (DEBUG) {
-                                        debugLog(componentName, 'UNWRAP', 
-                                            `Updated ${contentChild.tagName.toLowerCase()} (inside template) owner to unwrapped element`);
-                                    }
-                                }
-                                const contentTagName = contentChild.tagName.toLowerCase();
-                                if (!customElements.get(contentTagName)) {
-                                    updateOwner(contentChild);
-                                }
-                            });
-                        }
-                        
-                        if (!customElements.get(tagName)) {
-                            updateOwner(child);
-                        }
-                    });
-                };
-                updateOwner(newRoot);
+                this.markSlotContent(newRoot, newRoot, true);
 
                 strategy.cleanup(() => {
                     debugLog(componentName, 'CLEANUP', 'Running unwrap cleanup');
@@ -313,7 +277,6 @@ export function registerComponent(el, componentName, setupScript = "return {}") 
             // Mark all template elements as authored by this component
             // For unwrap mode, this happens after mount() when component is set
             // For other modes, this happens now (component was set in init())
-            strategy.markTemplateElements();
 
             const root = strategy.getScopeTarget();
 
@@ -321,7 +284,7 @@ export function registerComponent(el, componentName, setupScript = "return {}") 
             this._m_root = strategy.getInitRoot();
 
             copyAttributes(el, root);
-            root.setAttribute('x-root', '');
+            root.setAttribute('x-element', '');
 
             debugLog(componentName, 'ALPINE_SETUP', 'Setting up Alpine reactivity');
 
@@ -340,10 +303,12 @@ export function registerComponent(el, componentName, setupScript = "return {}") 
             root._m_reactiveData = Alpine.reactive(data);
             Alpine.initInterceptors(root._m_reactiveData);
             root._m_undo = Alpine.addScopeToNode(root, root._m_reactiveData);
-
+            
             if (DEBUG) {
                 debugLog(componentName, 'PROPS', 'Defined props:', Object.keys(root._m_props));
             }
+
+            strategy.markTemplateElements();
 
             // Apply slots: scope content to authoring context, then distribute
             debugLog(componentName, 'APPLY_SLOTS', 'Processing slots');
@@ -372,7 +337,6 @@ export function registerComponent(el, componentName, setupScript = "return {}") 
             }
             
             this._m_scheduled = false;
-            this.removeAttribute('x-ignore');
             
             // Clean up slot content elements
             debugLog(componentName, 'CLEANUP', 'Cleaning up slot content');

@@ -1,6 +1,6 @@
 <template>
     <router-link :href="$props.href">
-        <p id="my-text" x-text="$props.name || 'default'"></p>
+        <p id="my-text" x-format>{{ $props.name || 'default' }}</p>
     </router-link>
 </template>
 <script setup>

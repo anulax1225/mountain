@@ -1,10 +1,16 @@
+import Alpine from "../alpinejs";
 import UniversalRouter from "universal-router";
 
-export function createRouter(currentPage = "", routes = []) {
-    Alpine.store('router', {
+let storeName = "router";
+
+export function createRouter(routes = [], {
+    initialPage = "/",
+    localStoreName = storeName,
+} = {}) {
+    Alpine.store(localStoreName, {
         _router: null,
         $route: null,
-        currentPage,
+        currentPage: routes.find(route => route.path === initialPage).component,
         routes,
         init() {
             this._router = new UniversalRouter(routes, {
@@ -23,7 +29,7 @@ export function createRouter(currentPage = "", routes = []) {
         },
         visit(path) {
             history.pushState({}, '', path);
-this.onUrlChange()
+            this.onUrlChange()
         },
         pathToPage(pathname) {
             if (pathname === '/' || pathname === '') {
@@ -42,11 +48,11 @@ this.onUrlChange()
             });
         },
     });
-
-    return Alpine.store('router');
+    storeName = localStoreName;
+    return Alpine.store(localStoreName);
 }
 
 export function useRouter() {
-    return Alpine.store('router');
+    return Alpine.store(storeName);
 }
 

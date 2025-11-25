@@ -1,31 +1,32 @@
 import Alpine from './alpinejs';
-import tash from 'alpinejs-tash';
-import compositor from './alpine-compositor';
+import { plugin, Compositor } from './alpine-compositor';
 import css from '../css/app.css?inline'
-import { createRouter } from './router';
+import { createRouter } from './alpine-compositor/router.js';
 
 window.Alpine = Alpine;
-Alpine.compositor = compositor;
+Alpine.compositor = Compositor;
 
-Alpine.plugin([compositor.plugin, tash]);
-Alpine.magic("compositor", () => compositor);
-compositor.createStyleSheet(css);
-compositor.enableDebug(true);
+Alpine.plugin([plugin]);
+Compositor.createStyleSheet(css);
 
-compositor.fromFolderMap(import.meta.glob("./spa/**/*.alpine.html", {
+Compositor.registerNamespace('ui', { uri: '/spa/components/' });
+Compositor.registerNamespace('icon', { uri: '/spa/icons/' });
+Compositor.registerNamespace('page', { uri: '/spa/pages/' });
+Compositor.registerNamespace('layout', { uri: '/spa/layouts/' });
+Compositor.registerNamespace('router', { uri: '/spa/router/' });
+
+Compositor.registerNamespace('app', new Compositor.BundledNamespace({ folder: './spa/' }));
+Compositor.fromGlob(import.meta.glob("./spa/*.alpine.html", {
     query: "?raw",
     eager: true,
     import: 'default',
-}));
+}))
 
-createRouter("page-home", [
+createRouter([
     { path: '/about', component: 'page-about' },
     { path: '/welcome', component: 'page-home' },
     { path: '/', component: 'page-home' },
     { path: '', component: 'page-home' }
 ]);
-
-//console.log("Loading document");
-//await compositor.findComponentsAndLoad(document)
 
 Alpine.start();
