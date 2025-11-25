@@ -226,35 +226,35 @@ class BaseDOMStrategy {
             }
             
             // Check if already correctly scoped to the right parent
-            const currentScope = el._x_dataStack?.[0];
-            const targetScope = el._m_parentComponent._x_dataStack?.[0];
+            // const currentScope = el._x_dataStack?.[0];
+            // const targetScope = el._m_parentComponent._x_dataStack?.[0];
             
-            // If already scoped to the correct parent, skip
-            if (currentScope && targetScope && currentScope === targetScope) {
-                skipped++;
-                if (getDebugMode()) {
-                    debugLog(this, 'SCOPE', 
-                        `${el.tagName.toLowerCase()} already correctly scoped to ${el._m_parentComponent.tagName.toLowerCase()}`);
-                }
-                return;
-            }
+            // // If already scoped to the correct parent, skip
+            // if (currentScope && targetScope && currentScope === targetScope) {
+            //     skipped++;
+            //     if (getDebugMode()) {
+            //         debugLog(this, 'SCOPE', 
+            //             `${el.tagName.toLowerCase()} already correctly scoped to ${el._m_parentComponent.tagName.toLowerCase()}`);
+            //     }
+            //     return;
+            // }
             
-            // Clear any existing Alpine state before re-scoping
-            if (el._x_dataStack) {
-                rescoped++;
-                if (getDebugMode()) {
-                    debugLog(this, 'RESCOPE', 
-                        `Clearing old scope from ${el.tagName.toLowerCase()} before re-scoping`);
-                }
-                delete el._x_dataStack;
-                delete el._x_inlineBindings;
-                delete el._x_effects;
-                delete el._x_ignoreSelf;
-                // Clear any other Alpine-specific properties
-                Object.keys(el).forEach(key => {
-                    if (key.startsWith('_x_')) delete el[key];
-                });
-            }
+            // // Clear any existing Alpine state before re-scoping
+            // if (el._x_dataStack) {
+            //     rescoped++;
+            //     if (getDebugMode()) {
+            //         debugLog(this, 'RESCOPE', 
+            //             `Clearing old scope from ${el.tagName.toLowerCase()} before re-scoping`);
+            //     }
+            //     delete el._x_dataStack;
+            //     delete el._x_inlineBindings;
+            //     delete el._x_effects;
+            //     delete el._x_ignoreSelf;
+            //     // Clear any other Alpine-specific properties
+            //     Object.keys(el).forEach(key => {
+            //         if (key.startsWith('_x_')) delete el[key];
+            //     });
+            // }
             
             // Scope to the component that authored this element
             this.Alpine.addScopeToNode(el, {}, el._m_parentComponent);

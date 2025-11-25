@@ -13,21 +13,18 @@
     <div>
         <slot></slot>
     </div>
-    <template x-if="show">
         <div>
-            <template x-for="i in test">
+            <template x-for="i in [1,2,3,4,5]">
                 <div class="flex gap-1 border w-fit m-1">
                     <p x-text="i" x-init="console.log('x-for nav', i)"></p>
                 </div>
             </template>
         </div>
-    </template>
 </template>
 
 <script setup>
     return {
         show: false,
-        test: [1,2,3,4,5],
         mainItems: [
             {
                 name: "home",
