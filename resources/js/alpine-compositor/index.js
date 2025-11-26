@@ -45,7 +45,7 @@ export const Compositor = {
     getNamespace: (name) => defaultRegistry.get(name),
     loadComponent: (tagName) => defaultRegistry.load(tagName),
     findAndLoad: (el) => defaultRegistry.findAndLoad(el),
-    fromGlob: (map) => defaultRegistry.fromGlob(map),
+    loadFromGlob: (map) => defaultRegistry.fromGlob(map),
 
     ComponentNamespace,
     BundledNamespace,

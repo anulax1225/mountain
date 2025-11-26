@@ -8,11 +8,16 @@
                 </ui-button>
             </template>
         </div>
+        <ui-input type="password" x-model="content" />
     </layout-dev>
 </template>
 
 <script setup>
 return {
-    btns: [0, 0, 0, 0, 0]
+    content: "lalala",
+    btns: [0, 0, 0, 0, 0],
+    init() {
+        effect(() => console.log(this.content))
+    }
 }
 </script>

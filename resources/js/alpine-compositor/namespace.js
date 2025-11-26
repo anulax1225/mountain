@@ -73,7 +73,7 @@ export class BundledNamespace extends ComponentNamespace {
     }
     
     matchesPath(path) {
-        return this.folder && path.startsWith(this.folder);
+        return this.folder && path.startsWith(this.folder) && !path.replace(this.folder, "").includes("/");
     }
 }
 
@@ -175,6 +175,7 @@ export class NamespaceRegistry {
             for (const [nsName, namespace] of this.namespaces) {
                 if (namespace instanceof BundledNamespace && namespace.matchesPath(path)) {
                     const template = namespace.addComponent(name, content, this);
+                    return;
                 }
             }
             
