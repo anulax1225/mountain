@@ -2,7 +2,7 @@ import { createComponentElement, getUndefinedCustomElements } from "./importer.j
 
 export class ComponentNamespace {
     constructor(config) {
-        this.uri = config.uri || '';
+        this.uri = !!config.uri ? (config.uri.at(-1) === "/" ? config.uri : config.uri + "/") : '';
         this.prefix = config.prefix || '';
         this.transform = config.transform || ((name) => `${name}.alpine.html`);
         this.cache = new Map();
@@ -45,12 +45,7 @@ export class ComponentNamespace {
     async load(tagName, registry) {
         const componentName = this.extractName(tagName);
         const html = await this.fetch(componentName);
-        const template = await this.addComponent(tagName, html, registry);
-        return template;
-    }
-
-    async addComponent(name, html, registry) {
-        const template = this.register(name, html);
+        const template = this.register(componentName, html);
         if (this.autoImport) {
             await registry.findAndLoad(template);
         }
@@ -61,8 +56,9 @@ export class ComponentNamespace {
 // Bundled/Preloaded Namespace
 export class BundledNamespace extends ComponentNamespace {
     constructor(config) {
-        super(config);
-        this.folder = config.folder || '';
+        super(config); 
+        this.folder = !!config.folder ? (config.folder.at(-1) === "/" ? config.folder : config.folder + "/") : '';
+        this.components = new Map();
     }
     
     addComponents(globMap) {
@@ -70,6 +66,17 @@ export class BundledNamespace extends ComponentNamespace {
             const name = path.split('/').pop().replace('.alpine.html', '');
             this.addComponent(name, content);
         });
+    }
+
+    async addComponent(name, html, registry) {
+        this.components.set(name, html);
+    }
+
+    async fetch(componentName) {
+        if (this.components.has(componentName)) {
+            return this.components.get(componentName);
+        }
+        return super.fetch(componentName);
     }
     
     matchesPath(path) {
@@ -129,6 +136,10 @@ export class NamespaceRegistry {
     setDefault(name) {
         this.defaultNamespace = name;
     }
+
+    logComponents() {
+        this.namespaces.forEach((namespace, name) =>  namespace.components.forEach((comp, componentName) => console.log(`${name} -> ${componentName}`)))
+    }
     
     findNamespace(tagName) {
         for (const [name, namespace] of this.namespaces) {
@@ -152,7 +163,6 @@ export class NamespaceRegistry {
         if (!result) {
             throw new Error(`No namespace registered for component: ${tagName}`);
         }
-        
         return await result.namespace.load(tagName, this);
     }
     
@@ -160,7 +170,6 @@ export class NamespaceRegistry {
         const undefinedTags = getUndefinedCustomElements(el);
         
         if (undefinedTags.length === 0) return;
-        
         await Promise.all(
             undefinedTags.map(tagName => this.load(tagName))
         );

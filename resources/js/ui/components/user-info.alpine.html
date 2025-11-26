@@ -1,0 +1,61 @@
+<template light>
+    <button x-ref="menuBar"
+        @blur="evalBlur($event, () => showMenu = false)" class="w-full relative">
+        <div @click="showMenu = !showMenu"
+            class="flex justify-between items-center py-2 px-4 hover:bg-gray-100">
+            <div class="flex items-center gap-2">
+                <div class="w-10 h-10 px-2 py-2 rounded-lg bg-gray-100">
+                    <img x-show="showOriginal" :src="$props.user.entreprise.url" @error="showOriginal = false">
+                    <icon-user class="w-full h-fit" x-show="!showOriginal"></icon-user>
+                </div>
+                <p class="text-sm" x-format>{{ $props.user.name + " " + $props.user.lastname }}</p>
+            </div>
+            <icon-chevrons-up-down class="w-5 h-5"></icon-chevrons-up-down>
+        </div>
+        <div x-show="showMenu" x-anchor.top-start.offset.10="$refs.menuBar"
+            class="w-[95%] px-2 py-4 mx-1 h-fit rounded-lg shadow border bg-white transition-[opacity]">
+            <div class="flex items-center gap-2 mb-2">
+                <div class="w-10 h-10 px-2 py-2 rounded-lg bg-gray-100">
+                    <img x-show="showOriginal" :src="$props.user.entreprise.url" @error="showOriginal = false">
+                    <icon-user class="w-full h-fit" x-show="!showOriginal"></icon-user>
+                </div>
+                <div class="text-left">
+                    <p class="text-sm" x-format>{{ $props.user.name + " " + $props.user.lastname }}</p>
+                    <p class="text-xs text-gray-600" x-format>{{ $props.user.email }}</p>
+                </div>
+            </div>
+            <a href="/user/absence" class="flex items-center mt-2 gap-3 px-2 hover:bg-gray-50 py-1.5 rounded-lg">
+                <icon-calendar-off class="w-5 h-5 text-gray-500"></icon-calendar-off>
+                <p>Période d'absence</p>
+            </a>
+            <ui-separator class="my-2"></ui-separator>
+            <a href="/reset-password" class="flex items-center gap-3 px-2 hover:bg-gray-50 py-1.5 rounded-lg">
+                <icon-key-round class="w-5 h-5 text-gray-500"></icon-key-round>
+                <p>Changer le mot de passe</p>
+            </a>
+            <a href="/logout" class="flex items-center gap-3 px-2 hover:bg-gray-50 py-1.5 rounded-lg">
+                <icon-log-out class="w-5 h-5 text-gray-500"></icon-log-out>
+                <p>Déconnexion</p>
+            </a>
+        </div>
+    </button>
+</template>
+
+<script setup>
+    const props = defineProps({
+        user: {
+            type: Object,
+            default: {},
+        },
+    });
+
+    return {
+        showOriginal: true, 
+        showMenu: false,
+        evalBlur(e, callback) {
+            if (!this.$refs.menuBar.contains(e.relatedTarget)) {
+                callback();
+            }
+        },
+    }
+</script>
