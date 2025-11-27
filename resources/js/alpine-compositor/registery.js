@@ -1,6 +1,11 @@
 import evaluateScriptSetup from "./evaluator.js";
 import Alpine from "../alpinejs/index.js";
-import { ref, reactive, computed, effect, propsBuilder } from "./utils.js";
+import { 
+    ref, reactive, computed, effect, 
+    propsBuilder, shallowRef, writableComputed,
+    watchEffect, unref, readonly, isComputed, isRef,
+    stop, toRaw, toRef, toRefs, watch, 
+} from "./utils.js";
 import { createDOMStrategy } from "./dom.js";
 
 const registeredComponents = new Set();
@@ -296,6 +301,9 @@ export function registerComponent(el, componentName, setupScript = "return {}") 
                 $shadow: strategy.getShadow(),
                 defineProps: propsBuilder(root, root._m_props),
                 ref, reactive, effect, computed,
+                shallowRef, writableComputed, watchEffect,
+                unref, readonly, isComputed, isRef, stop, toRaw, 
+                toRef, toRefs, watch, 
             }) || {};
 
             data = { $props: root._m_props, ...data };

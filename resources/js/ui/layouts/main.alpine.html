@@ -1,11 +1,11 @@
-<template class="flex" light>
+<template class="flex">
     <div id="loader"
         class="hidden fixed z-40 bg-black/50 top-0 right-0 left-0 bottom-0 flex items-center justify-center">
         <rdmetal-eye class="h-32 load-rotate"></rdmetal-eye>
     </div>
-    <nav class="w-96 min-h-screen flex flex-col justify-between border-r border-border bg-gray-50">
+    <nav class="w-96 min-h-screen flex flex-col justify-between border-r border-gray-200 bg-gray-50">
         <div>
-            <div class="flex items-center gap-2 px-4 py-4 border-b">
+            <div class="flex items-center gap-2 px-4 py-4 border-b border-gray-200">
                 <rdmetal-eye class="w-8 h-fit"></rdmetal-eye>
                 <p class="font-medium text-lg">Suivi RD Metal</p>
             </div>
@@ -58,7 +58,7 @@
                 </div>
             </div>
         </div>
-        <ui-user-info #user="$props.user" class="border-t"></ui-user-info>
+        <ui-user-info #user="$props.user" class="border-t border-gray-200"></ui-user-info>
     </nav>
     <div class="w-full relative">
         <slot></slot>

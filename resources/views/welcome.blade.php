@@ -9,7 +9,6 @@
         @endif
     </head>
     <body x-cloak class="w-screen">
-        <v-button></v-button>
         <page-base></page-base>
     </body>
 </html>

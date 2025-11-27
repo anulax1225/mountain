@@ -427,7 +427,7 @@ class UnwrapStrategy extends BaseDOMStrategy {
  */
 export function createDOMStrategy(host, templateEl, styleSheets, Alpine) {
     const shouldUnwrap = templateEl.hasAttribute('unwrap');
-    const useLightDOM = templateEl.hasAttribute('light');
+    const useLightDOM = !templateEl.hasAttribute('shadow');
 
     if (shouldUnwrap) {
         return new UnwrapStrategy(host, templateEl, styleSheets, Alpine);

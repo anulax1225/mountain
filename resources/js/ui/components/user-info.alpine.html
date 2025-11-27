@@ -13,7 +13,7 @@
             <icon-chevrons-up-down class="w-5 h-5"></icon-chevrons-up-down>
         </div>
         <div x-show="showMenu" x-anchor.top-start.offset.10="$refs.menuBar"
-            class="w-[95%] px-2 py-4 mx-1 h-fit rounded-lg shadow border bg-white transition-[opacity]">
+            class="w-[95%] px-2 py-4 mx-1 h-fit rounded-lg shadow border border-gray-200 bg-white transition-opacity">
             <div class="flex items-center gap-2 mb-2">
                 <div class="w-10 h-10 px-2 py-2 rounded-lg bg-gray-100">
                     <img x-show="showOriginal" :src="$props.user.entreprise.url" @error="showOriginal = false">

@@ -11,14 +11,6 @@ export default defineConfig({
             input: ['resources/css/app.css', 'resources/js/app.js'],
             refresh: true,
         }),
-        // viteStaticCopy({
-        //     targets: [
-        //         {
-        //             src: 'resources/js/ui/**/*', // Copy all files from ui folder
-        //             dest: '../ui'      // To ui folder in build output
-        //         }
-        //     ]
-        // }),
         tailwindcss(),
     ],
     resolve: {
