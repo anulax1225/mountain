@@ -178,6 +178,7 @@ export function registerComponent(el, componentName, setupScript = "return {}") 
             super();
             this._m_strategy = createDOMStrategy(this, el, sheets, Alpine);
             this._m_strategy.init();
+            this._m_strategy.root.style.display = "none";
             this._m_initialized = false;
             this._m_scheduled = false;
             
@@ -246,6 +247,7 @@ export function registerComponent(el, componentName, setupScript = "return {}") 
             
             this._m_initialized = true;
             this._initComponent();
+            this._m_strategy.root.style.display = "";
         }
 
         _initComponent() {
