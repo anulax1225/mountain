@@ -1,0 +1,16 @@
+<template shadow>
+    <div class="child-component" x-data="{ childLevel: 2 }">
+        <p>Child Component</p>
+        <slot></slot>
+    </div>
+</template>
+
+<script setup>
+return {
+    parent: null,
+    init() {
+        this.level = 'child';
+        this.initialized = true;
+    }
+}
+</script>

@@ -1,0 +1,15 @@
+<template unwrap>
+    <div class="unwrap-component" x-data="{ unwrapped: true }">
+        <span x-text="title"></span>
+        <slot></slot>
+    </div>
+</template>
+
+<script setup>
+return {
+    title: 'Unwrapped Component',
+    init() {
+        this.isUnwrapped = true;
+    }
+}
+</script>

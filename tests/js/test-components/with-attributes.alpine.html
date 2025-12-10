@@ -1,0 +1,21 @@
+<template shadow>
+    <div class="with-attributes" id="component-root" data-test="value">
+        <button @click="handleClick">Click Me</button>
+        <span :class="{ active: isActive }">Status</span>
+        <slot></slot>
+    </div>
+</template>
+
+<script setup>
+return {
+    isActive: false,
+    clickCount: 0,
+    handleClick() {
+        this.clickCount++;
+        this.isActive = !this.isActive;
+    },
+    init() {
+        this.ready = true;
+    }
+}
+</script>

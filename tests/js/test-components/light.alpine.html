@@ -1,0 +1,15 @@
+<template light>
+    <div class="light-component">
+        <span x-text="greeting"></span>
+        <slot></slot>
+    </div>
+</template>
+
+<script setup>
+return {
+    greeting: 'Light DOM Component',
+    init() {
+        this.mode = 'light';
+    }
+}
+</script>
