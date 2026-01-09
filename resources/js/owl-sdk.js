@@ -21,7 +21,7 @@ class OwlAPIClient {
      * @param {ClientConfig} config
      */
     constructor(config = {}) {
-        this.baseURL = config.baseURL || 'http://localhost';
+        this.baseURL = config.baseURL || 'http://localhost:8000';
         this.token = config.token || null;
         this.timeout = config.timeout || 30000;
         this.retryAttempts = config.retryAttempts || 0;
@@ -230,7 +230,7 @@ class OwlAPIClient {
 /**
  * Custom API Error class
  */
-export class OwlAPIError extends Error {
+class OwlAPIError extends Error {
     constructor(message, status, data) {
         super(message);
         this.name = 'OwlAPIError';
@@ -291,7 +291,7 @@ class AuthAPI {
      * @returns {Promise<Object>}
      */
     async register(data) {
-        return await this.client.request('/api/register', {
+        return await this.client.request('/register', {
             method: 'POST',
             body: data,
             skipAuth: true,
@@ -305,7 +305,7 @@ class AuthAPI {
      * @returns {Promise<Object>}
      */
     async login(email, password) {
-        const response = await this.client.request('/api/login', {
+        const response = await this.client.request('/login', {
             method: 'POST',
             body: { email, password },
             skipAuth: true,
@@ -324,7 +324,7 @@ class AuthAPI {
      */
     async logout() {
         try {
-            const response = await this.client.request('/api/logout', {
+            const response = await this.client.request('/logout', {
                 method: 'POST',
             });
             return response;
@@ -338,7 +338,7 @@ class AuthAPI {
      * @returns {Promise<Object>}
      */
     async user() {
-        return await this.client.request('/api/user', {
+        return await this.client.request('/user', {
             method: 'GET',
         });
     }
@@ -357,7 +357,7 @@ class ProjectsAPI {
      * @returns {Promise<Object>}
      */
     async list() {
-        return await this.client.request('/api/projects', {
+        return await this.client.request('/projects', {
             method: 'GET',
         });
     }
@@ -370,7 +370,7 @@ class ProjectsAPI {
      * @returns {Promise<Object>}
      */
     async create(data) {
-        return await this.client.request('/api/projects', {
+        return await this.client.request('/projects', {
             method: 'POST',
             body: data,
         });
@@ -382,7 +382,7 @@ class ProjectsAPI {
      * @returns {Promise<Object>}
      */
     async get(slug) {
-        return await this.client.request(`/api/projects/${slug}`, {
+        return await this.client.request(`/projects/${slug}`, {
             method: 'GET',
         });
     }
@@ -396,7 +396,7 @@ class ProjectsAPI {
      * @returns {Promise<Object>}
      */
     async update(slug, data) {
-        return await this.client.request(`/api/projects/${slug}`, {
+        return await this.client.request(`/projects/${slug}`, {
             method: 'PUT',
             body: data,
         });
@@ -411,7 +411,7 @@ class ProjectsAPI {
      * @returns {Promise<Object>}
      */
     async patch(slug, data) {
-        return await this.client.request(`/api/projects/${slug}`, {
+        return await this.client.request(`/projects/${slug}`, {
             method: 'PATCH',
             body: data,
         });
@@ -423,7 +423,7 @@ class ProjectsAPI {
      * @returns {Promise<void>}
      */
     async delete(slug) {
-        return await this.client.request(`/api/projects/${slug}`, {
+        return await this.client.request(`/projects/${slug}`, {
             method: 'DELETE',
         });
     }
@@ -443,7 +443,7 @@ class ScenesAPI {
      * @returns {Promise<Object>}
      */
     async list(projectSlug) {
-        return await this.client.request(`/api/projects/${projectSlug}/scenes`, {
+        return await this.client.request(`/projects/${projectSlug}/scenes`, {
             method: 'GET',
         });
     }
@@ -456,7 +456,7 @@ class ScenesAPI {
      * @returns {Promise<Object>}
      */
     async create(projectSlug, data) {
-        return await this.client.request(`/api/projects/${projectSlug}/scenes`, {
+        return await this.client.request(`/projects/${projectSlug}/scenes`, {
             method: 'POST',
             body: data,
         });
@@ -468,7 +468,7 @@ class ScenesAPI {
      * @returns {Promise<Object>}
      */
     async get(sceneSlug) {
-        return await this.client.request(`/api/scenes/${sceneSlug}`, {
+        return await this.client.request(`/scenes/${sceneSlug}`, {
             method: 'GET',
         });
     }
@@ -481,7 +481,7 @@ class ScenesAPI {
      * @returns {Promise<Object>}
      */
     async update(sceneSlug, data) {
-        return await this.client.request(`/api/scenes/${sceneSlug}`, {
+        return await this.client.request(`/scenes/${sceneSlug}`, {
             method: 'PUT',
             body: data,
         });
@@ -495,7 +495,7 @@ class ScenesAPI {
      * @returns {Promise<Object>}
      */
     async patch(sceneSlug, data) {
-        return await this.client.request(`/api/scenes/${sceneSlug}`, {
+        return await this.client.request(`/scenes/${sceneSlug}`, {
             method: 'PATCH',
             body: data,
         });
@@ -507,7 +507,7 @@ class ScenesAPI {
      * @returns {Promise<void>}
      */
     async delete(sceneSlug) {
-        return await this.client.request(`/api/scenes/${sceneSlug}`, {
+        return await this.client.request(`/scenes/${sceneSlug}`, {
             method: 'DELETE',
         });
     }
@@ -527,7 +527,7 @@ class HotspotsAPI {
      * @returns {Promise<Object>}
      */
     async list(sceneSlug) {
-        return await this.client.request(`/api/scenes/${sceneSlug}/hotspots`, {
+        return await this.client.request(`/scenes/${sceneSlug}/hotspots`, {
             method: 'GET',
         });
     }
@@ -541,7 +541,7 @@ class HotspotsAPI {
      * @returns {Promise<Object>}
      */
     async create(sceneSlug, data) {
-        return await this.client.request(`/api/scenes/${sceneSlug}/hotspots`, {
+        return await this.client.request(`/scenes/${sceneSlug}/hotspots`, {
             method: 'POST',
             body: data,
         });
@@ -553,7 +553,7 @@ class HotspotsAPI {
      * @returns {Promise<Object>}
      */
     async get(hotspotSlug) {
-        return await this.client.request(`/api/hotspots/${hotspotSlug}`, {
+        return await this.client.request(`/hotspots/${hotspotSlug}`, {
             method: 'GET',
         });
     }
@@ -567,7 +567,7 @@ class HotspotsAPI {
      * @returns {Promise<Object>}
      */
     async update(hotspotSlug, data) {
-        return await this.client.request(`/api/hotspots/${hotspotSlug}`, {
+        return await this.client.request(`/hotspots/${hotspotSlug}`, {
             method: 'PUT',
             body: data,
         });
@@ -582,7 +582,7 @@ class HotspotsAPI {
      * @returns {Promise<Object>}
      */
     async patch(hotspotSlug, data) {
-        return await this.client.request(`/api/hotspots/${hotspotSlug}`, {
+        return await this.client.request(`/hotspots/${hotspotSlug}`, {
             method: 'PATCH',
             body: data,
         });
@@ -594,7 +594,7 @@ class HotspotsAPI {
      * @returns {Promise<void>}
      */
     async delete(hotspotSlug) {
-        return await this.client.request(`/api/hotspots/${hotspotSlug}`, {
+        return await this.client.request(`/hotspots/${hotspotSlug}`, {
             method: 'DELETE',
         });
     }
@@ -614,7 +614,7 @@ class ImagesAPI {
      * @returns {Promise<Object>}
      */
     async list(sceneSlug) {
-        return await this.client.request(`/api/scenes/${sceneSlug}/images`, {
+        return await this.client.request(`/scenes/${sceneSlug}/images`, {
             method: 'GET',
         });
     }
@@ -629,7 +629,7 @@ class ImagesAPI {
         const formData = new FormData();
         formData.append('image', imageFile);
 
-        return await this.client.request(`/api/scenes/${sceneSlug}/images`, {
+        return await this.client.request(`/scenes/${sceneSlug}/images`, {
             method: 'POST',
             body: formData,
             isFormData: true,
@@ -642,7 +642,7 @@ class ImagesAPI {
      * @returns {Promise<Object>}
      */
     async get(imageSlug) {
-        return await this.client.request(`/api/images/${imageSlug}`, {
+        return await this.client.request(`/images/${imageSlug}`, {
             method: 'GET',
         });
     }
@@ -657,7 +657,7 @@ class ImagesAPI {
         const formData = new FormData();
         formData.append('image', imageFile);
 
-        return await this.client.request(`/api/images/${imageSlug}`, {
+        return await this.client.request(`/images/${imageSlug}`, {
             method: 'POST',
             body: formData,
             isFormData: true,
@@ -671,7 +671,7 @@ class ImagesAPI {
      * @returns {Promise<Blob|ArrayBuffer>}
      */
     async download(imageSlug, format = 'blob') {
-        return await this.client.request(`/api/images/${imageSlug}/download`, {
+        return await this.client.request(`/images/${imageSlug}/download`, {
             method: 'GET',
             responseType: format,
         });
@@ -683,7 +683,7 @@ class ImagesAPI {
      * @returns {Promise<void>}
      */
     async delete(imageSlug) {
-        return await this.client.request(`/api/images/${imageSlug}`, {
+        return await this.client.request(`/images/${imageSlug}`, {
             method: 'DELETE',
         });
     }
