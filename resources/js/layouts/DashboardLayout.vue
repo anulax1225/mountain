@@ -1,0 +1,146 @@
+<script setup>
+import { ref } from 'vue';
+import { Link } from '@inertiajs/vue3';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { FolderOpen, Image, Edit3, Menu, LogOut, Settings } from 'lucide-vue-next';
+
+defineProps({
+  auth: Object,
+});
+
+const sidebarOpen = ref(true);
+
+const navigation = [
+  { name: 'Projects', icon: FolderOpen, href: '/dashboard' },
+  { name: 'Scenes', icon: Image, href: '/dashboard/scenes' },
+  { name: 'Editor', icon: Edit3, href: '/dashboard/editor' },
+];
+
+const toggleSidebar = () => {
+  sidebarOpen.value = !sidebarOpen.value;
+};
+
+const getInitials = (name) => {
+  return name
+    .split(' ')
+    .map(n => n[0])
+    .join('')
+    .toUpperCase();
+};
+</script>
+
+<template>
+  <div class="bg-zinc-50 min-h-screen">
+    <!-- Sidebar -->
+    <aside 
+      :class="[
+        'fixed inset-y-0 left-0 z-50 flex flex-col bg-white border-r border-zinc-200 transition-all duration-300',
+        sidebarOpen ? 'w-64' : 'w-20'
+      ]"
+    >
+      <!-- Brand -->
+      <div class="flex justify-between items-center px-4 border-zinc-200 border-b h-16">
+        <div v-if="sidebarOpen" class="flex items-center gap-2">
+          <div class="flex justify-center items-center bg-zinc-900 rounded-lg w-8 h-8">
+            <span class="font-bold text-white text-sm">A</span>
+          </div>
+          <span class="font-bold text-zinc-900 text-lg">Anulax</span>
+        </div>
+        <div v-else class="flex justify-center items-center bg-zinc-900 mx-auto rounded-lg w-8 h-8">
+          <span class="font-bold text-white text-sm">A</span>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="flex-1 py-4 overflow-y-auto">
+        <ul class="space-y-1 px-2">
+          <li v-for="item in navigation" :key="item.name">
+            <Link
+              :href="item.href"
+              :class="[
+                'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                'hover:bg-zinc-100 hover:text-zinc-900',
+                'text-zinc-700'
+              ]"
+            >
+              <component :is="item.icon" class="flex-shrink-0 w-5 h-5" />
+              <span v-if="sidebarOpen">{{ item.name }}</span>
+            </Link>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- User section -->
+      <div class="p-4 border-zinc-200 border-t">
+        <DropdownMenu>
+          <DropdownMenuTrigger as-child>
+            <button 
+              :class="[
+                'w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-zinc-100 transition-colors',
+                !sidebarOpen && 'justify-center'
+              ]"
+            >
+              <Avatar class="w-8 h-8">
+                <AvatarFallback class="bg-zinc-900 text-white text-sm">
+                  {{ auth?.user ? getInitials(auth.user.name) : 'U' }}
+                </AvatarFallback>
+              </Avatar>
+              <div v-if="sidebarOpen" class="flex-1 text-left">
+                <p class="font-medium text-zinc-900 text-sm">{{ auth?.user?.name || 'User' }}</p>
+                <p class="text-zinc-500 text-xs">{{ auth?.user?.email || 'user@example.com' }}</p>
+              </div>
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" class="w-56">
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <Link href="/dashboard/settings" class="flex items-center gap-2 w-full">
+                <Settings class="w-4 h-4" />
+                <span>Settings</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <Link href="/logout" method="post" as="button" class="flex items-center gap-2 w-full text-left">
+                <LogOut class="w-4 h-4" />
+                <span>Log out</span>
+              </Link>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <div :class="['transition-all duration-300', sidebarOpen ? 'ml-64' : 'ml-20']">
+      <!-- Header -->
+      <header class="flex justify-between items-center bg-white px-6 border-zinc-200 border-b h-16">
+        <Button variant="ghost" size="icon" @click="toggleSidebar">
+          <Menu class="w-5 h-5" />
+        </Button>
+      </header>
+
+      <!-- Page content -->
+      <main class="p-6">
+        <slot />
+      </main>
+    </div>
+
+    <!-- Mobile overlay -->
+    <div 
+      v-if="sidebarOpen" 
+      @click="toggleSidebar"
+      class="lg:hidden z-40 fixed inset-0 bg-black/50"
+    ></div>
+  </div>
+</template>
