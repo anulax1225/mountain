@@ -22,15 +22,15 @@ const mobileMenuOpen = ref(false);
           </div>
           
           <div class="hidden md:flex items-center gap-8">
-            <a href="#features" class="text-zinc-600 hover:text-zinc-900 text-sm transition-colors">Features</a>
-            <a href="#" class="text-zinc-600 hover:text-zinc-900 text-sm transition-colors">Gallery</a>
-            <a href="#" class="text-zinc-600 hover:text-zinc-900 text-sm transition-colors">Pricing</a>
+            <a href="#features" class="text-zinc-600 hover:text-zinc-900 text-sm transition-colors">Fonctionnalités</a>
+            <a href="#" class="text-zinc-600 hover:text-zinc-900 text-sm transition-colors">Galerie</a>
+            <a href="#" class="text-zinc-600 hover:text-zinc-900 text-sm transition-colors">Tarifs</a>
             <div class="flex items-center gap-3 ml-4">
               <Link href="/login">
-                <Button variant="ghost" size="sm">Sign in</Button>
+                <Button variant="ghost" size="sm">Connexion</Button>
               </Link>
               <Link href="/register">
-                <Button size="sm" class="bg-zinc-900 hover:bg-zinc-800">Get Started</Button>
+                <Button size="sm" class="bg-zinc-900 hover:bg-zinc-800">Commencer</Button>
               </Link>
             </div>
           </div>
@@ -45,15 +45,15 @@ const mobileMenuOpen = ref(false);
       <!-- Mobile menu -->
       <div v-if="mobileMenuOpen" class="md:hidden bg-white border-zinc-200 border-t">
         <div class="space-y-3 px-4 py-4">
-          <a href="#features" class="block text-zinc-600 hover:text-zinc-900 text-sm">Features</a>
-          <a href="#" class="block text-zinc-600 hover:text-zinc-900 text-sm">Gallery</a>
-          <a href="#" class="block text-zinc-600 hover:text-zinc-900 text-sm">Pricing</a>
+          <a href="#features" class="block text-zinc-600 hover:text-zinc-900 text-sm">Fonctionnalités</a>
+          <a href="#" class="block text-zinc-600 hover:text-zinc-900 text-sm">Galerie</a>
+          <a href="#" class="block text-zinc-600 hover:text-zinc-900 text-sm">Tarifs</a>
           <div class="space-y-2 pt-3 border-zinc-200 border-t">
             <Link href="/login" class="block">
-              <Button variant="ghost" size="sm" class="w-full">Sign in</Button>
+              <Button variant="ghost" size="sm" class="w-full">Connexion</Button>
             </Link>
             <Link href="/register" class="block">
-              <Button size="sm" class="bg-zinc-900 hover:bg-zinc-800 w-full">Get Started</Button>
+              <Button size="sm" class="bg-zinc-900 hover:bg-zinc-800 w-full">Commencer</Button>
             </Link>
           </div>
         </div>
@@ -72,26 +72,26 @@ const mobileMenuOpen = ref(false);
         <div class="mx-auto mb-16 max-w-4xl text-center">
           <div class="inline-flex items-center gap-2 bg-zinc-100 mb-6 px-3 py-1 rounded-full text-zinc-700 text-sm">
             <Zap class="w-3 h-3" />
-            <span>Powered by Three.js</span>
+            <span>Propulsé par Three.js</span>
           </div>
           
           <h1 class="mb-6 font-bold text-zinc-900 text-5xl sm:text-6xl lg:text-7xl tracking-tight">
-            Create immersive<br />360° virtual tours
+            Créez des visites virtuelles<br />immersives en 360°
           </h1>
           
           <p class="mx-auto mb-12 max-w-2xl text-zinc-600 text-xl leading-relaxed">
-            Professional panoramic photo editor for building interactive 3D experiences. Upload, compose, and share stunning virtual environments.
+            Éditeur photo panoramique professionnel pour créer des expériences 3D interactives. Téléversez, composez et partagez de superbes environnements virtuels.
           </p>
           
           <div class="flex sm:flex-row flex-col justify-center items-center gap-4">
             <Link href="/register">
               <Button size="lg" class="bg-zinc-900 hover:bg-zinc-800 px-8 h-12 text-base">
-                Start Creating Free
+                Commencer gratuitement
                 <ArrowRight class="ml-2 w-5 h-5" />
               </Button>
             </Link>
             <Button size="lg" variant="outline" class="px-8 h-12 text-base">
-              Watch Demo
+              Voir la démo
             </Button>
           </div>
         </div>
@@ -111,10 +111,10 @@ const mobileMenuOpen = ref(false);
       <div class="mx-auto max-w-7xl">
         <div class="mb-16 text-center">
           <h2 class="mb-4 font-bold text-zinc-900 text-3xl sm:text-4xl">
-            Everything you need
+            Tout ce dont vous avez besoin
           </h2>
           <p class="mx-auto max-w-2xl text-zinc-600 text-lg">
-            Built for creators who demand professional results
+            Conçu pour les créateurs qui exigent des résultats professionnels
           </p>
         </div>
 
@@ -124,9 +124,9 @@ const mobileMenuOpen = ref(false);
               <div class="flex justify-center items-center bg-zinc-100 group-hover:bg-zinc-900 mb-6 rounded-lg w-12 h-12 transition-colors">
                 <Globe class="w-6 h-6 text-zinc-700 group-hover:text-white transition-colors" />
               </div>
-              <h3 class="mb-3 font-semibold text-zinc-900 text-xl">360° Panoramas</h3>
+              <h3 class="mb-3 font-semibold text-zinc-900 text-xl">Panoramas 360°</h3>
               <p class="text-zinc-600 leading-relaxed">
-                Upload equirectangular photos and display them as fully interactive spherical environments with smooth navigation.
+                Téléversez des photos équirectangulaires et affichez-les comme des environnements sphériques entièrement interactifs avec une navigation fluide.
               </p>
             </div>
           </div>
@@ -136,9 +136,9 @@ const mobileMenuOpen = ref(false);
               <div class="flex justify-center items-center bg-zinc-100 group-hover:bg-zinc-900 mb-6 rounded-lg w-12 h-12 transition-colors">
                 <Layers class="w-6 h-6 text-zinc-700 group-hover:text-white transition-colors" />
               </div>
-              <h3 class="mb-3 font-semibold text-zinc-900 text-xl">Interactive Hotspots</h3>
+              <h3 class="mb-3 font-semibold text-zinc-900 text-xl">Points d'accès interactifs</h3>
               <p class="text-zinc-600 leading-relaxed">
-                Place navigation points anywhere in your scenes to create seamless transitions between locations.
+                Placez des points de navigation n'importe où dans vos scènes pour créer des transitions fluides entre les lieux.
               </p>
             </div>
           </div>
@@ -148,9 +148,9 @@ const mobileMenuOpen = ref(false);
               <div class="flex justify-center items-center bg-zinc-100 group-hover:bg-zinc-900 mb-6 rounded-lg w-12 h-12 transition-colors">
                 <Zap class="w-6 h-6 text-zinc-700 group-hover:text-white transition-colors" />
               </div>
-              <h3 class="mb-3 font-semibold text-zinc-900 text-xl">Real-time Rendering</h3>
+              <h3 class="mb-3 font-semibold text-zinc-900 text-xl">Rendu en temps réel</h3>
               <p class="text-zinc-600 leading-relaxed">
-                See your changes instantly with Three.js powered 3D rendering. Smooth performance on any device.
+                Voyez vos modifications instantanément avec le rendu 3D propulsé par Three.js. Performances fluides sur tous les appareils.
               </p>
             </div>
           </div>
@@ -166,14 +166,14 @@ const mobileMenuOpen = ref(false);
           <div class="absolute inset-0 bg-[linear-gradient(to_right,#52525b_1px,transparent_1px),linear-gradient(to_bottom,#52525b_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-10 rounded-3xl"></div>
           <div class="relative p-12 text-center">
             <h2 class="mb-4 font-bold text-white text-3xl sm:text-4xl">
-              Ready to start building?
+              Prêt à commencer?
             </h2>
             <p class="mx-auto mb-8 max-w-2xl text-zinc-400 text-lg">
-              Join professionals creating the next generation of virtual experiences
+              Rejoignez les professionnels qui créent la prochaine génération d'expériences virtuelles
             </p>
             <Link href="/register">
               <Button size="lg" variant="secondary" class="px-8 h-12 text-base">
-                Create Free Account
+                Créer un compte gratuit
                 <ArrowRight class="ml-2 w-5 h-5" />
               </Button>
             </Link>
@@ -193,11 +193,11 @@ const mobileMenuOpen = ref(false);
             <span class="font-bold text-zinc-900">Anulax</span>
           </div>
           <div class="flex items-center gap-6 text-zinc-600 text-sm">
-            <a href="#" class="hover:text-zinc-900">Privacy</a>
-            <a href="#" class="hover:text-zinc-900">Terms</a>
+            <a href="#" class="hover:text-zinc-900">Confidentialité</a>
+            <a href="#" class="hover:text-zinc-900">Conditions</a>
             <a href="#" class="hover:text-zinc-900">Contact</a>
           </div>
-          <p class="text-zinc-500 text-sm">© 2025 Anulax. Built with Three.js & Laravel.</p>
+          <p class="text-zinc-500 text-sm">© 2025 Anulax. Créé avec Three.js & Laravel.</p>
         </div>
       </div>
     </footer>
