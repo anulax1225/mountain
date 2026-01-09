@@ -34,33 +34,33 @@ class HandleInertiaRequests extends Middleware
      *
      * @return array<string, mixed>
      */
-    // public function share(Request $request): array
-    // {
-    //     [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
-
-    //     return [
-    //         ...parent::share($request),
-    //         'name' => config('app.name'),
-    //         'quote' => ['message' => trim($message), 'author' => trim($author)],
-    //         'auth' => [
-    //             'user' => $request->user(),
-    //         ],
-    //     ];
-    // }
     public function share(Request $request): array
     {
-        return array_merge(parent::share($request), [
+        [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
+
+        return [
+            ...parent::share($request),
+            'name' => config('app.name'),
+            'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
-                'user' => [
-                    'id' => 21,
-                    'name' => "Jack Daniel",
-                    'email' => "pute@gmail.com",
-                ] ,
+                'user' => $request->user(),
             ],
-            'flash' => [
-                'message' => fn() => $request->session()->get('message'),
-                'error' => fn() => $request->session()->get('error'),
-            ],
-        ]);
+        ];
     }
+    // public function share(Request $request): array
+    // {
+    //     return array_merge(parent::share($request), [
+    //         'auth' => [
+    //             'user' => [
+    //                 'id' => 21,
+    //                 'name' => "Jack Daniel",
+    //                 'email' => "pute@gmail.com",
+    //             ] ,
+    //         ],
+    //         'flash' => [
+    //             'message' => fn() => $request->session()->get('message'),
+    //             'error' => fn() => $request->session()->get('error'),
+    //         ],
+    //     ]);
+    // }
 }

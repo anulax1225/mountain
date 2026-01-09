@@ -3,6 +3,7 @@ import DashboardLayout from '@/layouts/DashboardLayout.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Link } from '@inertiajs/vue3';
+import OwlEditor from '@/components/OwlEditor.vue';
 
 defineProps({
   auth: Object,
@@ -12,6 +13,7 @@ defineProps({
 
 <template>
   <DashboardLayout :auth="auth">
+    <OwlEditor />
     <div class="mx-auto max-w-7xl">
       <div class="flex justify-between items-center mb-8">
         <div>

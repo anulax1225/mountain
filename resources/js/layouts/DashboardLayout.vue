@@ -30,6 +30,7 @@ const toggleSidebar = () => {
 };
 
 const getInitials = (name) => {
+  if (!name) return 'U';
   return name
     .split(' ')
     .map(n => n[0])
@@ -91,7 +92,7 @@ const getInitials = (name) => {
             >
               <Avatar class="w-8 h-8">
                 <AvatarFallback class="bg-zinc-900 text-white text-sm">
-                  {{ auth?.user ? getInitials(auth.user.name) : 'U' }}
+                  {{ getInitials(auth?.user?.name) }}
                 </AvatarFallback>
               </Avatar>
               <div v-if="sidebarOpen" class="flex-1 text-left">
