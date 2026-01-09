@@ -1,10 +1,9 @@
 <script setup>
-import { useForm } from '@inertiajs/vue3';
+import { useForm, Link } from '@inertiajs/vue3';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Link } from '@inertiajs/vue3';
 
 defineProps({
   status: String,
@@ -27,8 +26,8 @@ const submit = () => {
 <template>
   <AuthLayout>
     <div class="mb-8">
-      <h2 class="mb-2 font-bold text-slate-900 text-3xl">Welcome back</h2>
-      <p class="text-slate-600">Sign in to your account to continue</p>
+      <h2 class="mb-2 font-bold text-slate-900 text-3xl">Bon retour</h2>
+      <p class="text-slate-600">Connectez-vous à votre compte pour continuer</p>
     </div>
 
     <div v-if="status" class="mb-4 font-medium text-green-600 text-sm">
@@ -42,7 +41,7 @@ const submit = () => {
           id="email" 
           v-model="form.email" 
           type="email" 
-          placeholder="you@example.com" 
+          placeholder="vous@exemple.com" 
           required 
           autofocus
           autocomplete="username"
@@ -52,13 +51,13 @@ const submit = () => {
 
       <div class="space-y-2">
         <div class="flex justify-between items-center">
-          <Label for="password">Password</Label>
+          <Label for="password">Mot de passe</Label>
           <Link 
             v-if="canResetPassword"
             href="/forgot-password" 
             class="text-purple-600 hover:text-purple-700 text-sm"
           >
-            Forgot password?
+            Mot de passe oublié?
           </Link>
         </div>
         <Input 
@@ -73,14 +72,14 @@ const submit = () => {
       </div>
 
       <Button type="submit" class="w-full" :disabled="form.processing">
-        Sign in
+        Se connecter
       </Button>
     </form>
 
     <div class="mt-6 text-sm text-center">
-      <span class="text-slate-600">Don't have an account? </span>
+      <span class="text-slate-600">Vous n'avez pas de compte? </span>
       <Link href="/register" class="font-medium text-purple-600 hover:text-purple-700">
-        Sign up
+        S'inscrire
       </Link>
     </div>
   </AuthLayout>

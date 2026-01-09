@@ -34,7 +34,7 @@ const updatePassword = () => {
 };
 
 const deleteAccount = () => {
-  if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+  if (confirm('Êtes-vous sûr de vouloir supprimer votre compte? Cette action est irréversible.')) {
     // Handle account deletion
   }
 };
@@ -44,20 +44,20 @@ const deleteAccount = () => {
   <DashboardLayout :auth="auth">
     <div class="mx-auto max-w-4xl">
       <div class="mb-8">
-        <h1 class="font-bold text-slate-900 text-3xl">Settings</h1>
-        <p class="mt-1 text-slate-600">Manage your account settings and preferences</p>
+        <h1 class="font-bold text-slate-900 text-3xl">Paramètres</h1>
+        <p class="mt-1 text-slate-600">Gérez les paramètres de votre compte et vos préférences</p>
       </div>
 
       <div class="space-y-6">
         <!-- Profile Settings -->
         <Card>
           <CardHeader>
-            <CardTitle>Profile Information</CardTitle>
-            <CardDescription>Update your account profile information</CardDescription>
+            <CardTitle>Informations de profil</CardTitle>
+            <CardDescription>Mettez à jour les informations de votre compte</CardDescription>
           </CardHeader>
           <CardContent class="space-y-4">
             <div class="space-y-2">
-              <Label for="name">Name</Label>
+              <Label for="name">Nom</Label>
               <Input id="name" v-model="profileForm.name" />
               <div v-if="profileForm.errors.name" class="text-red-600 text-sm">{{ profileForm.errors.name }}</div>
             </div>
@@ -67,7 +67,7 @@ const deleteAccount = () => {
               <div v-if="profileForm.errors.email" class="text-red-600 text-sm">{{ profileForm.errors.email }}</div>
             </div>
             <Button @click="updateProfile" :disabled="profileForm.processing">
-              Save Changes
+              Enregistrer les modifications
             </Button>
           </CardContent>
         </Card>
@@ -75,12 +75,12 @@ const deleteAccount = () => {
         <!-- Password -->
         <Card>
           <CardHeader>
-            <CardTitle>Change Password</CardTitle>
-            <CardDescription>Update your password to keep your account secure</CardDescription>
+            <CardTitle>Changer le mot de passe</CardTitle>
+            <CardDescription>Mettez à jour votre mot de passe pour sécuriser votre compte</CardDescription>
           </CardHeader>
           <CardContent class="space-y-4">
             <div class="space-y-2">
-              <Label for="current_password">Current Password</Label>
+              <Label for="current_password">Mot de passe actuel</Label>
               <Input 
                 id="current_password" 
                 v-model="passwordForm.current_password" 
@@ -92,7 +92,7 @@ const deleteAccount = () => {
               </div>
             </div>
             <div class="space-y-2">
-              <Label for="password">New Password</Label>
+              <Label for="password">Nouveau mot de passe</Label>
               <Input 
                 id="password" 
                 v-model="passwordForm.password" 
@@ -104,7 +104,7 @@ const deleteAccount = () => {
               </div>
             </div>
             <div class="space-y-2">
-              <Label for="password_confirmation">Confirm New Password</Label>
+              <Label for="password_confirmation">Confirmer le nouveau mot de passe</Label>
               <Input 
                 id="password_confirmation" 
                 v-model="passwordForm.password_confirmation" 
@@ -113,7 +113,7 @@ const deleteAccount = () => {
               />
             </div>
             <Button @click="updatePassword" :disabled="passwordForm.processing">
-              Update Password
+              Mettre à jour le mot de passe
             </Button>
           </CardContent>
         </Card>
@@ -122,21 +122,21 @@ const deleteAccount = () => {
         <Card>
           <CardHeader>
             <CardTitle>Notifications</CardTitle>
-            <CardDescription>Manage how you receive notifications</CardDescription>
+            <CardDescription>Gérez comment vous recevez les notifications</CardDescription>
           </CardHeader>
           <CardContent class="space-y-6">
             <div class="flex justify-between items-center">
               <div class="space-y-0.5">
-                <Label>Email Notifications</Label>
-                <p class="text-slate-500 text-sm">Receive email notifications about your account</p>
+                <Label>Notifications par email</Label>
+                <p class="text-slate-500 text-sm">Recevez des notifications par email concernant votre compte</p>
               </div>
               <Switch />
             </div>
             <Separator />
             <div class="flex justify-between items-center">
               <div class="space-y-0.5">
-                <Label>Project Updates</Label>
-                <p class="text-slate-500 text-sm">Get notified about changes to your projects</p>
+                <Label>Mises à jour de projets</Label>
+                <p class="text-slate-500 text-sm">Soyez notifié des modifications de vos projets</p>
               </div>
               <Switch />
             </div>
@@ -146,17 +146,17 @@ const deleteAccount = () => {
         <!-- Danger Zone -->
         <Card class="border-red-200">
           <CardHeader>
-            <CardTitle class="text-red-600">Danger Zone</CardTitle>
-            <CardDescription>Irreversible actions for your account</CardDescription>
+            <CardTitle class="text-red-600">Zone de danger</CardTitle>
+            <CardDescription>Actions irréversibles pour votre compte</CardDescription>
           </CardHeader>
           <CardContent>
             <div class="flex justify-between items-center">
               <div>
-                <p class="font-medium text-slate-900">Delete Account</p>
-                <p class="text-slate-500 text-sm">Permanently delete your account and all data</p>
+                <p class="font-medium text-slate-900">Supprimer le compte</p>
+                <p class="text-slate-500 text-sm">Supprimer définitivement votre compte et toutes vos données</p>
               </div>
               <Button variant="destructive" @click="deleteAccount">
-                Delete Account
+                Supprimer le compte
               </Button>
             </div>
           </CardContent>

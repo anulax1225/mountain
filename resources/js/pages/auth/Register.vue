@@ -22,18 +22,18 @@ const submit = () => {
 <template>
   <AuthLayout>
     <div class="mb-8">
-      <h2 class="mb-2 font-bold text-slate-900 text-3xl">Create account</h2>
-      <p class="text-slate-600">Start building your virtual tours</p>
+      <h2 class="mb-2 font-bold text-slate-900 text-3xl">Créer un compte</h2>
+      <p class="text-slate-600">Commencez à créer vos visites virtuelles</p>
     </div>
 
     <form @submit.prevent="submit" class="space-y-4">
       <div class="space-y-2">
-        <Label for="name">Name</Label>
+        <Label for="name">Nom</Label>
         <Input 
           id="name" 
           v-model="form.name" 
           type="text" 
-          placeholder="John Doe" 
+          placeholder="Jean Dupont" 
           required
           autofocus
           autocomplete="name"
@@ -47,7 +47,7 @@ const submit = () => {
           id="email" 
           v-model="form.email" 
           type="email" 
-          placeholder="you@example.com" 
+          placeholder="vous@exemple.com" 
           required
           autocomplete="username"
         />
@@ -55,7 +55,7 @@ const submit = () => {
       </div>
 
       <div class="space-y-2">
-        <Label for="password">Password</Label>
+        <Label for="password">Mot de passe</Label>
         <Input 
           id="password" 
           v-model="form.password" 
@@ -68,7 +68,7 @@ const submit = () => {
       </div>
 
       <div class="space-y-2">
-        <Label for="password_confirmation">Confirm Password</Label>
+        <Label for="password_confirmation">Confirmer le mot de passe</Label>
         <Input 
           id="password_confirmation" 
           v-model="form.password_confirmation" 
@@ -80,14 +80,14 @@ const submit = () => {
       </div>
 
       <Button type="submit" class="w-full" :disabled="form.processing">
-        Create account
+        Créer un compte
       </Button>
     </form>
 
     <div class="mt-6 text-sm text-center">
-      <span class="text-slate-600">Already have an account? </span>
+      <span class="text-slate-600">Vous avez déjà un compte? </span>
       <Link href="/login" class="font-medium text-purple-600 hover:text-purple-700">
-        Sign in
+        Se connecter
       </Link>
     </div>
   </AuthLayout>

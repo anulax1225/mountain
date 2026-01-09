@@ -20,9 +20,9 @@ defineProps({
 const sidebarOpen = ref(true);
 
 const navigation = [
-  { name: 'Projects', icon: FolderOpen, href: '/dashboard' },
-  { name: 'Scenes', icon: Image, href: '/dashboard/scenes' },
-  { name: 'Editor', icon: Edit3, href: '/dashboard/editor' },
+  { name: 'Projets', icon: FolderOpen, href: '/dashboard' },
+  { name: 'Scènes', icon: Image, href: '/dashboard/scenes' },
+  { name: 'Éditeur', icon: Edit3, href: '/dashboard/editor' },
 ];
 
 const toggleSidebar = () => {
@@ -96,25 +96,25 @@ const getInitials = (name) => {
                 </AvatarFallback>
               </Avatar>
               <div v-if="sidebarOpen" class="flex-1 text-left">
-                <p class="font-medium text-zinc-900 text-sm">{{ auth?.user?.name || 'User' }}</p>
-                <p class="text-zinc-500 text-xs">{{ auth?.user?.email || 'user@example.com' }}</p>
+                <p class="font-medium text-zinc-900 text-sm">{{ auth?.user?.name || 'Utilisateur' }}</p>
+                <p class="text-zinc-500 text-xs">{{ auth?.user?.email || 'utilisateur@exemple.com' }}</p>
               </div>
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" class="w-56">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuLabel>Mon compte</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
               <Link href="/dashboard/settings" class="flex items-center gap-2 w-full">
                 <Settings class="w-4 h-4" />
-                <span>Settings</span>
+                <span>Paramètres</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
               <Link href="/logout" method="post" as="button" class="flex items-center gap-2 w-full text-left">
                 <LogOut class="w-4 h-4" />
-                <span>Log out</span>
+                <span>Se déconnecter</span>
               </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>

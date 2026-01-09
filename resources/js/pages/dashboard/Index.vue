@@ -17,14 +17,14 @@ defineProps({
     <div class="mx-auto max-w-7xl">
       <div class="flex justify-between items-center mb-8">
         <div>
-          <h1 class="font-bold text-slate-900 text-3xl">Projects</h1>
-          <p class="mt-1 text-slate-600">Manage your virtual tour projects</p>
+          <h1 class="font-bold text-slate-900 text-3xl">Projets</h1>
+          <p class="mt-1 text-slate-600">Gérez vos projets de visite virtuelle</p>
         </div>
         <Button>
           <svg class="mr-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
           </svg>
-          New Project
+          Nouveau projet
         </Button>
       </div>
 
@@ -34,7 +34,7 @@ defineProps({
             <div class="flex justify-between items-start">
               <div class="w-full">
                 <CardTitle class="mb-1 text-lg">{{ project.name }}</CardTitle>
-                <CardDescription>{{ project.scenes_count }} scenes</CardDescription>
+                <CardDescription>{{ project.scenes_count }} scènes</CardDescription>
               </div>
               <Button variant="ghost" size="icon" class="flex-shrink-0">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -50,9 +50,9 @@ defineProps({
               </svg>
             </div>
             <div class="flex justify-between items-center text-sm">
-              <span class="text-slate-500">Updated {{ project.updated_at }}</span>
+              <span class="text-slate-500">Mis à jour {{ project.updated_at }}</span>
               <Link :href="`/dashboard/projects/${project.slug}`">
-                <Button variant="ghost" size="sm">Open</Button>
+                <Button variant="ghost" size="sm">Ouvrir</Button>
               </Link>
             </div>
           </CardContent>
@@ -65,8 +65,8 @@ defineProps({
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
               </svg>
             </div>
-            <p class="mb-1 font-medium text-slate-900 text-sm">Create New Project</p>
-            <p class="text-slate-500 text-xs text-center">Start building your virtual tour</p>
+            <p class="mb-1 font-medium text-slate-900 text-sm">Créer un nouveau projet</p>
+            <p class="text-slate-500 text-xs text-center">Commencez à créer votre visite virtuelle</p>
           </CardContent>
         </Card>
       </div>
