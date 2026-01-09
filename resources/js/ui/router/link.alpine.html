@@ -1,5 +1,5 @@
 <template>
-    <button @click="$store.router.visit($props.href)">
+    <button @click="$store.router.visit($props.href)" type="button">
         <slot></slot>
     </button>
 </template>
@@ -10,4 +10,5 @@
             default: "",
         },
     });
+    console.log("router-link", props);
 </script>

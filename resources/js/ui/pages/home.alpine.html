@@ -1,146 +1,429 @@
 <template>
-    <div x-resize="onResize($width, $height)" @click="onMouseClick" x-ref="renderView" class="relative w-full h-[90vh]">
-        <mx-button @click.prevent="setPrev" class="absolute z-20 top-1/2 left-10">
-            <icon-chevron-left></icon-chevron-left>
-        </mx-button>
-        <mx-button @click.prevent="setNext" class="absolute z-20 top-1/2 right-10">
-            <icon-chevron-right></icon-chevron-right>
-        </mx-button>
-    </div>
+    <layout-guest>
+        <!-- Hero Section / Présentation -->
+        <section class="container mx-auto px-6 py-20">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h1
+                        class="text-5xl font-bold mb-6 bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+                        Créez des visites virtuelles immersives
+                    </h1>
+                    <p class="text-lg text-slate-600 mb-8 leading-relaxed">
+                        Owl Around vous permet de concevoir et d'héberger vos propres visites virtuelles à 360°.
+                        Une solution complète, autonome et professionnelle pour valoriser vos espaces.
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="#contact"
+                            class="px-6 py-3 bg-slate-900 text-white rounded-lg shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5">
+                            Démarrer un projet
+                        </a>
+                        <a href="#exemples"
+                            class="px-6 py-3 border-2 border-slate-300 rounded-lg hover:border-slate-400 transition-all hover:shadow-md">
+                            Voir des exemples
+                        </a>
+                    </div>
+                </div>
+                <div class="relative">
+                    <div
+                        class="aspect-video bg-gradient-to-br from-slate-200 to-slate-300 rounded-2xl shadow-2xl border border-slate-300 flex items-center justify-center">
+                        <span class="text-slate-500 text-sm">Aperçu visite 360°</span>
+                    </div>
+                    <div
+                        class="absolute -bottom-4 -right-4 w-32 h-32 bg-gradient-to-br from-slate-300 to-slate-400 rounded-xl shadow-xl border border-slate-300">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features -->
+        <section class="bg-white/50 backdrop-blur border-y border-slate-200 py-16">
+            <div class="container mx-auto px-6">
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div
+                        class="p-6 rounded-xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow">
+                        <div class="w-12 h-12 bg-slate-100 rounded-lg mb-4 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">100% Autonome</h3>
+                        <p class="text-slate-600 text-sm">Développez et hébergez vos visites sans dépendance externe</p>
+                    </div>
+
+                    <div
+                        class="p-6 rounded-xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow">
+                        <div class="w-12 h-12 bg-slate-100 rounded-lg mb-4 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Design Personnalisé</h3>
+                        <p class="text-slate-600 text-sm">Interface sur mesure adaptée à votre identité visuelle</p>
+                    </div>
+
+                    <div
+                        class="p-6 rounded-xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow">
+                        <div class="w-12 h-12 bg-slate-100 rounded-lg mb-4 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Performance Optimale</h3>
+                        <p class="text-slate-600 text-sm">Navigation fluide et chargement rapide sur tous les appareils
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Exemples Section -->
+        <section id="exemples" class="container mx-auto px-6 py-20">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold mb-4">Exemples de réalisations</h2>
+                <p class="text-slate-600">Découvrez des visites virtuelles créées avec Owl Around</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-slate-200 bg-white shadow-md hover:shadow-xl transition-all">
+                    <div class="aspect-[4/3] bg-gradient-to-br from-slate-200 to-slate-300 relative overflow-hidden">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span class="text-slate-500 text-sm">Appartement 3.5 pièces</span>
+                        </div>
+                        <div class="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/10 transition-colors">
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-semibold mb-2">Visite Immobilière</h3>
+                        <p class="text-sm text-slate-600 mb-4">Navigation entre 8 scènes panoramiques</p>
+                        <a href="#" class="text-sm text-slate-900 font-medium hover:underline">Découvrir →</a>
+                    </div>
+                </div>
+
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-slate-200 bg-white shadow-md hover:shadow-xl transition-all">
+                    <div class="aspect-[4/3] bg-gradient-to-br from-slate-200 to-slate-300 relative overflow-hidden">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span class="text-slate-500 text-sm">Musée d'art</span>
+                        </div>
+                        <div class="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/10 transition-colors">
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-semibold mb-2">Espace Culturel</h3>
+                        <p class="text-sm text-slate-600 mb-4">Visite interactive avec points d'information</p>
+                        <a href="#" class="text-sm text-slate-900 font-medium hover:underline">Découvrir →</a>
+                    </div>
+                </div>
+
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-slate-200 bg-white shadow-md hover:shadow-xl transition-all">
+                    <div class="aspect-[4/3] bg-gradient-to-br from-slate-200 to-slate-300 relative overflow-hidden">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span class="text-slate-500 text-sm">Bureaux d'entreprise</span>
+                        </div>
+                        <div class="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/10 transition-colors">
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-semibold mb-2">Locaux Professionnels</h3>
+                        <p class="text-sm text-slate-600 mb-4">Présentation complète d'un espace de travail</p>
+                        <a href="#" class="text-sm text-slate-900 font-medium hover:underline">Découvrir →</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing Section -->
+        <section id="pricing" class="bg-slate-50 border-y border-slate-200 py-20">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl font-bold mb-4">Tarification</h2>
+                    <p class="text-slate-600">Des formules adaptées à vos besoins</p>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                    <div
+                        class="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm hover:shadow-lg transition-shadow">
+                        <div class="mb-6">
+                            <h3 class="text-2xl font-bold mb-2">Starter</h3>
+                            <div class="flex items-baseline mb-4">
+                                <span class="text-4xl font-bold">150</span>
+                                <span class="text-slate-600 ml-2">CHF</span>
+                            </div>
+                            <p class="text-sm text-slate-600">Pour une première visite simple</p>
+                        </div>
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-start gap-2 text-sm">
+                                <svg class="w-5 h-5 text-slate-700 mt-0.5 flex-shrink-0" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>Jusqu'à 5 scènes</span>
+                            </li>
+                            <li class="flex items-start gap-2 text-sm">
+                                <svg class="w-5 h-5 text-slate-700 mt-0.5 flex-shrink-0" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>Interface basique</span>
+                            </li>
+                            <li class="flex items-start gap-2 text-sm">
+                                <svg class="w-5 h-5 text-slate-700 mt-0.5 flex-shrink-0" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>Hébergement 1 an</span>
+                            </li>
+                        </ul>
+                        <button
+                            class="w-full py-3 border-2 border-slate-300 rounded-lg hover:border-slate-400 transition-all font-medium">
+                            Choisir Starter
+                        </button>
+                    </div>
+
+                    <div
+                        class="bg-slate-900 text-white rounded-2xl p-8 shadow-xl relative border-2 border-slate-700 transform md:scale-105">
+                        <div
+                            class="absolute -top-4 left-1/2 -translate-x-1/2 bg-slate-700 text-white px-4 py-1 rounded-full text-sm font-medium">
+                            Populaire
+                        </div>
+                        <div class="mb-6">
+                            <h3 class="text-2xl font-bold mb-2">Professional</h3>
+                            <div class="flex items-baseline mb-4">
+                                <span class="text-4xl font-bold">350</span>
+                                <span class="text-slate-300 ml-2">CHF</span>
+                            </div>
+                            <p class="text-sm text-slate-300">Pour une visite complète</p>
+                        </div>
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-start gap-2 text-sm">
+                                <svg class="w-5 h-5 text-white mt-0.5 flex-shrink-0" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>Jusqu'à 15 scènes</span>
+                            </li>
+                            <li class="flex items-start gap-2 text-sm">
+                                <svg class="w-5 h-5 text-white mt-0.5 flex-shrink-0" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>Design personnalisé</span>
+                            </li>
+                            <li class="flex items-start gap-2 text-sm">
+                                <svg class="w-5 h-5 text-white mt-0.5 flex-shrink-0" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>Points interactifs</span>
+                            </li>
+                            <li class="flex items-start gap-2 text-sm">
+                                <svg class="w-5 h-5 text-white mt-0.5 flex-shrink-0" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>Hébergement 2 ans</span>
+                            </li>
+                        </ul>
+                        <button
+                            class="w-full py-3 bg-white text-slate-900 rounded-lg hover:bg-slate-100 transition-all font-medium">
+                            Choisir Professional
+                        </button>
+                    </div>
+
+                    <div
+                        class="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm hover:shadow-lg transition-shadow">
+                        <div class="mb-6">
+                            <h3 class="text-2xl font-bold mb-2">Enterprise</h3>
+                            <div class="flex items-baseline mb-4">
+                                <span class="text-4xl font-bold">Sur devis</span>
+                            </div>
+                            <p class="text-sm text-slate-600">Pour des projets d'envergure</p>
+                        </div>
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-start gap-2 text-sm">
+                                <svg class="w-5 h-5 text-slate-700 mt-0.5 flex-shrink-0" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>Scènes illimitées</span>
+                            </li>
+                            <li class="flex items-start gap-2 text-sm">
+                                <svg class="w-5 h-5 text-slate-700 mt-0.5 flex-shrink-0" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>Fonctionnalités sur mesure</span>
+                            </li>
+                            <li class="flex items-start gap-2 text-sm">
+                                <svg class="w-5 h-5 text-slate-700 mt-0.5 flex-shrink-0" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>Support prioritaire</span>
+                            </li>
+                            <li class="flex items-start gap-2 text-sm">
+                                <svg class="w-5 h-5 text-slate-700 mt-0.5 flex-shrink-0" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>Hébergement personnalisé</span>
+                            </li>
+                        </ul>
+                        <button
+                            class="w-full py-3 border-2 border-slate-300 rounded-lg hover:border-slate-400 transition-all font-medium">
+                            Nous contacter
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="container mx-auto px-6 py-20">
+            <div class="max-w-4xl mx-auto">
+                <div class="grid md:grid-cols-2 gap-12">
+                    <div>
+                        <h2 class="text-3xl font-bold mb-6">Démarrez votre projet</h2>
+                        <p class="text-slate-600 mb-8">
+                            Contactez-nous pour discuter de votre projet de visite virtuelle.
+                            Nous vous accompagnons de la conception à la mise en ligne.
+                        </p>
+
+                        <div class="space-y-4">
+                            <div class="flex items-start gap-3">
+                                <div
+                                    class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="font-medium">Email</div>
+                                    <div class="text-sm text-slate-600">contact@owlaround.ch</div>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start gap-3">
+                                <div
+                                    class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="font-medium">Réponse</div>
+                                    <div class="text-sm text-slate-600">Sous 24-48h ouvrées</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-slate-200 p-8 shadow-lg">
+                        <form class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Nom complet</label>
+                                <input type="text"
+                                    class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-transparent transition-all">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Email</label>
+                                <input type="email"
+                                    class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-transparent transition-all">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Type de projet</label>
+                                <select
+                                    class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-transparent transition-all">
+                                    <option>Immobilier</option>
+                                    <option>Culture / Tourisme</option>
+                                    <option>Entreprise</option>
+                                    <option>Autre</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Message</label>
+                                <textarea rows="4"
+                                    class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-transparent transition-all"></textarea>
+                            </div>
+
+                            <button type="submit"
+                                class="w-full py-3 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors shadow-md hover:shadow-lg font-medium">
+                                Envoyer le message
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="bg-slate-900 text-slate-300 border-t border-slate-800 py-12">
+            <div class="container mx-auto px-6">
+                <div class="grid md:grid-cols-4 gap-8">
+                    <div>
+                        <h3 class="font-bold text-white mb-4">Owl Around</h3>
+                        <p class="text-sm">Plateforme de création de visites virtuelles 360° immersives.</p>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-white mb-4">Liens</h4>
+                        <ul class="space-y-2 text-sm">
+                            <li><a href="#" class="hover:text-white transition-colors">À propos</a></li>
+                            <li><a href="#pricing" class="hover:text-white transition-colors">Tarifs</a></li>
+                            <li><a href="#exemples" class="hover:text-white transition-colors">Exemples</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-white mb-4">Support</h4>
+                        <ul class="space-y-2 text-sm">
+                            <li><a href="#contact" class="hover:text-white transition-colors">Contact</a></li>
+                            <li><a href="#" class="hover:text-white transition-colors">Documentation</a></li>
+                            <li><a href="#" class="hover:text-white transition-colors">FAQ</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-white mb-4">Légal</h4>
+                        <ul class="space-y-2 text-sm">
+                            <li><a href="#" class="hover:text-white transition-colors">Mentions légales</a></li>
+                            <li><a href="#" class="hover:text-white transition-colors">Confidentialité</a></li>
+                            <li><a href="#" class="hover:text-white transition-colors">CGU</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="border-t border-slate-800 mt-8 pt-8 text-sm text-center">
+                    <p>&copy; 2025 Owl Around. Tous droits réservés.</p>
+                </div>
+            </div>
+    </layout-guest>
 </template>
 
 <script setup>
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xFFFF);
-    const camera = new THREE.PerspectiveCamera(
-        75,
-        window.innerWidth / window.innerHeight,
-        1,
-        1500
-    );
-    camera.position.set(0, 0, 0.1);
-    const renderer = new THREE.WebGLRenderer({
-        antialias: true,
-        alpha: false,
-        depth: true,
-        powerPreference: 'high-performance'
-    });
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.0;
-    renderer.setSize(window.innerWidth, window.innerHeight);
-
-    const geometry = new THREE.SphereGeometry(
-        1500,        // radius
-        60,         // widthSegments (higher = smoother)
-        40,         // heightSegments
-        0,          // phiStart
-        Math.PI * 2, // phiLength
-        0,          // thetaStart
-        Math.PI     // thetaLength
-    );
-
-    geometry.scale(-1, 1, 1);
-
-    const textureLoader = new THREE.TextureLoader();
-
+    const props = defineProps({});
     return {
-        scene,
-        camera,
-        renderer,
-        controls: null,
-        currentMesh: null,
-        count: 1,
-        async init() {
-            this.$refs.renderView.appendChild(renderer.domElement);
 
-            await this.setPanorama(`/pano/pano${this.count}.jpeg`);
-
-            this.controls = new OrbitControls(camera, renderer.domElement);
-            this.controls.enableDamping = true;
-            this.controls.dampingFactor = 0.05;
-            this.controls.enableZoom = true;
-            this.controls.enablePan = false;
-            this.controls.rotateSpeed = -0.5;
-            this.renderer.setAnimationLoop(this.animate.bind(this));
-        },
-        async setNext() {
-            this.count += 1;
-            await this.setPanorama(`/pano/pano${this.count}.jpeg`);
-        },
-        async setPrev() {
-            this.count -= 1;
-            await this.setPanorama(`/pano/pano${this.count}.jpeg`);
-        },
-        async setPanorama(panorama) {
-            if(this.currentMesh) this.scene.remove(this.currentMesh);
-            const texture = await textureLoader.loadAsync(panorama);
-            texture.colorSpace = THREE.SRGBColorSpace;
-            texture.minFilter = THREE.LinearFilter;
-            texture.magFilter = THREE.LinearFilter;
-
-            const material = new THREE.MeshBasicMaterial({ map: texture });
-            const mesh = new THREE.Mesh(geometry, material);
-            this.scene.add(mesh);
-            this.currentMesh = mesh;
-        },
-        animate() {
-            this.controls.update();
-            this.renderer.render(toRaw(this.scene), toRaw(this.camera));
-        },
-        onResize(width, height) {
-            this.camera.aspect = width / height;
-            this.camera.updateProjectionMatrix();
-            this.renderer.setSize(width, height);
-        },
-        async onMouseClick(event) {
-            const raycaster = new THREE.Raycaster();
-            const mouse = new THREE.Vector2();
-            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-            raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObjects(scene.children, true);
-
-            if (intersects.length > 0) {
-                const intersection = intersects[0];
-                console.log('Sphere intersection:', this.cartesianToSpherical(intersection.point));
-                console.log('Hit point:', intersection.point);
-                console.log('Object:', intersection.object);
-                console.log('Face:', intersection.face);
-                console.log('UV:', intersection.uv);
-
-                const hotspotTexture = await textureLoader.load('/door-open.png');
-                // const spriteMaterial = new THREE.SpriteMaterial({
-                //     map: spriteMap,
-                //     sizeAttenuation: false // Constant size regardless of distance
-                // });
-                const geometry = new THREE.PlaneGeometry(20, 20);
-                const material = new THREE.MeshBasicMaterial({
-                    map: hotspotTexture,
-                    transparent: true,
-                    side: THREE.DoubleSide,
-                    depthTest: false
-                });
-                const hotspot = new THREE.Mesh(geometry, material);
-
-                // Position it
-                hotspot.position.set(intersection.point.x * 0.95, intersection.point.y * 0.95, intersection.point.z * 0.95);
-
-                // Make it face the camera
-                hotspot.lookAt(camera.position);
-                hotspot.scale.set(5, 5, 0.1);
-                scene.add(hotspot);
-
-            }
-        },
-        cartesianToSpherical(point) {
-            const radius = point.length();
-            const theta = Math.atan2(point.x, point.z);
-            const phi = Math.acos(point.y / radius);
-            return { theta, phi, radius };
-        }
-    }
+    };
 </script>

@@ -1,0 +1,481 @@
+name: Projects
+description: |-
+
+  APIs for managing projects
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/projects
+    metadata:
+      custom: []
+      groupName: Projects
+      groupDescription: |-
+
+        APIs for managing projects
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'List all projects'
+      description: 'Get a paginated list of all projects owned by the authenticated user.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "data": [
+              {
+                "slug": "550e8400-e29b-41d4-a716-446655440000",
+                "name": "My Virtual Tour",
+                "description": "A tour of my office",
+                "created_at": "2024-01-01T00:00:00.000000Z",
+                "updated_at": "2024-01-01T00:00:00.000000Z"
+              }
+            ],
+            "links": {...},
+            "meta": {...}
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/projects
+    metadata:
+      custom: []
+      groupName: Projects
+      groupDescription: |-
+
+        APIs for managing projects
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Create a project'
+      description: 'Create a new project for the authenticated user.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      name:
+        custom: []
+        name: name
+        description: 'The name of the project.'
+        required: true
+        example: 'My Virtual Tour'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      description:
+        custom: []
+        name: description
+        description: 'The description of the project.'
+        required: false
+        example: 'A tour of my office'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      name: 'My Virtual Tour'
+      description: 'A tour of my office'
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 201
+        content: |-
+          {
+            "data": {
+              "slug": "550e8400-e29b-41d4-a716-446655440000",
+              "name": "My Virtual Tour",
+              "description": "A tour of my office",
+              "created_at": "2024-01-01T00:00:00.000000Z",
+              "updated_at": "2024-01-01T00:00:00.000000Z"
+            }
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/projects/{project_slug}'
+    metadata:
+      custom: []
+      groupName: Projects
+      groupDescription: |-
+
+        APIs for managing projects
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Get a project'
+      description: 'Get a single project with its scenes.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      project_slug:
+        custom: []
+        name: project_slug
+        description: 'The slug of the project.'
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      project:
+        custom: []
+        name: project
+        description: 'The slug of the project.'
+        required: true
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      project_slug: architecto
+      project: 550e8400-e29b-41d4-a716-446655440000
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "data": {
+              "slug": "550e8400-e29b-41d4-a716-446655440000",
+              "name": "My Virtual Tour",
+              "description": "A tour of my office",
+              "created_at": "2024-01-01T00:00:00.000000Z",
+              "updated_at": "2024-01-01T00:00:00.000000Z",
+              "scenes": [...]
+            }
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+    uri: 'api/projects/{project_slug}'
+    metadata:
+      custom: []
+      groupName: Projects
+      groupDescription: |-
+
+        APIs for managing projects
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Update a project'
+      description: 'Update an existing project.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      project_slug:
+        custom: []
+        name: project_slug
+        description: 'The slug of the project.'
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      project:
+        custom: []
+        name: project
+        description: 'The slug of the project.'
+        required: true
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      project_slug: architecto
+      project: 550e8400-e29b-41d4-a716-446655440000
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      name:
+        custom: []
+        name: name
+        description: 'The name of the project.'
+        required: false
+        example: 'Updated Tour Name'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      description:
+        custom: []
+        name: description
+        description: 'The description of the project.'
+        required: false
+        example: 'Updated description'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      name: 'Updated Tour Name'
+      description: 'Updated description'
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "data": {
+              "slug": "550e8400-e29b-41d4-a716-446655440000",
+              "name": "Updated Tour Name",
+              "description": "Updated description",
+              "created_at": "2024-01-01T00:00:00.000000Z",
+              "updated_at": "2024-01-01T00:00:00.000000Z"
+            }
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PATCH
+    uri: 'api/projects/{project_slug}'
+    metadata:
+      custom: []
+      groupName: Projects
+      groupDescription: |-
+
+        APIs for managing projects
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Update a project'
+      description: 'Update an existing project.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      project_slug:
+        custom: []
+        name: project_slug
+        description: 'The slug of the project.'
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      project:
+        custom: []
+        name: project
+        description: 'The slug of the project.'
+        required: true
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      project_slug: architecto
+      project: 550e8400-e29b-41d4-a716-446655440000
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      name:
+        custom: []
+        name: name
+        description: 'The name of the project.'
+        required: false
+        example: 'Updated Tour Name'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      description:
+        custom: []
+        name: description
+        description: 'The description of the project.'
+        required: false
+        example: 'Updated description'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      name: 'Updated Tour Name'
+      description: 'Updated description'
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "data": {
+              "slug": "550e8400-e29b-41d4-a716-446655440000",
+              "name": "Updated Tour Name",
+              "description": "Updated description",
+              "created_at": "2024-01-01T00:00:00.000000Z",
+              "updated_at": "2024-01-01T00:00:00.000000Z"
+            }
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - DELETE
+    uri: 'api/projects/{project_slug}'
+    metadata:
+      custom: []
+      groupName: Projects
+      groupDescription: |-
+
+        APIs for managing projects
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Delete a project'
+      description: 'Delete a project and all its associated data.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      project_slug:
+        custom: []
+        name: project_slug
+        description: 'The slug of the project.'
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      project:
+        custom: []
+        name: project
+        description: 'The slug of the project.'
+        required: true
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      project_slug: architecto
+      project: 550e8400-e29b-41d4-a716-446655440000
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 204
+        content: '{}'
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null

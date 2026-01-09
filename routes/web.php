@@ -9,3 +9,7 @@ Route::get('/', function () {
 Route::get('/{name}', function () {
     return view('welcome');
 });
+
+Route::get('/docs', function () {
+    return view('scribe.index');
+});

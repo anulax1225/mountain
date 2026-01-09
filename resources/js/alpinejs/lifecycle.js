@@ -102,7 +102,6 @@ export function initTree(el, walker = walk, intercept = () => {}) {
             initInterceptors.forEach(i => i(el, skip))
 
             directives(el, el.attributes).forEach(handle => handle())
-
             // Add a marker to the element so we can tell if it's been initialized...
             // This is important so that we can prevent double-initialization of
             // elements that are moved around on the page.

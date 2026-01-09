@@ -28,7 +28,7 @@ export function createComponentElement(name, htmlContent, namespace) {
     const fullName = namespace.length ? `${namespace}-${name}` : name;
     
     if (script) {
-        registerComponent(template, fullName, script.innerHTML);
+        registerComponent(template, fullName, script.innerHTML || "return new Promise({})");
     } else {
         registerComponent(template, fullName);
     }

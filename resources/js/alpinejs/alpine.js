@@ -19,7 +19,7 @@ import { plugin } from './plugin'
 import { magic, injectMagics } from './magics'
 import { store } from './store'
 import { bind } from './binds'
-import { data } from './datas'
+import { data, injectDataProviders } from './datas'
 
 let Alpine = {
     get reactive() { return reactive },
@@ -49,6 +49,7 @@ let Alpine = {
     interceptInit,
     initInterceptors,
     injectMagics,
+    injectDataProviders,
     setEvaluator,
     mergeProxies,
     extractProp,

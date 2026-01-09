@@ -28,6 +28,7 @@ export function createRouter(routes = [], {
             window.addEventListener('popstate', e => this.onUrlChange());
         },
         visit(path) {
+            console.log(path);
             history.pushState({}, '', path);
             this.onUrlChange()
         },

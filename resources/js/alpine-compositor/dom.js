@@ -325,10 +325,6 @@ class ShadowDOMStrategy extends BaseDOMStrategy {
     getShadow() {
         return this.shadow;
     }
-
-    getInitRoot() {
-        return this.shadow;
-    }
 }
 
 
