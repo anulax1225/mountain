@@ -13,7 +13,6 @@ defineProps({
 
 <template>
   <DashboardLayout :auth="auth">
-    <OwlEditor />
     <div class="mx-auto max-w-7xl">
       <div class="flex justify-between items-center mb-8">
         <div>
