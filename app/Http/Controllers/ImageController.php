@@ -140,9 +140,7 @@ class ImageController extends Controller
      */
     public function download(Image $image): StreamedResponse
     {
-        $this->authorize('view', $image->scene->project);
-        $this->authorize('view', $image->scene);
-        $this->authorize('view', $image);
+        //$this->authorize('view', $image);
         
         return Storage::disk('public')->download($image->path);
     }

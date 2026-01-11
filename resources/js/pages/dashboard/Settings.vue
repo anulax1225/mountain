@@ -44,8 +44,8 @@ const deleteAccount = () => {
   <DashboardLayout :auth="auth">
     <div class="mx-auto max-w-4xl">
       <div class="mb-8">
-        <h1 class="font-bold text-slate-900 text-3xl">Paramètres</h1>
-        <p class="mt-1 text-slate-600">Gérez les paramètres de votre compte et vos préférences</p>
+        <h1 class="font-bold text-zinc-900 text-3xl">Paramètres</h1>
+        <p class="mt-1 text-zinc-600">Gérez les paramètres de votre compte et vos préférences</p>
       </div>
 
       <div class="space-y-6">
@@ -128,7 +128,7 @@ const deleteAccount = () => {
             <div class="flex justify-between items-center">
               <div class="space-y-0.5">
                 <Label>Notifications par email</Label>
-                <p class="text-slate-500 text-sm">Recevez des notifications par email concernant votre compte</p>
+                <p class="text-zinc-500 text-sm">Recevez des notifications par email concernant votre compte</p>
               </div>
               <Switch />
             </div>
@@ -136,7 +136,7 @@ const deleteAccount = () => {
             <div class="flex justify-between items-center">
               <div class="space-y-0.5">
                 <Label>Mises à jour de projets</Label>
-                <p class="text-slate-500 text-sm">Soyez notifié des modifications de vos projets</p>
+                <p class="text-zinc-500 text-sm">Soyez notifié des modifications de vos projets</p>
               </div>
               <Switch />
             </div>
@@ -152,8 +152,8 @@ const deleteAccount = () => {
           <CardContent>
             <div class="flex justify-between items-center">
               <div>
-                <p class="font-medium text-slate-900">Supprimer le compte</p>
-                <p class="text-slate-500 text-sm">Supprimer définitivement votre compte et toutes vos données</p>
+                <p class="font-medium text-zinc-900">Supprimer le compte</p>
+                <p class="text-zinc-500 text-sm">Supprimer définitivement votre compte et toutes vos données</p>
               </div>
               <Button variant="destructive" @click="deleteAccount">
                 Supprimer le compte

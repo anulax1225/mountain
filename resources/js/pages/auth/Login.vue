@@ -26,8 +26,8 @@ const submit = () => {
 <template>
   <AuthLayout>
     <div class="mb-8">
-      <h2 class="mb-2 font-bold text-slate-900 text-3xl">Bon retour</h2>
-      <p class="text-slate-600">Connectez-vous à votre compte pour continuer</p>
+      <h2 class="mb-2 font-bold text-zinc-900 text-3xl">Bon retour</h2>
+      <p class="text-zinc-600">Connectez-vous à votre compte pour continuer</p>
     </div>
 
     <div v-if="status" class="mb-4 font-medium text-green-600 text-sm">
@@ -77,7 +77,7 @@ const submit = () => {
     </form>
 
     <div class="mt-6 text-sm text-center">
-      <span class="text-slate-600">Vous n'avez pas de compte? </span>
+      <span class="text-zinc-600">Vous n'avez pas de compte? </span>
       <Link href="/register" class="font-medium text-purple-600 hover:text-purple-700">
         S'inscrire
       </Link>
