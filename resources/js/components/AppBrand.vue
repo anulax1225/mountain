@@ -1,6 +1,6 @@
 <template>
     <div class="flex items-center gap-2">
-        <AppLogo class="w-9 h-9" />
+        <AppLogo class="w-7 h-7" />
         <span class="font-bold text-zinc-900 text-lg">Owlaround</span>
     </div>
 </template>

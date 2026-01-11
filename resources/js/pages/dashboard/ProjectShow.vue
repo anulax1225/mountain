@@ -105,7 +105,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <DashboardLayout :auth="auth">
+  <DashboardLayout :auth="auth" :project="project">
     <div class="mx-auto max-w-7xl">
       <!-- Header -->
       <div class="flex items-center gap-4 mb-8">

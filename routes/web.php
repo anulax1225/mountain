@@ -37,12 +37,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard/settings', [DashboardController::class, 'settings'])->name('dashboard.settings');
     Route::get('/dashboard/projects/{project:slug}', [DashboardController::class, 'showProject'])->name('dashboard.project');
     Route::get('/dashboard/scenes/{scene:slug}', [DashboardController::class, 'showScene'])->name('dashboard.scene');
+    Route::get('/dashboard/editor/{scene:slug}', [DashboardController::class, 'showEditor'])->name('dashboard.editor');
 });
 
 
 // Protected routes
 Route::middleware('auth')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/logout', [AuthController::class, 'webLogout']);
+    Route::post('/api/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
     
     // Your existing authenticated routes here...
@@ -82,4 +84,3 @@ Route::middleware('auth')->group(function () {
     Route::patch('/hotspots/{hotspot:slug}', [HotspotController::class, 'update']);
     Route::delete('/hotspots/{hotspot:slug}', [HotspotController::class, 'destroy']);
 });
-

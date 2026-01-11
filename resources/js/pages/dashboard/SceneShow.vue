@@ -17,6 +17,7 @@ const props = defineProps({
 })
 
 const scene = ref(null)
+const project = ref(null)
 const images = ref([])
 const loading = ref(true)
 const imageSheetOpen = ref(false)
@@ -36,6 +37,12 @@ const loadScene = async () => {
     loading.value = true
     const response = await owl.scenes.get(props.sceneSlug)
     scene.value = response.data
+    
+    // Load project data
+    if (scene.value?.project) {
+      project.value = scene.value.project
+    }
+    
     await loadImages()
   } catch (error) {
     console.error('Failed to load scene:', error)
@@ -154,7 +161,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <DashboardLayout :auth="auth">
+  <DashboardLayout :auth="auth" :project="project" :scene="scene">
     <div class="mx-auto max-w-7xl">
       <!-- Header -->
       <div class="flex items-center gap-4 mb-8">
@@ -168,6 +175,16 @@ onMounted(() => {
           <p class="mt-1 text-zinc-600">{{ images.length }} image(s)</p>
         </div>
         <div class="flex items-center gap-2">
+          <!-- Editor Button -->
+          <Link :href="`/dashboard/editor/${sceneSlug}`">
+            <Button variant="outline">
+              <svg class="mr-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+              </svg>
+              Éditeur 360°
+            </Button>
+          </Link>
+
           <!-- View Mode Toggle -->
           <div class="flex gap-1 bg-zinc-100 p-1 rounded-lg">
             <Button
@@ -263,8 +280,8 @@ onMounted(() => {
               <!-- Slide Info -->
               <div class="flex justify-between items-center gap-4 p-4">
                 <div class="flex-1 min-w-0">
-                  <p class="font-medium text-zinc-900 truncate">{{ currentSlide.path.split('/').pop() }}</p>
                   <p class="text-zinc-500 text-sm">{{ formatFileSize(currentSlide.size) }}</p>
+                  <p class="text-zinc-400 text-xs">0 point d'accès</p>
                 </div>
                 <div class="flex items-center gap-2">
                   <Button 
@@ -325,8 +342,8 @@ onMounted(() => {
             </div>
             <CardContent class="flex justify-between items-center gap-2 pt-4">
               <div class="flex-1 min-w-0">
-                <p class="font-medium text-zinc-900 text-sm truncate">{{ image.path.split('/').pop() }}</p>
-                <p class="text-zinc-500 text-xs">{{ formatFileSize(image.size) }}</p>
+                <p class="text-zinc-500 text-sm">{{ formatFileSize(image.size) }}</p>
+                <p class="text-zinc-400 text-xs">0 point d'accès</p>
               </div>
               <div class="flex items-center gap-1">
                 <Button 
@@ -363,9 +380,9 @@ onMounted(() => {
                 />
               </div>
               <div class="flex-1 min-w-0">
-                <p class="font-medium text-zinc-900 truncate">{{ image.path.split('/').pop() }}</p>
                 <p class="text-zinc-500 text-sm">{{ formatFileSize(image.size) }}</p>
                 <p class="text-zinc-400 text-xs">Créé le {{ new Date(image.created_at).toLocaleDateString() }}</p>
+                <p class="text-zinc-400 text-xs">0 point d'accès</p>
               </div>
               <div class="flex items-center gap-2">
                 <Button 
@@ -451,9 +468,9 @@ onMounted(() => {
       <Sheet :open="!!selectedImage" @update:open="(open) => !open && closeImageView()">
         <SheetContent side="right" class="px-0 w-full sm:max-w-4xl">
           <SheetHeader class="px-6">
-            <SheetTitle>{{ selectedImage?.path.split('/').pop() }}</SheetTitle>
+            <SheetTitle>Détails de l'image</SheetTitle>
             <SheetDescription>
-              {{ formatFileSize(selectedImage?.size) }} • Créé le {{ new Date(selectedImage?.created_at).toLocaleDateString() }}
+              {{ formatFileSize(selectedImage?.size) }} • Créé le {{ new Date(selectedImage?.created_at).toLocaleDateString() }} • 0 point d'accès
             </SheetDescription>
           </SheetHeader>
           <Separator class="my-4" />

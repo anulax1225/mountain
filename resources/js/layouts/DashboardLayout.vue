@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -11,21 +11,52 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { FolderOpen, Image, Edit3, Menu, LogOut, Settings } from 'lucide-vue-next';
+import { FolderOpen, Image, ChevronLeft, Settings, LogOut, Menu } from 'lucide-vue-next';
 import AppBrand from '@/components/AppBrand.vue';
 import AppLogo from '@/components/AppLogo.vue';
+import { Separator } from '@/components/ui/separator';
+import owl from '@/owl-sdk.js';
 
-defineProps({
+const props = defineProps({
   auth: Object,
+  project: Object,
+  scene: Object,
 });
 
 const sidebarOpen = ref(true);
+const projectScenes = ref([]);
+const loading = ref(false);
 
-const navigation = [
+const baseNavigation = [
   { name: 'Projets', icon: FolderOpen, href: '/dashboard' },
-  { name: 'Scènes', icon: Image, href: '/dashboard/scenes' },
-  { name: 'Éditeur', icon: Edit3, href: '/dashboard/editor' },
 ];
+
+const navigation = computed(() => {
+  if (props.project) {
+    return [
+      { name: 'Tous les projets', icon: ChevronLeft, href: '/dashboard' },
+    ];
+  }
+  return baseNavigation;
+});
+
+const loadScenes = async () => {
+  if (!props.project?.slug) {
+    projectScenes.value = [];
+    return;
+  }
+  
+  try {
+    loading.value = true;
+    const response = await owl.scenes.list(props.project.slug);
+    projectScenes.value = response.data || [];
+  } catch (error) {
+    console.error('Failed to load scenes:', error);
+    projectScenes.value = [];
+  } finally {
+    loading.value = false;
+  }
+};
 
 const toggleSidebar = () => {
   sidebarOpen.value = !sidebarOpen.value;
@@ -39,6 +70,15 @@ const getInitials = (name) => {
     .join('')
     .toUpperCase();
 };
+
+// Watch for project changes
+watch(() => props.project, (newProject) => {
+  if (newProject?.slug) {
+    loadScenes();
+  } else {
+    projectScenes.value = [];
+  }
+}, { immediate: true });
 </script>
 
 <template>
@@ -77,6 +117,49 @@ const getInitials = (name) => {
             </Link>
           </li>
         </ul>
+
+        <!-- Project Context -->
+        <div v-if="project && sidebarOpen" class="mt-4">
+          <Separator class="my-4" />
+          <div class="mb-3 px-4">
+            <h3 class="font-semibold text-zinc-900 text-xs uppercase tracking-wider">
+              {{ project.name }}
+            </h3>
+          </div>
+          
+          <!-- Loading State -->
+          <div v-if="loading" class="flex justify-center items-center py-4">
+            <div class="border-2 border-zinc-300 border-t-zinc-900 rounded-full w-5 h-5 animate-spin"></div>
+          </div>
+
+          <!-- Scenes List -->
+          <ul v-else class="space-y-1 px-2">
+            <li v-for="sceneItem in projectScenes" :key="sceneItem.slug">
+              <Link
+                :href="`/dashboard/scenes/${sceneItem.slug}`"
+                :class="[
+                  'flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors',
+                  scene?.slug === sceneItem.slug 
+                    ? 'bg-zinc-100 text-zinc-900 font-medium' 
+                    : 'text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900'
+                ]"
+              >
+                <Image class="flex-shrink-0 w-4 h-4" />
+                <span class="truncate">{{ sceneItem.name || 'Sans nom' }}</span>
+              </Link>
+            </li>
+            
+            <!-- Empty State -->
+            <li v-if="projectScenes.length === 0" class="px-3 py-2">
+              <p class="text-zinc-500 text-xs">Aucune scène</p>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Compact Project Indicator -->
+        <div v-if="project && !sidebarOpen" class="flex justify-center items-center mt-4">
+          <div class="bg-purple-100 rounded-full w-2 h-2"></div>
+        </div>
       </nav>
 
       <!-- User section -->
@@ -124,14 +207,14 @@ const getInitials = (name) => {
     <!-- Main content -->
     <div :class="['transition-all duration-300', sidebarOpen ? 'ml-64' : 'ml-20']">
       <!-- Header -->
-      <header class="flex justify-between items-center bg-white px-6 border-zinc-200 border-b h-16">
+      <header class="flex justify-between items-center px-6 border-zinc-200 border-b h-14">
         <Button variant="ghost" size="icon" @click="toggleSidebar">
           <Menu class="w-5 h-5" />
         </Button>
       </header>
 
       <!-- Page content -->
-      <main class="p-6">
+      <main class="px-6 py-5">
         <slot />
       </main>
     </div>

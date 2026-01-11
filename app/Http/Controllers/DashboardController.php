@@ -26,6 +26,13 @@ class DashboardController extends Controller
         ]);
     }
 
+    public function showEditor($slug)
+    {
+        return Inertia::render('dashboard/Editor', [
+            'sceneSlug' => $slug,
+        ]);
+    }
+
     public function settings()
     {
         return Inertia::render('dashboard/Settings');
