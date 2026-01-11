@@ -13,11 +13,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('hotspots', function (Blueprint $table) {
-            $table->id();
-            $table->uuid('slug');
-            $table->foreignIdFor(Image::class, 'from_image_id');
-            $table->foreignIdFor(Image::class, 'to_image_id');
-            $table->timestamps();
+    $table->id();
+    $table->uuid('slug');
+    $table->foreignIdFor(\App\Models\Scene::class);  // ADD THIS!
+    $table->foreignIdFor(Image::class, 'from_image_id');
+    $table->foreignIdFor(Image::class, 'to_image_id');
+    $table->timestamps();
         });
     }
 

@@ -100,7 +100,7 @@ onMounted(() => {
               </CardContent>
             </Card>
           </SheetTrigger>
-          <SheetContent>
+          <SheetContent class="px-6">
             <SheetHeader>
               <SheetTitle>Nouveau projet</SheetTitle>
               <SheetDescription>

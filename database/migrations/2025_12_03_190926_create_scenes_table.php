@@ -16,6 +16,7 @@ return new class extends Migration
             $table->id();
             $table->uuid('slug');
             $table->string('name')->nullable();
+            
             $table->foreignIdFor(Project::class);
             $table->timestamps();
         });

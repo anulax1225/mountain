@@ -12,6 +12,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { FolderOpen, Image, Edit3, Menu, LogOut, Settings } from 'lucide-vue-next';
+import AppBrand from '@/components/AppBrand.vue';
+import AppLogo from '@/components/AppLogo.vue';
 
 defineProps({
   auth: Object,
@@ -49,15 +51,12 @@ const getInitials = (name) => {
       ]"
     >
       <!-- Brand -->
-      <div class="flex justify-between items-center px-4 border-zinc-200 border-b h-16">
+      <div class="flex justify-between items-center px-4 border-zinc-200 h-16">
         <div v-if="sidebarOpen" class="flex items-center gap-2">
-          <div class="flex justify-center items-center bg-zinc-900 rounded-lg w-8 h-8">
-            <span class="font-bold text-white text-sm">A</span>
-          </div>
-          <span class="font-bold text-zinc-900 text-lg">Anulax</span>
+          <AppBrand></AppBrand>
         </div>
-        <div v-else class="flex justify-center items-center bg-zinc-900 mx-auto rounded-lg w-8 h-8">
-          <span class="font-bold text-white text-sm">A</span>
+        <div v-else class="flex justify-center items-center">
+          <AppLogo class="w-9 h-9"/>
         </div>
       </div>
 

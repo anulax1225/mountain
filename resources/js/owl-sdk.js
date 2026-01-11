@@ -123,7 +123,7 @@ class OwlAPIClient {
         
         this.activeRequests.set(requestId, controller);
 
-        const headers = { ...options.headers };
+        const headers = { ...options.headers, "X-CSRF-Token": document.querySelector("input[name=_token]").value };
 
         // Set Content-Type for JSON requests
         if (!options.isFormData && options.body) {

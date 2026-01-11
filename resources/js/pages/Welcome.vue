@@ -4,6 +4,8 @@ import { Link } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button';
 import PlaceholderPattern from '@/components/PlaceholderPattern.vue';
 import { Globe, Zap, Layers, ArrowRight, Menu, X } from 'lucide-vue-next';
+import AppLogo from '@/components/AppLogo.vue';
+import AppBrand from '@/components/AppBrand.vue';
 
 const mobileMenuOpen = ref(false);
 </script>
@@ -14,13 +16,7 @@ const mobileMenuOpen = ref(false);
     <nav class="top-0 z-50 fixed bg-white/80 backdrop-blur-md border-zinc-200 border-b w-full">
       <div class="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
         <div class="flex justify-between items-center h-16">
-          <div class="flex items-center gap-2">
-            <div class="flex justify-center items-center bg-zinc-900 rounded-lg w-8 h-8">
-              <span class="font-bold text-white text-sm">A</span>
-            </div>
-            <span class="font-bold text-zinc-900 text-lg">Anulax</span>
-          </div>
-          
+          <AppBrand />
           <div class="hidden md:flex items-center gap-8">
             <a href="#features" class="text-zinc-600 hover:text-zinc-900 text-sm transition-colors">Fonctionnalités</a>
             <a href="#" class="text-zinc-600 hover:text-zinc-900 text-sm transition-colors">Galerie</a>
