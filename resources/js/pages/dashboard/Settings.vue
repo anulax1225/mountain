@@ -44,8 +44,8 @@ const deleteAccount = () => {
   <DashboardLayout :auth="auth">
     <div class="mx-auto max-w-4xl">
       <div class="mb-8">
-        <h1 class="font-bold text-zinc-900 text-3xl">Paramètres</h1>
-        <p class="mt-1 text-zinc-600">Gérez les paramètres de votre compte et vos préférences</p>
+        <h1 class="font-bold text-zinc-900 dark:text-zinc-100 text-3xl">Paramètres</h1>
+        <p class="mt-1 text-zinc-600 dark:text-zinc-400">Gérez les paramètres de votre compte et vos préférences</p>
       </div>
 
       <div class="space-y-6">
@@ -59,12 +59,12 @@ const deleteAccount = () => {
             <div class="space-y-2">
               <Label for="name">Nom</Label>
               <Input id="name" v-model="profileForm.name" />
-              <div v-if="profileForm.errors.name" class="text-red-600 text-sm">{{ profileForm.errors.name }}</div>
+              <div v-if="profileForm.errors.name" class="text-red-600 dark:text-red-400 text-sm">{{ profileForm.errors.name }}</div>
             </div>
             <div class="space-y-2">
               <Label for="email">Email</Label>
               <Input id="email" v-model="profileForm.email" type="email" />
-              <div v-if="profileForm.errors.email" class="text-red-600 text-sm">{{ profileForm.errors.email }}</div>
+              <div v-if="profileForm.errors.email" class="text-red-600 dark:text-red-400 text-sm">{{ profileForm.errors.email }}</div>
             </div>
             <Button @click="updateProfile" :disabled="profileForm.processing">
               Enregistrer les modifications
@@ -87,7 +87,7 @@ const deleteAccount = () => {
                 type="password"
                 autocomplete="current-password"
               />
-              <div v-if="passwordForm.errors.current_password" class="text-red-600 text-sm">
+              <div v-if="passwordForm.errors.current_password" class="text-red-600 dark:text-red-400 text-sm">
                 {{ passwordForm.errors.current_password }}
               </div>
             </div>
@@ -99,7 +99,7 @@ const deleteAccount = () => {
                 type="password"
                 autocomplete="new-password"
               />
-              <div v-if="passwordForm.errors.password" class="text-red-600 text-sm">
+              <div v-if="passwordForm.errors.password" class="text-red-600 dark:text-red-400 text-sm">
                 {{ passwordForm.errors.password }}
               </div>
             </div>
@@ -128,7 +128,7 @@ const deleteAccount = () => {
             <div class="flex justify-between items-center">
               <div class="space-y-0.5">
                 <Label>Notifications par email</Label>
-                <p class="text-zinc-500 text-sm">Recevez des notifications par email concernant votre compte</p>
+                <p class="text-zinc-500 dark:text-zinc-400 text-sm">Recevez des notifications par email concernant votre compte</p>
               </div>
               <Switch />
             </div>
@@ -136,7 +136,7 @@ const deleteAccount = () => {
             <div class="flex justify-between items-center">
               <div class="space-y-0.5">
                 <Label>Mises à jour de projets</Label>
-                <p class="text-zinc-500 text-sm">Soyez notifié des modifications de vos projets</p>
+                <p class="text-zinc-500 dark:text-zinc-400 text-sm">Soyez notifié des modifications de vos projets</p>
               </div>
               <Switch />
             </div>
@@ -144,16 +144,16 @@ const deleteAccount = () => {
         </Card>
 
         <!-- Danger Zone -->
-        <Card class="border-red-200">
+        <Card class="border-red-200 dark:border-red-900">
           <CardHeader>
-            <CardTitle class="text-red-600">Zone de danger</CardTitle>
+            <CardTitle class="text-red-600 dark:text-red-400">Zone de danger</CardTitle>
             <CardDescription>Actions irréversibles pour votre compte</CardDescription>
           </CardHeader>
           <CardContent>
             <div class="flex justify-between items-center">
               <div>
-                <p class="font-medium text-zinc-900">Supprimer le compte</p>
-                <p class="text-zinc-500 text-sm">Supprimer définitivement votre compte et toutes vos données</p>
+                <p class="font-medium text-zinc-900 dark:text-zinc-100">Supprimer le compte</p>
+                <p class="text-zinc-500 dark:text-zinc-400 text-sm">Supprimer définitivement votre compte et toutes vos données</p>
               </div>
               <Button variant="destructive" @click="deleteAccount">
                 Supprimer le compte

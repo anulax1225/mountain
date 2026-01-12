@@ -50,7 +50,6 @@ const loadScenes = async () => {
     const response = await owl.scenes.list(props.projectSlug)
     scenes.value = response.data || []
     
-    // Load images for each scene
     for (const scene of scenes.value) {
       const imagesResponse = await owl.images.list(scene.slug)
       scene.images = imagesResponse.data || []
@@ -115,19 +114,19 @@ onMounted(() => {
           </Button>
         </Link>
         <div class="flex-1">
-          <h1 class="font-bold text-zinc-900 text-3xl">{{ project?.name || 'Loading...' }}</h1>
-          <p class="mt-1 text-zinc-600">{{ project?.description || 'No description' }}</p>
+          <h1 class="font-bold text-zinc-900 dark:text-zinc-100 text-3xl">{{ project?.name || 'Loading...' }}</h1>
+          <p class="mt-1 text-zinc-600 dark:text-zinc-400">{{ project?.description || 'No description' }}</p>
         </div>
       </div>
 
       <div v-if="loading" class="flex justify-center items-center py-12">
-        <div class="border-4 border-zinc-300 border-t-zinc-900 rounded-full w-8 h-8 animate-spin"></div>
+        <div class="border-4 border-zinc-300 dark:border-zinc-700 border-t-zinc-900 dark:border-t-zinc-100 rounded-full w-8 h-8 animate-spin"></div>
       </div>
 
       <div v-else>
         <!-- Scenes Section -->
         <div class="mb-6">
-          <h2 class="mb-4 font-semibold text-zinc-900 text-xl">Scènes</h2>
+          <h2 class="mb-4 font-semibold text-zinc-900 dark:text-zinc-100 text-xl">Scènes</h2>
           
           <div class="gap-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             <!-- Scene Cards -->
@@ -155,7 +154,7 @@ onMounted(() => {
                       </DropdownMenuItem>
                       <DropdownMenuItem 
                         @click="deleteScene(scene.slug)"
-                        class="text-red-600"
+                        class="text-red-600 dark:text-red-400"
                       >
                         <Trash2 class="mr-2 w-4 h-4" />
                         Supprimer
@@ -170,7 +169,7 @@ onMounted(() => {
                   <div 
                     v-for="image in scene.images.slice(0, 4)" 
                     :key="image.slug"
-                    class="relative bg-zinc-100 rounded-lg aspect-square overflow-hidden"
+                    class="relative bg-zinc-100 dark:bg-zinc-800 rounded-lg aspect-square overflow-hidden"
                   >
                     <img 
                       :src="`/images/${image.slug}/download`" 
@@ -180,16 +179,16 @@ onMounted(() => {
                   </div>
                   <div 
                     v-if="scene.images.length > 4"
-                    class="flex justify-center items-center bg-zinc-100 rounded-lg aspect-square"
+                    class="flex justify-center items-center bg-zinc-100 dark:bg-zinc-800 rounded-lg aspect-square"
                   >
-                    <span class="font-medium text-zinc-600">+{{ scene.images.length - 4 }}</span>
+                    <span class="font-medium text-zinc-600 dark:text-zinc-400">+{{ scene.images.length - 4 }}</span>
                   </div>
                 </div>
                 
                 <!-- No Images State -->
-                <div v-else class="flex flex-col justify-center items-center bg-zinc-50 py-8 rounded-lg">
-                  <ImageIcon class="mb-2 w-8 h-8 text-zinc-400" />
-                  <p class="text-zinc-500 text-sm">Aucune image</p>
+                <div v-else class="flex flex-col justify-center items-center bg-zinc-50 dark:bg-zinc-800/50 py-8 rounded-lg">
+                  <ImageIcon class="mb-2 w-8 h-8 text-zinc-400 dark:text-zinc-600" />
+                  <p class="text-zinc-500 dark:text-zinc-400 text-sm">Aucune image</p>
                 </div>
 
                 <!-- View Button -->
@@ -209,14 +208,14 @@ onMounted(() => {
             <!-- Create Scene Card -->
             <Card 
               @click="openCreateScene"
-              class="border-2 border-zinc-300 hover:border-purple-400 border-dashed transition-colors cursor-pointer"
+              class="border-2 border-zinc-300 hover:border-purple-400 dark:border-zinc-700 dark:hover:border-purple-600 border-dashed transition-colors cursor-pointer"
             >
               <CardContent class="flex flex-col justify-center items-center py-12 h-full">
-                <div class="flex justify-center items-center bg-purple-100 mb-4 rounded-full w-12 h-12">
-                  <Plus class="w-6 h-6 text-purple-600" />
+                <div class="flex justify-center items-center bg-purple-100 dark:bg-purple-900/50 mb-4 rounded-full w-12 h-12">
+                  <Plus class="w-6 h-6 text-purple-600 dark:text-purple-400" />
                 </div>
-                <p class="mb-1 font-medium text-zinc-900 text-sm">Créer une scène</p>
-                <p class="text-zinc-500 text-xs text-center">Ajouter une nouvelle scène au projet</p>
+                <p class="mb-1 font-medium text-zinc-900 dark:text-zinc-100 text-sm">Créer une scène</p>
+                <p class="text-zinc-500 dark:text-zinc-400 text-xs text-center">Ajouter une nouvelle scène au projet</p>
               </CardContent>
             </Card>
           </div>

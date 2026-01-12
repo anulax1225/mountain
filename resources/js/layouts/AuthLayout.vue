@@ -1,12 +1,13 @@
 <script setup>
 import { Globe, Layers, Zap } from 'lucide-vue-next';
+import ThemeToggle from '@/components/ThemeToggle.vue';
 </script>
 
 <template>
   <div class="flex min-h-screen">
     <!-- Left side - Branding/Visual -->
-    <div class="hidden relative lg:flex bg-zinc-900 lg:w-1/2 overflow-hidden">
-      <div class="absolute inset-0 bg-[linear-gradient(to_right,#52525b_1px,transparent_1px),linear-gradient(to_bottom,#52525b_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-10"></div>
+    <div class="hidden relative lg:flex bg-zinc-900 dark:bg-zinc-950 lg:w-1/2 overflow-hidden">
+      <div class="absolute inset-0 bg-[linear-gradient(to_right,#52525b_1px,transparent_1px),linear-gradient(to_bottom,#52525b_1px,transparent_1px)] bg-[size:4rem_4rem] dark:bg-[linear-gradient(to_right,#3f3f46_1px,transparent_1px),linear-gradient(to_bottom,#3f3f46_1px,transparent_1px)] opacity-10"></div>
       <div class="z-10 relative flex flex-col justify-center px-12 py-16 text-white">
         <div class="mb-8">
           <div class="flex items-center gap-2 mb-2">
@@ -15,7 +16,7 @@ import { Globe, Layers, Zap } from 'lucide-vue-next';
             </div>
             <h1 class="font-bold text-4xl">Anulax</h1>
           </div>
-          <p class="text-zinc-400">Éditeur de visites virtuelles 360°</p>
+          <p class="text-zinc-400 dark:text-zinc-500">Éditeur de visites virtuelles 360°</p>
         </div>
         <div class="space-y-6 max-w-md">
           <div class="flex items-start gap-4">
@@ -24,7 +25,7 @@ import { Globe, Layers, Zap } from 'lucide-vue-next';
             </div>
             <div>
               <h3 class="mb-1 font-semibold">Expériences immersives en 360°</h3>
-              <p class="text-zinc-400 text-sm">Créez de superbes visites virtuelles panoramiques avec navigation interactive</p>
+              <p class="text-zinc-400 dark:text-zinc-500 text-sm">Créez de superbes visites virtuelles panoramiques avec navigation interactive</p>
             </div>
           </div>
           <div class="flex items-start gap-4">
@@ -33,7 +34,7 @@ import { Globe, Layers, Zap } from 'lucide-vue-next';
             </div>
             <div>
               <h3 class="mb-1 font-semibold">Organisation de projets</h3>
-              <p class="text-zinc-400 text-sm">Gérez plusieurs visites avec scènes et points d'accès en un seul endroit</p>
+              <p class="text-zinc-400 dark:text-zinc-500 text-sm">Gérez plusieurs visites avec scènes et points d'accès en un seul endroit</p>
             </div>
           </div>
           <div class="flex items-start gap-4">
@@ -42,7 +43,7 @@ import { Globe, Layers, Zap } from 'lucide-vue-next';
             </div>
             <div>
               <h3 class="mb-1 font-semibold">Propulsé par Three.js</h3>
-              <p class="text-zinc-400 text-sm">Rendu 3D en temps réel pour des résultats fluides et professionnels</p>
+              <p class="text-zinc-400 dark:text-zinc-500 text-sm">Rendu 3D en temps réel pour des résultats fluides et professionnels</p>
             </div>
           </div>
         </div>
@@ -50,8 +51,11 @@ import { Globe, Layers, Zap } from 'lucide-vue-next';
     </div>
 
     <!-- Right side - Form -->
-    <div class="flex justify-center items-center bg-white p-8 w-full lg:w-1/2">
+    <div class="flex justify-center items-center bg-white dark:bg-zinc-900 p-8 w-full lg:w-1/2">
       <div class="w-full max-w-md">
+        <div class="flex justify-end mb-4">
+          <ThemeToggle />
+        </div>
         <slot />
       </div>
     </div>

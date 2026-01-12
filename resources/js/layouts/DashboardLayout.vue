@@ -14,6 +14,7 @@ import {
 import { FolderOpen, Image, ChevronLeft, Settings, LogOut, Menu } from 'lucide-vue-next';
 import AppBrand from '@/components/AppBrand.vue';
 import AppLogo from '@/components/AppLogo.vue';
+import ThemeToggle from '@/components/ThemeToggle.vue';
 import { Separator } from '@/components/ui/separator';
 import owl from '@/owl-sdk.js';
 
@@ -71,7 +72,6 @@ const getInitials = (name) => {
     .toUpperCase();
 };
 
-// Watch for project changes
 watch(() => props.project, (newProject) => {
   if (newProject?.slug) {
     loadScenes();
@@ -82,16 +82,16 @@ watch(() => props.project, (newProject) => {
 </script>
 
 <template>
-  <div class="bg-zinc-50 min-h-screen">
+  <div class="bg-zinc-50 dark:bg-zinc-950 min-h-screen">
     <!-- Sidebar -->
     <aside 
       :class="[
-        'fixed inset-y-0 left-0 z-50 flex flex-col bg-white border-r border-zinc-200 transition-all duration-300',
+        'fixed inset-y-0 left-0 z-50 flex flex-col bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 transition-all duration-300',
         sidebarOpen ? 'w-64' : 'w-20'
       ]"
     >
       <!-- Brand -->
-      <div class="flex justify-between items-center px-4 border-zinc-200 h-16">
+      <div class="flex justify-between items-center px-4 border-zinc-200 dark:border-zinc-800 h-16">
         <div v-if="sidebarOpen" class="flex items-center gap-2">
           <AppBrand></AppBrand>
         </div>
@@ -108,8 +108,8 @@ watch(() => props.project, (newProject) => {
               :href="item.href"
               :class="[
                 'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
-                'hover:bg-zinc-100 hover:text-zinc-900',
-                'text-zinc-700'
+                'hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100',
+                'text-zinc-700 dark:text-zinc-300'
               ]"
             >
               <component :is="item.icon" class="flex-shrink-0 w-5 h-5" />
@@ -122,14 +122,14 @@ watch(() => props.project, (newProject) => {
         <div v-if="project && sidebarOpen" class="mt-4">
           <Separator class="my-4" />
           <div class="mb-3 px-4">
-            <h3 class="font-semibold text-zinc-900 text-xs uppercase tracking-wider">
+            <h3 class="font-semibold text-zinc-900 dark:text-zinc-100 text-xs uppercase tracking-wider">
               {{ project.name }}
             </h3>
           </div>
           
           <!-- Loading State -->
           <div v-if="loading" class="flex justify-center items-center py-4">
-            <div class="border-2 border-zinc-300 border-t-zinc-900 rounded-full w-5 h-5 animate-spin"></div>
+            <div class="border-2 border-zinc-300 dark:border-zinc-700 border-t-zinc-900 dark:border-t-zinc-100 rounded-full w-5 h-5 animate-spin"></div>
           </div>
 
           <!-- Scenes List -->
@@ -140,8 +140,8 @@ watch(() => props.project, (newProject) => {
                 :class="[
                   'flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors',
                   scene?.slug === sceneItem.slug 
-                    ? 'bg-zinc-100 text-zinc-900 font-medium' 
-                    : 'text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900'
+                    ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-medium' 
+                    : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-zinc-100'
                 ]"
               >
                 <Image class="flex-shrink-0 w-4 h-4" />
@@ -151,35 +151,35 @@ watch(() => props.project, (newProject) => {
             
             <!-- Empty State -->
             <li v-if="projectScenes.length === 0" class="px-3 py-2">
-              <p class="text-zinc-500 text-xs">Aucune scène</p>
+              <p class="text-zinc-500 dark:text-zinc-600 text-xs">Aucune scène</p>
             </li>
           </ul>
         </div>
 
         <!-- Compact Project Indicator -->
         <div v-if="project && !sidebarOpen" class="flex justify-center items-center mt-4">
-          <div class="bg-purple-100 rounded-full w-2 h-2"></div>
+          <div class="bg-purple-100 dark:bg-purple-900/50 rounded-full w-2 h-2"></div>
         </div>
       </nav>
 
       <!-- User section -->
-      <div class="p-4 border-zinc-200 border-t">
+      <div class="p-4 border-zinc-200 dark:border-zinc-800 border-t">
         <DropdownMenu>
           <DropdownMenuTrigger as-child>
             <button 
               :class="[
-                'w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-zinc-100 transition-colors',
+                'w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors',
                 !sidebarOpen && 'justify-center'
               ]"
             >
               <Avatar class="w-8 h-8">
-                <AvatarFallback class="bg-zinc-900 text-white text-sm">
+                <AvatarFallback class="bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-sm">
                   {{ getInitials(auth?.user?.name) }}
                 </AvatarFallback>
               </Avatar>
               <div v-if="sidebarOpen" class="flex-1 text-left">
-                <p class="font-medium text-zinc-900 text-sm">{{ auth?.user?.name || 'Utilisateur' }}</p>
-                <p class="text-zinc-500 text-xs">{{ auth?.user?.email || 'utilisateur@exemple.com' }}</p>
+                <p class="font-medium text-zinc-900 dark:text-zinc-100 text-sm">{{ auth?.user?.name || 'Utilisateur' }}</p>
+                <p class="text-zinc-500 dark:text-zinc-400 text-xs">{{ auth?.user?.email || 'utilisateur@exemple.com' }}</p>
               </div>
             </button>
           </DropdownMenuTrigger>
@@ -207,10 +207,11 @@ watch(() => props.project, (newProject) => {
     <!-- Main content -->
     <div :class="['transition-all duration-300', sidebarOpen ? 'ml-64' : 'ml-20']">
       <!-- Header -->
-      <header class="flex justify-between items-center px-6 border-zinc-200 border-b h-14">
+      <header class="flex justify-between items-center bg-white dark:bg-zinc-900 px-6 border-zinc-200 dark:border-zinc-800 border-b h-14">
         <Button variant="ghost" size="icon" @click="toggleSidebar">
           <Menu class="w-5 h-5" />
         </Button>
+        <ThemeToggle />
       </header>
 
       <!-- Page content -->

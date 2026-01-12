@@ -22,7 +22,7 @@ const images = ref([])
 const loading = ref(true)
 const imageSheetOpen = ref(false)
 const selectedImage = ref(null)
-const viewMode = ref('grid') // 'grid', 'list', or 'slider'
+const viewMode = ref('grid')
 const currentSlideIndex = ref(0)
 const isFullscreen = ref(false)
 
@@ -38,7 +38,6 @@ const loadScene = async () => {
     const response = await owl.scenes.get(props.sceneSlug)
     scene.value = response.data
     
-    // Load project data
     if (scene.value?.project) {
       project.value = scene.value.project
     }
@@ -171,8 +170,8 @@ onMounted(() => {
           </Button>
         </Link>
         <div class="flex-1">
-          <h1 class="font-bold text-zinc-900 text-3xl">{{ scene?.name || 'Loading...' }}</h1>
-          <p class="mt-1 text-zinc-600">{{ images.length }} image(s)</p>
+          <h1 class="font-bold text-zinc-900 dark:text-zinc-100 text-3xl">{{ scene?.name || 'Loading...' }}</h1>
+          <p class="mt-1 text-zinc-600 dark:text-zinc-400">{{ images.length }} image(s)</p>
         </div>
         <div class="flex items-center gap-2">
           <!-- Editor Button -->
@@ -186,11 +185,11 @@ onMounted(() => {
           </Link>
 
           <!-- View Mode Toggle -->
-          <div class="flex gap-1 bg-zinc-100 p-1 rounded-lg">
+          <div class="flex gap-1 bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg">
             <Button
               variant="ghost"
               size="icon-sm"
-              :class="viewMode === 'grid' ? 'bg-white shadow-sm' : ''"
+              :class="viewMode === 'grid' ? 'bg-white dark:bg-zinc-700 shadow-sm' : ''"
               @click="viewMode = 'grid'"
             >
               <Grid3x3 class="w-4 h-4" />
@@ -198,7 +197,7 @@ onMounted(() => {
             <Button
               variant="ghost"
               size="icon-sm"
-              :class="viewMode === 'list' ? 'bg-white shadow-sm' : ''"
+              :class="viewMode === 'list' ? 'bg-white dark:bg-zinc-700 shadow-sm' : ''"
               @click="viewMode = 'list'"
             >
               <LayoutGrid class="w-4 h-4" />
@@ -206,7 +205,7 @@ onMounted(() => {
             <Button
               variant="ghost"
               size="icon-sm"
-              :class="viewMode === 'slider' ? 'bg-white shadow-sm' : ''"
+              :class="viewMode === 'slider' ? 'bg-white dark:bg-zinc-700 shadow-sm' : ''"
               @click="viewMode = 'slider'; currentSlideIndex = 0"
             >
               <Presentation class="w-4 h-4" />
@@ -226,7 +225,7 @@ onMounted(() => {
       </div>
 
       <div v-if="loading" class="flex justify-center items-center py-12">
-        <div class="border-4 border-zinc-300 border-t-zinc-900 rounded-full w-8 h-8 animate-spin"></div>
+        <div class="border-4 border-zinc-300 dark:border-zinc-700 border-t-zinc-900 dark:border-t-zinc-100 rounded-full w-8 h-8 animate-spin"></div>
       </div>
 
       <div v-else>
@@ -241,7 +240,6 @@ onMounted(() => {
                   class="w-full h-full object-contain"
                 />
                 
-                <!-- Fullscreen Button -->
                 <Button
                   variant="secondary"
                   size="icon"
@@ -251,7 +249,6 @@ onMounted(() => {
                   <Maximize2 class="w-4 h-4" />
                 </Button>
 
-                <!-- Navigation Buttons -->
                 <Button
                   v-if="currentSlideIndex > 0"
                   variant="secondary"
@@ -271,17 +268,15 @@ onMounted(() => {
                   <ChevronRight class="w-5 h-5" />
                 </Button>
 
-                <!-- Slide Counter -->
                 <div class="bottom-4 left-1/2 absolute bg-black/50 backdrop-blur-sm px-3 py-1 rounded-full text-white text-xs -translate-x-1/2">
                   {{ currentSlideIndex + 1 }} / {{ images.length }}
                 </div>
               </div>
 
-              <!-- Slide Info -->
               <div class="flex justify-between items-center gap-4 p-4">
                 <div class="flex-1 min-w-0">
-                  <p class="text-zinc-500 text-sm">{{ formatFileSize(currentSlide.size) }}</p>
-                  <p class="text-zinc-400 text-xs">0 point d'accès</p>
+                  <p class="text-zinc-500 dark:text-zinc-400 text-sm">{{ formatFileSize(currentSlide.size) }}</p>
+                  <p class="text-zinc-400 dark:text-zinc-500 text-xs">0 point d'accès</p>
                 </div>
                 <div class="flex items-center gap-2">
                   <Button 
@@ -297,14 +292,13 @@ onMounted(() => {
                     size="icon"
                     @click="deleteImage(currentSlide.slug)"
                   >
-                    <Trash2 class="w-4 h-4 text-red-600" />
+                    <Trash2 class="w-4 h-4 text-red-600 dark:text-red-400" />
                   </Button>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <!-- Thumbnails -->
           <div class="flex gap-2 pb-2 overflow-x-auto">
             <button
               v-for="(image, index) in images"
@@ -313,7 +307,7 @@ onMounted(() => {
               :class="[
                 'relative flex-shrink-0 w-24 h-16 rounded-lg overflow-hidden transition-all',
                 currentSlideIndex === index 
-                  ? 'ring-2 ring-purple-500 ring-offset-2' 
+                  ? 'ring-2 ring-purple-500 dark:ring-purple-400 ring-offset-2 dark:ring-offset-zinc-900' 
                   : 'opacity-60 hover:opacity-100'
               ]"
             >
@@ -342,8 +336,8 @@ onMounted(() => {
             </div>
             <CardContent class="flex justify-between items-center gap-2 pt-4">
               <div class="flex-1 min-w-0">
-                <p class="text-zinc-500 text-sm">{{ formatFileSize(image.size) }}</p>
-                <p class="text-zinc-400 text-xs">0 point d'accès</p>
+                <p class="text-zinc-500 dark:text-zinc-400 text-sm">{{ formatFileSize(image.size) }}</p>
+                <p class="text-zinc-400 dark:text-zinc-500 text-xs">0 point d'accès</p>
               </div>
               <div class="flex items-center gap-1">
                 <Button 
@@ -358,7 +352,7 @@ onMounted(() => {
                   size="icon-sm"
                   @click.stop="deleteImage(image.slug)"
                 >
-                  <Trash2 class="w-4 h-4 text-red-600" />
+                  <Trash2 class="w-4 h-4 text-red-600 dark:text-red-400" />
                 </Button>
               </div>
             </CardContent>
@@ -370,7 +364,7 @@ onMounted(() => {
           <Card v-for="image in images" :key="image.slug" class="hover:shadow-md transition-shadow">
             <CardContent class="flex items-center gap-4 p-4">
               <div 
-                class="relative flex-shrink-0 bg-zinc-100 rounded-lg w-32 h-20 overflow-hidden cursor-pointer"
+                class="relative flex-shrink-0 bg-zinc-100 dark:bg-zinc-800 rounded-lg w-32 h-20 overflow-hidden cursor-pointer"
                 @click="viewImage(image)"
               >
                 <img 
@@ -380,9 +374,9 @@ onMounted(() => {
                 />
               </div>
               <div class="flex-1 min-w-0">
-                <p class="text-zinc-500 text-sm">{{ formatFileSize(image.size) }}</p>
-                <p class="text-zinc-400 text-xs">Créé le {{ new Date(image.created_at).toLocaleDateString() }}</p>
-                <p class="text-zinc-400 text-xs">0 point d'accès</p>
+                <p class="text-zinc-500 dark:text-zinc-400 text-sm">{{ formatFileSize(image.size) }}</p>
+                <p class="text-zinc-400 dark:text-zinc-500 text-xs">Créé le {{ new Date(image.created_at).toLocaleDateString() }}</p>
+                <p class="text-zinc-400 dark:text-zinc-500 text-xs">0 point d'accès</p>
               </div>
               <div class="flex items-center gap-2">
                 <Button 
@@ -398,7 +392,7 @@ onMounted(() => {
                   size="icon"
                   @click="deleteImage(image.slug)"
                 >
-                  <Trash2 class="w-4 h-4 text-red-600" />
+                  <Trash2 class="w-4 h-4 text-red-600 dark:text-red-400" />
                 </Button>
               </div>
             </CardContent>
@@ -406,10 +400,10 @@ onMounted(() => {
         </div>
 
         <!-- Empty State -->
-        <div v-if="images.length === 0" class="flex flex-col justify-center items-center bg-zinc-50 py-16 rounded-lg">
-          <Upload class="mb-4 w-16 h-16 text-zinc-300" />
-          <h3 class="mb-2 font-semibold text-zinc-900">Aucune image</h3>
-          <p class="mb-4 text-zinc-500">Commencez par ajouter des images panoramiques à cette scène</p>
+        <div v-if="images.length === 0" class="flex flex-col justify-center items-center bg-zinc-50 dark:bg-zinc-800/50 py-16 rounded-lg">
+          <Upload class="mb-4 w-16 h-16 text-zinc-300 dark:text-zinc-700" />
+          <h3 class="mb-2 font-semibold text-zinc-900 dark:text-zinc-100">Aucune image</h3>
+          <p class="mb-4 text-zinc-500 dark:text-zinc-400">Commencez par ajouter des images panoramiques à cette scène</p>
           <Button @click="imageSheetOpen = true">
             <Upload class="mr-2 w-4 h-4" />
             Ajouter des images
@@ -438,14 +432,14 @@ onMounted(() => {
                 @change="handleFileSelect"
                 required
               />
-              <p class="text-zinc-500 text-xs">Formats acceptés: JPG, PNG, WebP. Vous pouvez sélectionner plusieurs fichiers.</p>
+              <p class="text-zinc-500 dark:text-zinc-400 text-xs">Formats acceptés: JPG, PNG, WebP. Vous pouvez sélectionner plusieurs fichiers.</p>
               <div v-if="imageFiles.length > 0" class="space-y-1 pt-2">
-                <p class="font-medium text-zinc-700 text-sm">{{ imageFiles.length }} fichier(s) sélectionné(s):</p>
+                <p class="font-medium text-zinc-700 dark:text-zinc-300 text-sm">{{ imageFiles.length }} fichier(s) sélectionné(s):</p>
                 <ul class="space-y-1">
                   <li 
                     v-for="(file, index) in imageFiles" 
                     :key="index"
-                    class="text-zinc-600 text-xs"
+                    class="text-zinc-600 dark:text-zinc-400 text-xs"
                   >
                     {{ file.name }} ({{ formatFileSize(file.size) }})
                   </li>
@@ -507,7 +501,6 @@ onMounted(() => {
         v-if="isFullscreen && currentSlide"
         class="z-[100] fixed inset-0 bg-black"
       >
-        <!-- Close Button -->
         <Button
           variant="ghost"
           size="icon"
@@ -517,7 +510,6 @@ onMounted(() => {
           <X class="w-5 h-5" />
         </Button>
 
-        <!-- Navigation -->
         <Button
           v-if="currentSlideIndex > 0"
           variant="ghost"
@@ -537,7 +529,6 @@ onMounted(() => {
           <ChevronRight class="w-6 h-6" />
         </Button>
 
-        <!-- Image -->
         <div class="flex justify-center items-center w-full h-full">
           <img 
             :src="`/images/${currentSlide.slug}/download`" 
@@ -546,7 +537,6 @@ onMounted(() => {
           />
         </div>
 
-        <!-- Counter -->
         <div class="bottom-4 left-1/2 absolute bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full text-white -translate-x-1/2">
           {{ currentSlideIndex + 1 }} / {{ images.length }}
         </div>

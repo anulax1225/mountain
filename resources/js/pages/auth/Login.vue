@@ -26,11 +26,11 @@ const submit = () => {
 <template>
   <AuthLayout>
     <div class="mb-8">
-      <h2 class="mb-2 font-bold text-zinc-900 text-3xl">Bon retour</h2>
-      <p class="text-zinc-600">Connectez-vous à votre compte pour continuer</p>
+      <h2 class="mb-2 font-bold text-zinc-900 dark:text-zinc-100 text-3xl">Bon retour</h2>
+      <p class="text-zinc-600 dark:text-zinc-400">Connectez-vous à votre compte pour continuer</p>
     </div>
 
-    <div v-if="status" class="mb-4 font-medium text-green-600 text-sm">
+    <div v-if="status" class="mb-4 font-medium text-green-600 dark:text-green-400 text-sm">
       {{ status }}
     </div>
 
@@ -46,7 +46,7 @@ const submit = () => {
           autofocus
           autocomplete="username"
         />
-        <div v-if="form.errors.email" class="text-red-600 text-sm">{{ form.errors.email }}</div>
+        <div v-if="form.errors.email" class="text-red-600 dark:text-red-400 text-sm">{{ form.errors.email }}</div>
       </div>
 
       <div class="space-y-2">
@@ -55,7 +55,7 @@ const submit = () => {
           <Link 
             v-if="canResetPassword"
             href="/forgot-password" 
-            class="text-purple-600 hover:text-purple-700 text-sm"
+            class="text-purple-600 hover:text-purple-700 dark:hover:text-purple-300 dark:text-purple-400 text-sm"
           >
             Mot de passe oublié?
           </Link>
@@ -68,7 +68,7 @@ const submit = () => {
           required
           autocomplete="current-password"
         />
-        <div v-if="form.errors.password" class="text-red-600 text-sm">{{ form.errors.password }}</div>
+        <div v-if="form.errors.password" class="text-red-600 dark:text-red-400 text-sm">{{ form.errors.password }}</div>
       </div>
 
       <Button type="submit" class="w-full" :disabled="form.processing">
@@ -77,8 +77,8 @@ const submit = () => {
     </form>
 
     <div class="mt-6 text-sm text-center">
-      <span class="text-zinc-600">Vous n'avez pas de compte? </span>
-      <Link href="/register" class="font-medium text-purple-600 hover:text-purple-700">
+      <span class="text-zinc-600 dark:text-zinc-400">Vous n'avez pas de compte? </span>
+      <Link href="/register" class="font-medium text-purple-600 hover:text-purple-700 dark:hover:text-purple-300 dark:text-purple-400">
         S'inscrire
       </Link>
     </div>

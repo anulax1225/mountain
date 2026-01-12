@@ -20,7 +20,6 @@ const images = ref([])
 const currentImageIndex = ref(0)
 const loading = ref(true)
 
-// Three.js refs
 const renderView = ref(null);
 const threeScene = shallowRef(null)
 const camera = shallowRef(null)
@@ -29,7 +28,6 @@ const controls = shallowRef(null)
 const currentMesh = shallowRef(null)
 const textureLoader = shallowRef(null)
 
-// Editor state
 const isFullscreen = ref(false)
 const showInfo = ref(true)
 const showThumbnails = ref(true)
@@ -63,12 +61,10 @@ const loadImages = async () => {
 
 const initThreeJS = async () => {
   if (!renderView.value) renderView.value = document.querySelector("#renderView");
-  console.log(renderView, document.querySelector("#renderView"));
-  // Scene
+  
   threeScene.value = new THREE.Scene()
   threeScene.value.background = new THREE.Color(0x000000)
 
-  // Camera
   camera.value = new THREE.PerspectiveCamera(
     75,
     renderView.value.clientWidth / renderView.value.clientHeight,
@@ -77,7 +73,6 @@ const initThreeJS = async () => {
   )
   camera.value.position.set(0, 0, 0.1)
 
-  // Renderer
   renderer.value = new THREE.WebGLRenderer({
     antialias: true,
     alpha: false
@@ -86,7 +81,6 @@ const initThreeJS = async () => {
   renderer.value.setPixelRatio(window.devicePixelRatio)
   renderView.value.appendChild(renderer.value.domElement)
 
-  // Controls
   controls.value = new OrbitControls(camera.value, renderer.value.domElement)
   controls.value.enableDamping = true
   controls.value.dampingFactor = 0.05
@@ -94,17 +88,14 @@ const initThreeJS = async () => {
   controls.value.enablePan = false
   controls.value.rotateSpeed = -0.5
 
-  // Texture loader
   textureLoader.value = new THREE.TextureLoader()
 
-  // Animation loop
   const animate = () => {
     controls.value.update()
     renderer.value.render(threeScene.value, camera.value)
   }
   renderer.value.setAnimationLoop(animate)
 
-  // Resize handler
   window.addEventListener('resize', onResize)
 }
 
@@ -113,18 +104,15 @@ const loadPanorama = async (index) => {
 
   currentImageIndex.value = index
 
-  // Remove old mesh
   if (currentMesh.value) {
     threeScene.value.remove(currentMesh.value)
   }
 
-  // Load texture
   const texture = await textureLoader.value.loadAsync(`/images/${images.value[index].slug}/download`)
   texture.colorSpace = THREE.SRGBColorSpace
   texture.minFilter = THREE.LinearFilter
   texture.magFilter = THREE.LinearFilter
 
-  // Create sphere geometry
   const geometry = new THREE.SphereGeometry(500, 60, 40)
   geometry.scale(-1, 1, 1)
 
@@ -257,7 +245,7 @@ onUnmounted(() => {
         <!-- Mode Indicator -->
         <div class="right-6 bottom-6 absolute">
           <div
-            class="flex items-center gap-2 bg-purple-500/90 backdrop-blur-sm px-3 py-2 rounded-lg text-white text-xs">
+            class="flex items-center gap-2 bg-purple-500/90 dark:bg-purple-600/90 backdrop-blur-sm px-3 py-2 rounded-lg text-white text-xs">
             <Move class="w-4 h-4" />
             <span>Mode Navigation</span>
           </div>
@@ -286,7 +274,7 @@ onUnmounted(() => {
 
         <!-- Info Panel -->
         <div v-if="showInfo" class="top-20 right-4 absolute w-72">
-          <Card class="bg-black/50 backdrop-blur-md border-white/20">
+          <Card class="bg-black/50 dark:bg-black/70 backdrop-blur-md border-white/20 dark:border-white/10">
             <CardContent class="space-y-4 pt-6 text-white">
               <div>
                 <h3 class="mb-3 font-semibold">Image actuelle</h3>
@@ -300,7 +288,7 @@ onUnmounted(() => {
                 </div>
               </div>
 
-              <div class="pt-4 border-white/20 border-t">
+              <div class="pt-4 border-white/20 dark:border-white/10 border-t">
                 <h3 class="mb-3 font-semibold">Points d'accès</h3>
                 <div class="flex flex-col justify-center items-center bg-white/5 py-8 rounded-lg">
                   <Info class="mb-2 w-8 h-8 text-white/40" />
@@ -308,7 +296,7 @@ onUnmounted(() => {
                 </div>
               </div>
 
-              <div class="pt-4 border-white/20 border-t">
+              <div class="pt-4 border-white/20 dark:border-white/10 border-t">
                 <h3 class="mb-3 font-semibold">Contrôles</h3>
                 <div class="space-y-2 text-white/60 text-xs">
                   <div class="flex items-center gap-2">
