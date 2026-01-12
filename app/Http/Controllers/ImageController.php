@@ -49,7 +49,9 @@ class ImageController extends Controller
         $this->authorize('view', $scene->project);
         $this->authorize('view', $scene);
         
-        $images = $scene->images()->paginate(15);
+        $images = $scene->images()
+            ->with(['hotspotsFrom.toImage', 'hotspotsTo.fromImage'])
+            ->paginate(15);
         
         return ImageResource::collection($images);
     }

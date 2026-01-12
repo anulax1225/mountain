@@ -10,7 +10,7 @@ const props = defineProps({
     visible: Boolean
 })
 
-const emit = defineEmits(['edit', 'delete'])
+const emit = defineEmits(['edit', 'delete', 'mouseenter', 'mouseleave'])
 
 const style = computed(() => {
     if (!props.position) return {}
@@ -25,8 +25,8 @@ const style = computed(() => {
 <template>
     <Transition name="fade">
         <div v-if="visible && hotspot"
-            class="fixed z-50 bg-white dark:bg-zinc-800 shadow-xl border border-zinc-200 dark:border-zinc-700 rounded-lg overflow-hidden pointer-events-none"
-            :style="style">
+            class="absolute z-50 bg-white dark:bg-zinc-800 shadow-xl border border-zinc-200 dark:border-zinc-700 rounded-lg overflow-hidden"
+            :style="style" @mouseenter="emit('mouseenter')" @mouseleave="emit('mouseleave')">
             <div class="flex flex-col gap-2 p-2 w-64">
                 <div v-if="hotspot.to_image" class="relative rounded overflow-hidden aspect-video">
                     <img :src="`/images/${hotspot.to_image.slug}/download`" :alt="hotspot.to_image.name"
@@ -42,7 +42,7 @@ const style = computed(() => {
                     </p>
                 </div>
 
-                <div v-if="mode === 'edit'" class="flex gap-2 pointer-events-auto">
+                <div v-if="mode === 'edit'" class="flex gap-2">
                     <Button variant="outline" size="sm" class="flex-1" @click="emit('edit', hotspot)">
                         <Pencil class="mr-1 w-3 h-3" />
                         Modifier

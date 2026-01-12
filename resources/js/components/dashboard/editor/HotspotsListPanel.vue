@@ -6,14 +6,13 @@
     import { Pencil, Trash2, Eye } from 'lucide-vue-next'
     
     const props = defineProps({
-      hotspots: Array,
       currentImage: Object
     })
     
     const emit = defineEmits(['edit', 'delete', 'view'])
     
     const currentHotspots = computed(() => 
-      props.hotspots?.filter(h => h.from_image?.slug === props.currentImage?.slug) || []
+      props.currentImage?.hotspots_from || []
     )
     </script>
     
