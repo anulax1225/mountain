@@ -168,7 +168,7 @@ watch(() => props.project, (newProject) => {
           <DropdownMenuTrigger as-child>
             <button 
               :class="[
-                'w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors',
+                'w-full flex items-center gap-3 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors',
                 !sidebarOpen && 'justify-center'
               ]"
             >
