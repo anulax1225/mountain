@@ -19,18 +19,25 @@ class Sticker extends Model
         'position_x',
         'position_y',
         'position_z',
-        'text_color',
-        'text_size',
-        'text_font',
         'scale',
+        'rotation_x',
+        'rotation_y',
+        'rotation_z',
+        'font_family',
+        'font_size',
+        'color',
+        'background_color',
     ];
 
     protected $casts = [
         'position_x' => 'float',
         'position_y' => 'float',
         'position_z' => 'float',
-        'text_size' => 'integer',
         'scale' => 'float',
+        'rotation_x' => 'float',
+        'rotation_y' => 'float',
+        'rotation_z' => 'float',
+        'font_size' => 'integer',
     ];
 
     protected static function boot()

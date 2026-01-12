@@ -12,6 +12,8 @@
     import HotspotPopover from '@/components/dashboard/editor/HotspotPopover.vue'
     import ImageThumbnailsPanel from '@/components/dashboard/editor/ImageThumbnailsPanel.vue'
     import HotspotsListPanel from '@/components/dashboard/editor/HotspotsListPanel.vue'
+    import HotspotCustomizeDialog from '@/components/dashboard/editor/HotspotCustomizeDialog.vue'
+    import StickerCreationDialog from '@/components/dashboard/editor/StickerCreationDialog.vue'
     import owl from '@/owl-sdk.js'
     
     const props = defineProps({
@@ -27,11 +29,17 @@
     const loading = ref(true)
     const mode = ref('view')
     const isCreatingHotspot = ref(false)
+    const isCreatingSticker = ref(false)
     const targetDialogOpen = ref(false)
     const orientationDialogOpen = ref(false)
+    const customizeDialogOpen = ref(false)
+    const stickerDialogOpen = ref(false)
     const pendingHotspotPosition = ref(null)
+    const pendingStickerPosition = ref(null)
     const pendingTargetImage = ref(null)
     const pendingRotation = ref(null)
+    const pendingReturnPosition = ref(null)
+    const pendingBidirectional = ref(false)
     const hoveredHotspot = ref(null)
     const hotspotHoverPosition = ref(null)
     const editingHotspot = ref(null)
@@ -65,11 +73,24 @@
         try {
             const response = await owl.images.list(props.sceneSlug)
             images.value = [...(response.data || [])]
-            console.log('Loaded images with hotspots:', images.value)
+            
+            // Load stickers for each image
+            for (const image of images.value) {
+                try {
+                    const stickersResponse = await owl.stickers.list(image.slug)
+                    image.stickers = stickersResponse.data || []
+                } catch (error) {
+                    console.error(`Failed to load stickers for image ${image.slug}:`, error)
+                    image.stickers = []
+                }
+            }
+            
+            console.log('Loaded images with hotspots and stickers:', images.value)
     
             await nextTick()
             if (editorCanvasRef.value) {
                 editorCanvasRef.value.displayHotspots()
+                editorCanvasRef.value.displayStickers()
             }
         } catch (error) {
             console.error('Failed to load images:', error)
@@ -96,6 +117,12 @@
     
     const startCreatingHotspot = () => {
         isCreatingHotspot.value = true
+        isCreatingSticker.value = false
+    }
+    
+    const startCreatingSticker = () => {
+        isCreatingSticker.value = true
+        isCreatingHotspot.value = false
     }
     
     const handleHotspotPositionSelected = (position) => {
@@ -103,6 +130,12 @@
         isCreatingHotspot.value = false
         editingHotspot.value = null
         targetDialogOpen.value = true
+    }
+    
+    const handleStickerPositionSelected = (position) => {
+        pendingStickerPosition.value = position
+        isCreatingSticker.value = false
+        stickerDialogOpen.value = true
     }
     
     const handleTargetImageSelected = (targetImage) => {
@@ -119,6 +152,21 @@
     
         const { rotation, createBidirectional, returnPosition } = data
     
+        pendingRotation.value = rotation
+        pendingReturnPosition.value = returnPosition
+        pendingBidirectional.value = createBidirectional
+    
+        orientationDialogOpen.value = false
+        
+        // Open customize dialog
+        setTimeout(() => {
+            customizeDialogOpen.value = true
+        }, 100)
+    }
+    
+    const handleHotspotCustomized = async (customization) => {
+        if (!pendingHotspotPosition.value || !currentImage.value || !pendingTargetImage.value || !pendingRotation.value) return
+    
         try {
             const hotspotData = {
                 from_image_id: currentImage.value.id,
@@ -126,9 +174,11 @@
                 position_x: pendingHotspotPosition.value.x,
                 position_y: pendingHotspotPosition.value.y,
                 position_z: pendingHotspotPosition.value.z,
-                target_rotation_x: rotation.x,
-                target_rotation_y: rotation.y,
-                target_rotation_z: rotation.z,
+                target_rotation_x: pendingRotation.value.x,
+                target_rotation_y: pendingRotation.value.y,
+                target_rotation_z: pendingRotation.value.z,
+                custom_image: customization.image,
+                custom_color: customization.color,
             }
     
             if (editingHotspot.value) {
@@ -139,33 +189,49 @@
                 console.log('Creating new hotspot')
                 await owl.hotspots.create(props.sceneSlug, hotspotData)
     
-                if (createBidirectional) {
-                    console.log('Creating return hotspot')
+                if (pendingBidirectional.value && pendingReturnPosition.value) {
+                    console.log('Checking for existing return hotspot')
                     
-                    const returnRotation = calculateReturnRotation(
-                        returnPosition,
-                        pendingHotspotPosition.value
-                    )
+                    // Check if return hotspot already exists
+                    const existingReturnHotspot = images.value
+                        .find(img => img.id === pendingTargetImage.value.id)
+                        ?.hotspots_from
+                        ?.find(h => h.to_image_id === currentImage.value.id)
     
-                    const returnHotspotData = {
-                        from_image_id: pendingTargetImage.value.id,
-                        to_image_id: currentImage.value.id,
-                        position_x: returnPosition.x,
-                        position_y: returnPosition.y,
-                        position_z: returnPosition.z,
-                        target_rotation_x: returnRotation.x,
-                        target_rotation_y: returnRotation.y,
-                        target_rotation_z: returnRotation.z,
+                    if (!existingReturnHotspot) {
+                        console.log('Creating return hotspot')
+                        
+                        const returnRotation = calculateReturnRotation(
+                            pendingHotspotPosition.value,
+                            pendingRotation.value
+                        )
+    
+                        const returnHotspotData = {
+                            from_image_id: pendingTargetImage.value.id,
+                            to_image_id: currentImage.value.id,
+                            position_x: pendingReturnPosition.value.x,
+                            position_y: pendingReturnPosition.value.y,
+                            position_z: pendingReturnPosition.value.z,
+                            target_rotation_x: returnRotation.x,
+                            target_rotation_y: returnRotation.y,
+                            target_rotation_z: returnRotation.z,
+                            custom_image: customization.image,
+                            custom_color: customization.color,
+                        }
+    
+                        await owl.hotspots.create(props.sceneSlug, returnHotspotData)
+                    } else {
+                        console.log('Return hotspot already exists, skipping creation')
                     }
-    
-                    await owl.hotspots.create(props.sceneSlug, returnHotspotData)
                 }
             }
     
-            orientationDialogOpen.value = false
+            customizeDialogOpen.value = false
             pendingHotspotPosition.value = null
             pendingTargetImage.value = null
             pendingRotation.value = null
+            pendingReturnPosition.value = null
+            pendingBidirectional.value = false
     
             await loadImages()
             console.log('Images reloaded after hotspot creation/update')
@@ -174,25 +240,56 @@
         }
     }
     
-    const calculateReturnRotation = (fromPosition, toPosition) => {
-        // We want the camera to look AWAY from the return hotspot position when arriving back at image A
-        // Since the return hotspot is placed opposite to where we're looking, we need to invert the direction
-
-        // Azimuthal angle (horizontal rotation around Y axis)
-        const azimuthal = Math.atan2(toPosition.x, toPosition.z)
+    const handleStickerSaved = async (stickerData) => {
+        if (!currentImage.value) return
+    
+        try {
+            console.log('Creating sticker:', stickerData)
+            await owl.stickers.create(currentImage.value.slug, stickerData)
+            
+            stickerDialogOpen.value = false
+            pendingStickerPosition.value = null
+            
+            await loadImages()
+            console.log('Images reloaded after sticker creation')
+        } catch (error) {
+            console.error('Failed to create sticker:', error)
+        }
+    }
+    
+    const handleDeleteSticker = async (sticker) => {
+        if (!confirm('Êtes-vous sûr de vouloir supprimer ce sticker ?')) return
+    
+        try {
+            console.log('Deleting sticker:', sticker.slug)
+            await owl.stickers.delete(sticker.slug)
+            
+            await loadImages()
+            console.log('Images reloaded after sticker delete')
+        } catch (error) {
+            console.error('Failed to delete sticker:', error)
+        }
+    }
+    
+    const calculateReturnRotation = (hotspotPosition, forwardRotation) => {
+        // Calculate the camera rotation for the return journey
+        // hotspotPosition is the original hotspot position at the source image (e.g., P_A)
+        // This position represents the approximate direction of the target image
+        // When returning, we want to look in this direction (toward where we came from)
         
-        // Calculate radius
+        // Calculate spherical angles to look toward the hotspot position
+        const azimuthal = Math.atan2(hotspotPosition.x, hotspotPosition.z)
+        
         const radius = Math.sqrt(
-            toPosition.x * toPosition.x + 
-            toPosition.y * toPosition.y + 
-            toPosition.z * toPosition.z
+            hotspotPosition.x * hotspotPosition.x + 
+            hotspotPosition.y * hotspotPosition.y + 
+            hotspotPosition.z * hotspotPosition.z
         )
         
-        // Polar angle (vertical rotation from Y axis)
-        const polar = Math.acos(toPosition.y / radius)
+        const polar = Math.acos(hotspotPosition.y / radius)
         
         return {
-            x: azimuthal + Math.PI,
+            x: azimuthal,
             y: polar,
             z: 0
         }
@@ -282,6 +379,7 @@
     const toggleMode = () => {
         mode.value = mode.value === 'view' ? 'edit' : 'view'
         isCreatingHotspot.value = false
+        isCreatingSticker.value = false
         hoveredHotspot.value = null
         hotspotHoverPosition.value = null
     }
@@ -324,14 +422,31 @@
                 </EmptyState>
     
                 <div v-else class="relative w-full h-full">
-                    <EditorCanvas ref="editorCanvasRef" :images="images" :current-index="currentImageIndex" :mode="mode"
-                        :is-creating-hotspot="isCreatingHotspot" @hotspot-click="handleHotspotClick"
-                        @hotspot-position-selected="handleHotspotPositionSelected" @hotspot-hover="handleHotspotHover"
-                        @hotspot-hover-end="handleHotspotHoverEnd" />
+                    <EditorCanvas 
+                        ref="editorCanvasRef" 
+                        :images="images" 
+                        :current-index="currentImageIndex" 
+                        :mode="mode"
+                        :is-creating-hotspot="isCreatingHotspot"
+                        :is-creating-sticker="isCreatingSticker"
+                        @hotspot-click="handleHotspotClick"
+                        @hotspot-position-selected="handleHotspotPositionSelected"
+                        @sticker-position-selected="handleStickerPositionSelected"
+                        @sticker-click="handleDeleteSticker"
+                        @hotspot-hover="handleHotspotHover"
+                        @hotspot-hover-end="handleHotspotHoverEnd" 
+                    />
     
-                    <EditorTopBar :scene-name="scene?.name" :scene-slug="sceneSlug" :mode="mode"
-                        :is-fullscreen="isFullscreen" @create-hotspot="startCreatingHotspot" @toggle-mode="toggleMode"
-                        @toggle-fullscreen="toggleFullscreen" />
+                    <EditorTopBar 
+                        :scene-name="scene?.name" 
+                        :scene-slug="sceneSlug" 
+                        :mode="mode"
+                        :is-fullscreen="isFullscreen" 
+                        @create-hotspot="startCreatingHotspot"
+                        @create-sticker="startCreatingSticker"
+                        @toggle-mode="toggleMode"
+                        @toggle-fullscreen="toggleFullscreen" 
+                    />
     
                     <ImageThumbnailsPanel :images="images" :current-index="currentImageIndex" @select="handleImageSelect" />
     
@@ -353,6 +468,17 @@
                             : null
                         "
                         @save="handleOrientationSaved"
+                    />
+    
+                    <HotspotCustomizeDialog
+                        v-model:open="customizeDialogOpen"
+                        @save="handleHotspotCustomized"
+                    />
+    
+                    <StickerCreationDialog
+                        v-model:open="stickerDialogOpen"
+                        :position="pendingStickerPosition"
+                        @save="handleStickerSaved"
                     />
                 </div>
             </div>

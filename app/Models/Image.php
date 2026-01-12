@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class Image extends Model
 {
@@ -14,14 +15,9 @@ class Image extends Model
 
     protected $fillable = [
         'slug',
+        'scene_id',
         'name',
         'path',
-        'size',
-        'scene_id',
-    ];
-
-    protected $casts = [
-        'size' => 'integer',
     ];
 
     protected static function boot()
@@ -32,6 +28,20 @@ class Image extends Model
             if (empty($image->slug)) {
                 $image->slug = (string) Str::uuid();
             }
+        });
+
+        static::deleting(function ($image) {
+            // Delete the image file when the model is deleted
+            if ($image->path && Storage::exists($image->path)) {
+                Storage::delete($image->path);
+            }
+
+            // Delete related hotspots
+            $image->hotspotsFrom()->delete();
+            $image->hotspotsTo()->delete();
+            
+            // Delete related stickers
+            $image->stickers()->delete();
         });
     }
 
@@ -47,12 +57,12 @@ class Image extends Model
 
     public function hotspotsFrom(): HasMany
     {
-        return $this->hasMany(Hotspot::class, 'from_image_id');
+        return $this->hasMany(Hotspot::class, 'from_image_id')->with('toImage');
     }
 
     public function hotspotsTo(): HasMany
     {
-        return $this->hasMany(Hotspot::class, 'to_image_id');
+        return $this->hasMany(Hotspot::class, 'to_image_id')->with('fromImage');
     }
 
     public function stickers(): HasMany

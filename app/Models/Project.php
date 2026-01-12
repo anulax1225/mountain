@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class Project extends Model
 {
@@ -14,10 +15,10 @@ class Project extends Model
 
     protected $fillable = [
         'slug',
+        'user_id',
         'name',
         'description',
-        'photo_path',
-        'user_id',
+        'photo',
     ];
 
     protected static function boot()
@@ -28,6 +29,16 @@ class Project extends Model
             if (empty($project->slug)) {
                 $project->slug = (string) Str::uuid();
             }
+        });
+
+        static::deleting(function ($project) {
+            // Delete project photo if exists
+            if ($project->photo && Storage::exists($project->photo)) {
+                Storage::delete($project->photo);
+            }
+
+            // Delete all related scenes (which will cascade delete images and hotspots)
+            $project->scenes()->delete();
         });
     }
 

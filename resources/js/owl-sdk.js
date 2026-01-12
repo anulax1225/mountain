@@ -39,6 +39,7 @@ class OwlAPIClient {
         this.scenes = new ScenesAPI(this);
         this.hotspots = new HotspotsAPI(this);
         this.images = new ImagesAPI(this);
+        this.stickers = new StickersAPI(this);
 
         // Active requests tracking for cancellation
         this.activeRequests = new Map();
@@ -710,6 +711,97 @@ class ImagesAPI {
     }
 }
 
+/**
+ * Stickers API endpoints - ADD THIS CLASS to your owl-sdk.js
+ */
+class StickersAPI {
+    constructor(client) {
+        this.client = client;
+    }
+
+    /**
+     * List all stickers for an image
+     * @param {string} imageSlug - Image slug
+     * @returns {Promise<Object>}
+     */
+    async list(imageSlug) {
+        return await this.client.request(`/images/${imageSlug}/stickers`, {
+            method: 'GET',
+        });
+    }
+
+    /**
+     * Create a new sticker on an image
+     * @param {string} imageSlug - Image slug
+     * @param {Object} data
+     * @param {string} data.type - Sticker type: 'emoji', 'image', 'text'
+     * @param {string} data.content - Sticker content (emoji, image path, or text)
+     * @param {number} data.position_x - X position
+     * @param {number} data.position_y - Y position
+     * @param {number} data.position_z - Z position
+     * @param {number} [data.scale=1.0] - Scale factor
+     * @param {string} [data.font_family] - Font family for text stickers
+     * @param {number} [data.font_size] - Font size for text stickers
+     * @param {string} [data.color] - Text color
+     * @param {string} [data.background_color] - Background color
+     * @returns {Promise<Object>}
+     */
+    async create(imageSlug, data) {
+        return await this.client.request(`/images/${imageSlug}/stickers`, {
+            method: 'POST',
+            body: data,
+        });
+    }
+
+    /**
+     * Get a specific sticker by slug
+     * @param {string} stickerSlug - Sticker slug
+     * @returns {Promise<Object>}
+     */
+    async get(stickerSlug) {
+        return await this.client.request(`/stickers/${stickerSlug}`, {
+            method: 'GET',
+        });
+    }
+
+    /**
+     * Update a sticker
+     * @param {string} stickerSlug - Sticker slug
+     * @param {Object} data - Sticker data to update
+     * @returns {Promise<Object>}
+     */
+    async update(stickerSlug, data) {
+        return await this.client.request(`/stickers/${stickerSlug}`, {
+            method: 'PUT',
+            body: data,
+        });
+    }
+
+    /**
+     * Patch a sticker (partial update)
+     * @param {string} stickerSlug - Sticker slug
+     * @param {Object} data - Sticker data to update
+     * @returns {Promise<Object>}
+     */
+    async patch(stickerSlug, data) {
+        return await this.client.request(`/stickers/${stickerSlug}`, {
+            method: 'PATCH',
+            body: data,
+        });
+    }
+
+    /**
+     * Delete a sticker
+     * @param {string} stickerSlug - Sticker slug
+     * @returns {Promise<void>}
+     */
+    async delete(stickerSlug) {
+        return await this.client.request(`/stickers/${stickerSlug}`, {
+            method: 'DELETE',
+        });
+    }
+}
+
 // NOTE: Add this class to your existing owl-sdk.js file, replacing the existing ImagesAPI class
 
 // =============================================================================
@@ -761,3 +853,4 @@ export const projects = client.projects;
 export const scenes = client.scenes;
 export const hotspots = client.hotspots;
 export const images = client.images;
+export const stickers = client.stickers;

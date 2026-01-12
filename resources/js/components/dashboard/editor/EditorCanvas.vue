@@ -10,10 +10,11 @@
             type: String,
             default: 'view'
         },
-        isCreatingHotspot: Boolean
+        isCreatingHotspot: Boolean,
+        isCreatingSticker: Boolean
     })
     
-    const emit = defineEmits(['ready', 'hotspot-click', 'hotspot-position-selected', 'hotspot-hover', 'hotspot-hover-end'])
+    const emit = defineEmits(['ready', 'hotspot-click', 'sticker-click', 'hotspot-position-selected', 'sticker-position-selected', 'hotspot-hover', 'hotspot-hover-end'])
     
     const renderView = ref(null)
     const threeScene = shallowRef(null)
@@ -23,6 +24,7 @@
     const currentMesh = shallowRef(null)
     const textureLoader = shallowRef(null)
     const hotspotSprites = shallowRef([])
+    const stickerSprites = shallowRef([])
     const raycaster = shallowRef(null)
     const mouse = shallowRef(new THREE.Vector2())
     const isTransitioning = ref(false)
@@ -33,6 +35,9 @@
     const currentImage = computed(() => props.images[props.currentIndex])
     const currentHotspots = computed(() =>
         currentImage.value?.hotspots_from || []
+    )
+    const currentStickers = computed(() =>
+        currentImage.value?.stickers || []
     )
     
     const initThreeJS = () => {
@@ -94,6 +99,7 @@
     
         raycaster.value.setFromCamera(mouse.value, camera.value)
     
+        // Creating hotspot
         if (props.isCreatingHotspot) {
             const intersects = raycaster.value.intersectObject(currentMesh.value)
             if (intersects.length > 0) {
@@ -108,12 +114,39 @@
             return
         }
     
+        // Creating sticker
+        if (props.isCreatingSticker) {
+            const intersects = raycaster.value.intersectObject(currentMesh.value)
+            if (intersects.length > 0) {
+                const point = intersects[0].point.clone()
+                point.multiplyScalar(0.95)
+                emit('sticker-position-selected', {
+                    x: point.x,
+                    y: point.y,
+                    z: point.z
+                })
+            }
+            return
+        }
+    
+        // View mode - hotspot navigation
         if (props.mode === 'view') {
             const intersects = raycaster.value.intersectObjects(hotspotSprites.value)
             if (intersects.length > 0) {
                 const sprite = intersects[0].object
                 const hotspot = sprite.userData.hotspot
                 emit('hotspot-click', hotspot)
+            }
+            return
+        }
+    
+        // Edit mode - sticker deletion
+        if (props.mode === 'edit') {
+            const intersects = raycaster.value.intersectObjects(stickerSprites.value)
+            if (intersects.length > 0) {
+                const sprite = intersects[0].object
+                const sticker = sprite.userData.sticker
+                emit('sticker-click', sticker)
             }
         }
     }
@@ -174,6 +207,7 @@
         }
     
         clearHotspots()
+        clearStickers()
     
         if (currentMesh.value) {
             threeScene.value.remove(currentMesh.value)
@@ -214,6 +248,7 @@
         }
     
         displayHotspots()
+        displayStickers()
     }
     
     const clearHotspots = () => {
@@ -225,6 +260,11 @@
             hideHoverTimeout.value = null
         }
         emit('hotspot-hover-end')
+    }
+    
+    const clearStickers = () => {
+        stickerSprites.value.forEach(sprite => threeScene.value.remove(sprite))
+        stickerSprites.value = []
     }
     
     const createHotspotSprite = (hotspot) => {
@@ -294,6 +334,57 @@
         return sprite
     }
     
+    const createStickerSprite = (sticker) => {
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+    
+        if (sticker.type === 'emoji') {
+            // Emoji sticker
+            canvas.width = 128
+            canvas.height = 128
+            
+            ctx.font = '80px Arial'
+            ctx.textAlign = 'center'
+            ctx.textBaseline = 'middle'
+            ctx.fillText(sticker.content, 64, 64)
+        } else if (sticker.type === 'text') {
+            // Text sticker - measure text to set canvas size
+            const fontSize = sticker.font_size || 48
+            const fontFamily = sticker.font_family || 'Arial'
+            ctx.font = `${fontSize}px ${fontFamily}`
+            
+            const metrics = ctx.measureText(sticker.content)
+            const padding = 20
+            canvas.width = metrics.width + padding * 2
+            canvas.height = fontSize + padding * 2
+            
+            // Background
+            if (sticker.background_color) {
+                ctx.fillStyle = sticker.background_color
+                ctx.fillRect(0, 0, canvas.width, canvas.height)
+            }
+            
+            // Text
+            ctx.font = `${fontSize}px ${fontFamily}`
+            ctx.fillStyle = sticker.color || '#ffffff'
+            ctx.textAlign = 'center'
+            ctx.textBaseline = 'middle'
+            ctx.fillText(sticker.content, canvas.width / 2, canvas.height / 2)
+        }
+    
+        const texture = new THREE.CanvasTexture(canvas)
+        const material = new THREE.SpriteMaterial({ 
+            map: texture,
+            sizeAttenuation: false
+        })
+    
+        const sprite = new THREE.Sprite(material)
+        const scale = sticker.scale || 1.0
+        sprite.scale.set(0.1 * scale, 0.1 * scale, 1)
+        
+        return sprite
+    }
+    
     const displayHotspots = () => {
         clearHotspots()
     
@@ -319,6 +410,33 @@
         })
     
         console.log('Hotspot sprites created:', hotspotSprites.value.length)
+    }
+    
+    const displayStickers = () => {
+        clearStickers()
+    
+        console.log('Displaying stickers:', currentStickers.value)
+    
+        currentStickers.value.forEach(sticker => {
+            console.log('Creating sprite for sticker:', sticker.slug, sticker)
+    
+            const sprite = createStickerSprite(sticker)
+    
+            const position = new THREE.Vector3(
+                sticker.position_x,
+                sticker.position_y,
+                sticker.position_z
+            )
+            position.multiplyScalar(0.95)
+    
+            sprite.position.copy(position)
+            sprite.userData.sticker = sticker
+    
+            threeScene.value.add(sprite)
+            stickerSprites.value.push(sprite)
+        })
+    
+        console.log('Sticker sprites created:', stickerSprites.value.length)
     }
     
     const fadeOut = () => {
@@ -397,6 +515,13 @@
         }
     }, { deep: true })
     
+    watch(currentStickers, () => {
+        console.log('Stickers changed, re-displaying:', currentStickers.value)
+        if (threeScene.value) {
+            displayStickers()
+        }
+    }, { deep: true })
+    
     onMounted(() => {
         initThreeJS()
         if (props.images.length > 0) {
@@ -420,7 +545,8 @@
     
     defineExpose({ 
         loadPanorama, 
-        displayHotspots, 
+        displayHotspots,
+        displayStickers,
         controls 
     })
     </script>

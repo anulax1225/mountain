@@ -10,28 +10,21 @@ return new class extends Migration
     {
         Schema::create('stickers', function (Blueprint $table) {
             $table->id();
-            $table->uuid('slug');
-            $table->foreignIdFor(\App\Models\Image::class);
-            
-            // Sticker type: 'emoji', 'image', 'text'
-            $table->enum('type', ['emoji', 'image', 'text']);
-            
-            // Content based on type
+            $table->uuid('slug')->unique();
+            $table->foreignId('image_id')->constrained()->onDelete('cascade');
+            $table->string('type'); // 'emoji', 'image', 'text'
             $table->text('content'); // emoji char, image path, or text content
-            
-            // Position in 3D space
             $table->float('position_x');
             $table->float('position_y');
             $table->float('position_z');
-            
-            // Optional styling for text stickers
-            $table->string('text_color')->nullable();
-            $table->integer('text_size')->nullable();
-            $table->string('text_font')->nullable();
-            
-            // Optional sizing for all sticker types
             $table->float('scale')->default(1.0);
-            
+            $table->float('rotation_x')->nullable();
+            $table->float('rotation_y')->nullable();
+            $table->float('rotation_z')->nullable();
+            $table->string('font_family')->nullable();
+            $table->integer('font_size')->nullable();
+            $table->string('color')->nullable();
+            $table->string('background_color')->nullable();
             $table->timestamps();
         });
     }

@@ -6,24 +6,17 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateProjectRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return $this->user()->can('update', $this->route('project'));
+        return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            'name' => ['sometimes', 'required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
+            'name' => 'sometimes|string|max:255',
+            'description' => 'nullable|string',
+            'photo' => 'nullable|image|mimes:jpeg,jpg,png,gif,webp|max:5120', // 5MB max
         ];
     }
 }

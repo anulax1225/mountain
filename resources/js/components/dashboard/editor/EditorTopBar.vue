@@ -2,7 +2,7 @@
     import { Link } from '@inertiajs/vue3'
     import { Button } from '@/components/ui/button'
     import { Badge } from '@/components/ui/badge'
-    import { ArrowLeft, Plus, Eye, Pencil, Maximize, Minimize } from 'lucide-vue-next'
+    import { ArrowLeft, Plus, Eye, Pencil, Maximize, Minimize, Sticker } from 'lucide-vue-next'
     
     defineProps({
       sceneName: String,
@@ -11,7 +11,7 @@
       isFullscreen: Boolean
     })
     
-    const emit = defineEmits(['create-hotspot', 'toggle-mode', 'toggle-fullscreen'])
+    const emit = defineEmits(['create-hotspot', 'create-sticker', 'toggle-mode', 'toggle-fullscreen'])
     </script>
     
     <template>
@@ -41,7 +41,16 @@
               @click="emit('create-hotspot')"
             >
               <Plus class="mr-2 w-4 h-4" />
-              Ajouter un point d'accès
+              Point d'accès
+            </Button>
+            <Button 
+              v-if="mode === 'edit'"
+              variant="default" 
+              size="sm" 
+              @click="emit('create-sticker')"
+            >
+              <Sticker class="mr-2 w-4 h-4" />
+              Sticker
             </Button>
             <Button 
               variant="secondary" 
