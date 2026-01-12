@@ -9,7 +9,6 @@ use Illuminate\Support\Str;
 
 class Hotspot extends Model
 {
-    /** @use HasFactory<\Database\Factories\HotspotFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -23,6 +22,8 @@ class Hotspot extends Model
         'target_rotation_x',
         'target_rotation_y',
         'target_rotation_z',
+        'custom_image',
+        'custom_color',
     ];
 
     protected $casts = [

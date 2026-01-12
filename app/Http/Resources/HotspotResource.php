@@ -18,6 +18,8 @@ class HotspotResource extends JsonResource
             'target_rotation_x' => $this->target_rotation_x,
             'target_rotation_y' => $this->target_rotation_y,
             'target_rotation_z' => $this->target_rotation_z,
+            'from_image_id' => $this->from_image_id,
+            'to_image_id' => $this->to_image_id,
             'from_image' => new ImageResource($this->whenLoaded('fromImage')),
             'to_image' => new ImageResource($this->whenLoaded('toImage')),
             'created_at' => $this->created_at,

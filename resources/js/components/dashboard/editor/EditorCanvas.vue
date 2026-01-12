@@ -68,23 +68,25 @@
     
         textureLoader.value = new THREE.TextureLoader()
         raycaster.value = new THREE.Raycaster()
-        raycaster.value.params.Sprite = { threshold: 5 }
-    
-        const animate = () => {
-            controls.value.update()
-            renderer.value.render(threeScene.value, camera.value)
-        }
-        renderer.value.setAnimationLoop(animate)
     
         renderView.value.addEventListener('click', onCanvasClick)
         renderView.value.addEventListener('mousemove', onMouseMove)
         window.addEventListener('resize', onResize)
     
+        animate()
         emit('ready')
     }
     
+    const animate = () => {
+        requestAnimationFrame(animate)
+        if (controls.value) controls.value.update()
+        if (renderer.value && threeScene.value && camera.value) {
+            renderer.value.render(threeScene.value, camera.value)
+        }
+    }
+    
     const onCanvasClick = (event) => {
-        if (isTransitioning.value) return
+        if (!raycaster.value || !camera.value || !currentMesh.value) return
     
         const rect = renderView.value.getBoundingClientRect()
         mouse.value.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
@@ -95,25 +97,29 @@
         if (props.isCreatingHotspot) {
             const intersects = raycaster.value.intersectObject(currentMesh.value)
             if (intersects.length > 0) {
-                const point = intersects[0].point
+                const point = intersects[0].point.clone()
+                point.multiplyScalar(0.95)
                 emit('hotspot-position-selected', {
-                    x: point.x * 0.95,
-                    y: point.y * 0.95,
-                    z: point.z * 0.95
+                    x: point.x,
+                    y: point.y,
+                    z: point.z
                 })
             }
             return
         }
     
-        const intersects = raycaster.value.intersectObjects(hotspotSprites.value)
-        if (intersects.length > 0) {
-            const hotspot = intersects[0].object.userData.hotspot
-            emit('hotspot-click', hotspot)
+        if (props.mode === 'view') {
+            const intersects = raycaster.value.intersectObjects(hotspotSprites.value)
+            if (intersects.length > 0) {
+                const sprite = intersects[0].object
+                const hotspot = sprite.userData.hotspot
+                emit('hotspot-click', hotspot)
+            }
         }
     }
     
     const onMouseMove = (event) => {
-        if (hotspotSprites.value.length === 0) return
+        if (!raycaster.value || !camera.value || props.mode !== 'view') return
     
         const rect = renderView.value.getBoundingClientRect()
         mouse.value.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
@@ -122,55 +128,43 @@
         raycaster.value.setFromCamera(mouse.value, camera.value)
         const intersects = raycaster.value.intersectObjects(hotspotSprites.value)
     
-        hotspotSprites.value.forEach(sprite => {
-            sprite.scale.set(20, 20, 1)
-        })
-    
         if (intersects.length > 0) {
             const sprite = intersects[0].object
             const hotspot = sprite.userData.hotspot
-            sprite.scale.set(24, 24, 1)
-            renderView.value.style.cursor = 'pointer'
+    
+            if (!hoveredHotspot.value || hoveredHotspot.value.id !== hotspot.id) {
+                hoveredHotspot.value = hotspot
+    
+                const screenPosition = sprite.position.clone()
+                screenPosition.project(camera.value)
+    
+                const x = (screenPosition.x * 0.5 + 0.5) * renderView.value.clientWidth
+                const y = (screenPosition.y * -0.5 + 0.5) * renderView.value.clientHeight
+    
+                emit('hotspot-hover', {
+                    hotspot,
+                    position: { x, y }
+                })
+            }
     
             if (hideHoverTimeout.value) {
                 clearTimeout(hideHoverTimeout.value)
                 hideHoverTimeout.value = null
             }
-    
-            if (hoveredHotspot.value?.slug !== hotspot.slug) {
-                hoveredHotspot.value = hotspot
-                const screenPosition = toScreenPosition(sprite.position)
-                emit('hotspot-hover', { hotspot, position: screenPosition })
-            }
         } else {
-            renderView.value.style.cursor = 'default'
-    
-            if (hoveredHotspot.value && !hideHoverTimeout.value) {
+            if (hoveredHotspot.value) {
                 hideHoverTimeout.value = setTimeout(() => {
                     hoveredHotspot.value = null
                     emit('hotspot-hover-end')
-                    hideHoverTimeout.value = null
-                }, 300)
+                }, 100)
             }
         }
     }
     
-    const toScreenPosition = (position) => {
-        const vector = position.clone()
-        vector.project(camera.value)
-    
-        const rect = renderView.value.getBoundingClientRect()
-        const x = (vector.x * 0.5 + 0.5) * rect.width
-        const y = (vector.y * -0.5 + 0.5) * rect.height
-    
-        return { x, y }
-    }
-    
-    const loadPanorama = async (index, transition = false, rotation = null) => {
+    const loadPanorama = async (index, transition = true, rotation = null, skipWatch = false) => {
         if (!props.images[index] || !threeScene.value) return
     
-        // If rotation is provided, we're being called directly, so skip the watch
-        if (rotation) {
+        if (rotation || skipWatch) {
             skipNextWatch.value = true
         }
     
@@ -206,8 +200,16 @@
     
         // Apply rotation if provided
         if (rotation && rotation.x !== null && rotation.y !== null && controls.value) {
-            controls.value.setAzimuthalAngle(rotation.x)
-            controls.value.setPolarAngle(rotation.y)
+            // Set camera rotation using spherical coordinates
+            // rotation.x = azimuthal angle (horizontal)
+            // rotation.y = polar angle (vertical)
+            const radius = 0.1
+            const x = radius * Math.sin(rotation.y) * Math.sin(rotation.x)
+            const y = radius * Math.cos(rotation.y)
+            const z = radius * Math.sin(rotation.y) * Math.cos(rotation.x)
+            
+            camera.value.position.set(x, y, z)
+            camera.value.lookAt(0, 0, 0)
             controls.value.update()
         }
     
@@ -225,58 +227,114 @@
         emit('hotspot-hover-end')
     }
     
+    const createHotspotSprite = (hotspot) => {
+        let material
+    
+        // Check for custom image first
+        if (hotspot.custom_image) {
+            const texture = new THREE.TextureLoader().load(`/hotspot-icons/${hotspot.custom_image}`)
+            material = new THREE.SpriteMaterial({ 
+                map: texture,
+                sizeAttenuation: false
+            })
+        } 
+        // Check for custom color
+        else if (hotspot.custom_color) {
+            const canvas = document.createElement('canvas')
+            canvas.width = 64
+            canvas.height = 64
+            const ctx = canvas.getContext('2d')
+            
+            ctx.fillStyle = hotspot.custom_color
+            ctx.beginPath()
+            ctx.arc(32, 32, 28, 0, Math.PI * 2)
+            ctx.fill()
+            
+            // White border
+            ctx.strokeStyle = '#ffffff'
+            ctx.lineWidth = 4
+            ctx.beginPath()
+            ctx.arc(32, 32, 28, 0, Math.PI * 2)
+            ctx.stroke()
+            
+            const texture = new THREE.CanvasTexture(canvas)
+            material = new THREE.SpriteMaterial({ 
+                map: texture,
+                sizeAttenuation: false
+            })
+        } 
+        // Default white dot
+        else {
+            const canvas = document.createElement('canvas')
+            canvas.width = 64
+            canvas.height = 64
+            const ctx = canvas.getContext('2d')
+            
+            ctx.fillStyle = '#ffffff'
+            ctx.beginPath()
+            ctx.arc(32, 32, 24, 0, Math.PI * 2)
+            ctx.fill()
+            
+            ctx.strokeStyle = '#000000'
+            ctx.lineWidth = 2
+            ctx.beginPath()
+            ctx.arc(32, 32, 24, 0, Math.PI * 2)
+            ctx.stroke()
+            
+            const texture = new THREE.CanvasTexture(canvas)
+            material = new THREE.SpriteMaterial({ 
+                map: texture,
+                sizeAttenuation: false
+            })
+        }
+    
+        const sprite = new THREE.Sprite(material)
+        sprite.scale.set(0.05, 0.05, 1)
+        
+        return sprite
+    }
+    
     const displayHotspots = () => {
         clearHotspots()
     
         console.log('Displaying hotspots:', currentHotspots.value)
     
         currentHotspots.value.forEach(hotspot => {
-            console.log('Creating sprite for hotspot:', hotspot)
+            console.log('Creating sprite for hotspot:', hotspot.slug, hotspot)
+    
             const sprite = createHotspotSprite(hotspot)
+    
+            const position = new THREE.Vector3(
+                hotspot.position_x,
+                hotspot.position_y,
+                hotspot.position_z
+            )
+            position.multiplyScalar(0.95)
+    
+            sprite.position.copy(position)
+            sprite.userData.hotspot = hotspot
+    
             threeScene.value.add(sprite)
             hotspotSprites.value.push(sprite)
         })
     
-        console.log('Total sprites:', hotspotSprites.value.length)
-    }
-    
-    const createHotspotSprite = (hotspot) => {
-        const canvas = document.createElement('canvas')
-        canvas.width = 128
-        canvas.height = 128
-        const ctx = canvas.getContext('2d')
-    
-        ctx.beginPath()
-        ctx.arc(64, 64, 50, 0, Math.PI * 2)
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)'
-        ctx.fill()
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)'
-        ctx.lineWidth = 8
-        ctx.stroke()
-    
-        const texture = new THREE.CanvasTexture(canvas)
-        const material = new THREE.SpriteMaterial({
-            map: texture,
-            transparent: true,
-            depthTest: false
-        })
-        const sprite = new THREE.Sprite(material)
-    
-        sprite.position.set(hotspot.position_x, hotspot.position_y, hotspot.position_z)
-        sprite.scale.set(20, 20, 1)
-        sprite.userData.hotspot = hotspot
-    
-        return sprite
+        console.log('Hotspot sprites created:', hotspotSprites.value.length)
     }
     
     const fadeOut = () => {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
+            if (!currentMesh.value) {
+                resolve()
+                return
+            }
+    
+            currentMesh.value.material.transparent = true
             let opacity = 1
+    
             const interval = setInterval(() => {
                 opacity -= 0.05
                 if (currentMesh.value) {
                     currentMesh.value.material.opacity = opacity
-                    currentMesh.value.material.transparent = true
                 }
                 if (opacity <= 0) {
                     clearInterval(interval)
@@ -287,12 +345,16 @@
     }
     
     const fadeIn = () => {
-        return new Promise(resolve => {
-            let opacity = 0
-            if (currentMesh.value) {
-                currentMesh.value.material.opacity = 0
-                currentMesh.value.material.transparent = true
+        return new Promise((resolve) => {
+            if (!currentMesh.value) {
+                resolve()
+                return
             }
+    
+            currentMesh.value.material.transparent = true
+            currentMesh.value.material.opacity = 0
+            let opacity = 0
+    
             const interval = setInterval(() => {
                 opacity += 0.05
                 if (currentMesh.value) {
@@ -356,7 +418,6 @@
         }
     })
     
-    // Expose methods and controls for parent component
     defineExpose({ 
         loadPanorama, 
         displayHotspots, 

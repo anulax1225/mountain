@@ -109,7 +109,6 @@
         pendingTargetImage.value = targetImage
         targetDialogOpen.value = false
         
-        // Open orientation dialog
         setTimeout(() => {
             orientationDialogOpen.value = true
         }, 100)
@@ -140,12 +139,9 @@
                 console.log('Creating new hotspot')
                 await owl.hotspots.create(props.sceneSlug, hotspotData)
     
-                // Create return hotspot if bidirectional is enabled
                 if (createBidirectional) {
                     console.log('Creating return hotspot')
                     
-                    // Calculate return rotation (inverse direction)
-                    // The return hotspot should look back towards the original position
                     const returnRotation = calculateReturnRotation(
                         returnPosition,
                         pendingHotspotPosition.value
@@ -163,36 +159,37 @@
                     }
     
                     await owl.hotspots.create(props.sceneSlug, returnHotspotData)
-                    console.log('Return hotspot created')
                 }
             }
     
-            // Reset state
+            orientationDialogOpen.value = false
             pendingHotspotPosition.value = null
             pendingTargetImage.value = null
             pendingRotation.value = null
-            
+    
             await loadImages()
-            console.log('Images reloaded after hotspot save')
+            console.log('Images reloaded after hotspot creation/update')
         } catch (error) {
             console.error('Failed to save hotspot:', error)
         }
     }
     
     const calculateReturnRotation = (fromPosition, toPosition) => {
-        // Calculate the direction vector from 'from' to 'to'
-        const dx = toPosition.x - fromPosition.x
-        const dy = toPosition.y - fromPosition.y
-        const dz = toPosition.z - fromPosition.z
+        // We want the camera to look at toPosition (original hotspot A) when arriving back at image A
+        // The camera is at the center of the sphere, so we convert toPosition to spherical angles
         
-        // Calculate spherical angles to look at the target position
-        const distance = Math.sqrt(dx * dx + dy * dy + dz * dz)
+        // Azimuthal angle (horizontal rotation around Y axis)
+        const azimuthal = Math.atan2(toPosition.x, toPosition.z)
         
-        // Azimuthal angle (horizontal rotation)
-        const azimuthal = Math.atan2(dx, dz)
+        // Calculate radius
+        const radius = Math.sqrt(
+            toPosition.x * toPosition.x + 
+            toPosition.y * toPosition.y + 
+            toPosition.z * toPosition.z
+        )
         
-        // Polar angle (vertical rotation)
-        const polar = Math.acos(dy / distance)
+        // Polar angle (vertical rotation from Y axis)
+        const polar = Math.acos(toPosition.y / radius)
         
         return {
             x: azimuthal,
@@ -202,26 +199,30 @@
     }
     
     const handleHotspotClick = async (hotspot) => {
-        if (!hotspot.to_image?.id) return
+        if (mode.value === 'edit') return
     
-        const targetIndex = images.value.findIndex(img => img.id === hotspot.to_image.id)
+        const targetIndex = images.value.findIndex(img => img.id === hotspot.to_image_id)
         if (targetIndex !== -1) {
-            // Check if we have rotation data
             const hasRotation = hotspot.target_rotation_x !== null && hotspot.target_rotation_y !== null
             
-            if (hasRotation && editorCanvasRef.value) {
-                // Call loadPanorama directly with rotation and wait for it to complete
-                await editorCanvasRef.value.loadPanorama(targetIndex, true, {
-                    x: hotspot.target_rotation_x,
-                    y: hotspot.target_rotation_y,
-                    z: hotspot.target_rotation_z
-                })
-                // Update the index after loading is complete
-                currentImageIndex.value = targetIndex
-            } else {
-                // No rotation, just update index (watch will handle it)
-                currentImageIndex.value = targetIndex
+            // Always load panorama directly to ensure it completes before reloading images
+            if (editorCanvasRef.value) {
+                if (hasRotation) {
+                    await editorCanvasRef.value.loadPanorama(targetIndex, true, {
+                        x: hotspot.target_rotation_x,
+                        y: hotspot.target_rotation_y,
+                        z: hotspot.target_rotation_z
+                    })
+                } else {
+                    await editorCanvasRef.value.loadPanorama(targetIndex, true, null, true)
+                }
             }
+            
+            // Update index after panorama loads
+            currentImageIndex.value = targetIndex
+            
+            // Reload images to get fresh hotspot data
+            await loadImages()
         }
     }
     
@@ -281,23 +282,15 @@
     const toggleMode = () => {
         mode.value = mode.value === 'view' ? 'edit' : 'view'
         isCreatingHotspot.value = false
+        hoveredHotspot.value = null
+        hotspotHoverPosition.value = null
     }
     
     const toggleFullscreen = async () => {
         if (!document.fullscreenElement) {
-            try {
-                await editorContainer.value.requestFullscreen()
-                isFullscreen.value = true
-            } catch (err) {
-                console.error('Failed to enter fullscreen:', err)
-            }
+            await editorContainer.value?.requestFullscreen()
         } else {
-            try {
-                await document.exitFullscreen()
-                isFullscreen.value = false
-            } catch (err) {
-                console.error('Failed to exit fullscreen:', err)
-            }
+            await document.exitFullscreen()
         }
     }
     
@@ -355,12 +348,11 @@
                     <HotspotOrientationDialog 
                         v-model:open="orientationDialogOpen" 
                         :target-image="pendingTargetImage"
-                        :initial-rotation="editingHotspot && editingHotspot.target_rotation_x !== null ? {
-                            x: editingHotspot.target_rotation_x,
-                            y: editingHotspot.target_rotation_y,
-                            z: editingHotspot.target_rotation_z
-                        } : null"
-                        @save="handleOrientationSaved" 
+                        :initial-rotation="editingHotspot && editingHotspot.target_rotation_x !== null ?
+                            { x: editingHotspot.target_rotation_x, y: editingHotspot.target_rotation_y, z: editingHotspot.target_rotation_z }
+                            : null
+                        "
+                        @save="handleOrientationSaved"
                     />
                 </div>
             </div>

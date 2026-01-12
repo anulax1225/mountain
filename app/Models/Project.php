@@ -10,13 +10,13 @@ use Illuminate\Support\Str;
 
 class Project extends Model
 {
-    /** @use HasFactory<\Database\Factories\ProjectFactory> */
     use HasFactory;
 
     protected $fillable = [
         'slug',
         'name',
         'description',
+        'photo_path',
         'user_id',
     ];
 

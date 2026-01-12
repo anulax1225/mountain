@@ -10,7 +10,6 @@ use Illuminate\Support\Str;
 
 class Image extends Model
 {
-    /** @use HasFactory<\Database\Factories\ImageFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -54,5 +53,10 @@ class Image extends Model
     public function hotspotsTo(): HasMany
     {
         return $this->hasMany(Hotspot::class, 'to_image_id');
+    }
+
+    public function stickers(): HasMany
+    {
+        return $this->hasMany(Sticker::class);
     }
 }
