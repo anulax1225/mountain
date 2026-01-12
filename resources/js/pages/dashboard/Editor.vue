@@ -175,9 +175,9 @@
     }
     
     const calculateReturnRotation = (fromPosition, toPosition) => {
-        // We want the camera to look at toPosition (original hotspot A) when arriving back at image A
-        // The camera is at the center of the sphere, so we convert toPosition to spherical angles
-        
+        // We want the camera to look AWAY from the return hotspot position when arriving back at image A
+        // Since the return hotspot is placed opposite to where we're looking, we need to invert the direction
+
         // Azimuthal angle (horizontal rotation around Y axis)
         const azimuthal = Math.atan2(toPosition.x, toPosition.z)
         
@@ -192,7 +192,7 @@
         const polar = Math.acos(toPosition.y / radius)
         
         return {
-            x: azimuthal,
+            x: azimuthal + Math.PI,
             y: polar,
             z: 0
         }
