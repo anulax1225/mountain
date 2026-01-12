@@ -11,9 +11,9 @@
     </script>
     
     <template>
-      <div class="right-0 bottom-0 left-0 absolute bg-gradient-to-t from-black/50 to-transparent backdrop-blur-sm p-4">
+      <div class="bottom-0 left-1/4 right-1/4 absolute bg-gradient-to-t from-black/50 to-transparent backdrop-blur-sm rounded-md">
         <ScrollArea class="w-full">
-          <div class="flex gap-2 pb-2">
+          <div class="flex gap-2 p-2 overflow-x-auto w-full">
             <button
               v-for="(image, index) in images"
               :key="image.slug"
