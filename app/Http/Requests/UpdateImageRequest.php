@@ -23,6 +23,7 @@ class UpdateImageRequest extends FormRequest
     {
         return [
             'image' => ['sometimes', 'required', 'image', 'max:20480'],
+            'name' => ['sometimes', 'string', 'max:255'],
         ];
     }
 }

@@ -20,12 +20,18 @@ class Hotspot extends Model
         'position_x',
         'position_y',
         'position_z',
+        'target_rotation_x',
+        'target_rotation_y',
+        'target_rotation_z',
     ];
 
     protected $casts = [
         'position_x' => 'float',
         'position_y' => 'float',
         'position_z' => 'float',
+        'target_rotation_x' => 'float',
+        'target_rotation_y' => 'float',
+        'target_rotation_z' => 'float',
     ];
 
     protected static function boot()

@@ -19,6 +19,9 @@ class StoreHotspotRequest extends FormRequest
             'position_x' => ['required', 'numeric'],
             'position_y' => ['required', 'numeric'],
             'position_z' => ['required', 'numeric'],
+            'target_rotation_x' => ['nullable', 'numeric'],
+            'target_rotation_y' => ['nullable', 'numeric'],
+            'target_rotation_z' => ['nullable', 'numeric'],
         ];
     }
 }

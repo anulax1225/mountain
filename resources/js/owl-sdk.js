@@ -623,11 +623,15 @@ class ImagesAPI {
      * Upload a new image to a scene
      * @param {string} sceneSlug - Scene slug
      * @param {File} imageFile - Image file (max 20MB)
+     * @param {string} [name] - Optional name for the image
      * @returns {Promise<Object>}
      */
-    async upload(sceneSlug, imageFile) {
+    async upload(sceneSlug, imageFile, name = null) {
         const formData = new FormData();
         formData.append('image', imageFile);
+        if (name) {
+            formData.append('name', name);
+        }
 
         return await this.client.request(`/scenes/${sceneSlug}/images`, {
             method: 'POST',
@@ -648,7 +652,7 @@ class ImagesAPI {
     }
 
     /**
-     * Update/replace an existing image
+     * Update/replace an existing image file
      * @param {string} imageSlug - Image slug
      * @param {File} imageFile - New image file (max 20MB)
      * @returns {Promise<Object>}
@@ -656,6 +660,23 @@ class ImagesAPI {
     async update(imageSlug, imageFile) {
         const formData = new FormData();
         formData.append('image', imageFile);
+
+        return await this.client.request(`/images/${imageSlug}`, {
+            method: 'POST',
+            body: formData,
+            isFormData: true,
+        });
+    }
+
+    /**
+     * Update image name only
+     * @param {string} imageSlug - Image slug
+     * @param {string} name - New name for the image
+     * @returns {Promise<Object>}
+     */
+    async updateName(imageSlug, name) {
+        const formData = new FormData();
+        formData.append('name', name);
 
         return await this.client.request(`/images/${imageSlug}`, {
             method: 'POST',
@@ -688,6 +709,8 @@ class ImagesAPI {
         });
     }
 }
+
+// NOTE: Add this class to your existing owl-sdk.js file, replacing the existing ImagesAPI class
 
 // =============================================================================
 // GLOBAL CLIENT SINGLETON

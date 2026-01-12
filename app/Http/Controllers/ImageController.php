@@ -34,6 +34,7 @@ class ImageController extends Controller
      *   "data": [
      *     {
      *       "slug": "770e8400-e29b-41d4-a716-446655440000",
+     *       "name": "Living Room View",
      *       "path": "images/panorama.jpg",
      *       "size": 2048576,
      *       "created_at": "2024-01-01T00:00:00.000000Z",
@@ -66,10 +67,12 @@ class ImageController extends Controller
      * @urlParam project string required The slug of the project. Example: 550e8400-e29b-41d4-a716-446655440000
      * @urlParam scene string required The slug of the scene. Example: 660e8400-e29b-41d4-a716-446655440000
      * @bodyParam image file required The panoramic image file (max 20MB). Example: public/pano/pano1.jpeg
+     * @bodyParam name string The name of the image. Example: Living Room View
      * 
      * @response 201 {
      *   "data": {
      *     "slug": "770e8400-e29b-41d4-a716-446655440000",
+     *     "name": "Living Room View",
      *     "path": "images/panorama.jpg",
      *     "size": 2048576,
      *     "created_at": "2024-01-01T00:00:00.000000Z",
@@ -86,6 +89,7 @@ class ImageController extends Controller
         $path = $file->store('images', 'public');
         
         $image = $scene->images()->create([
+            'name' => $request->input('name'),
             'path' => $path,
             'size' => $file->getSize(),
         ]);
@@ -107,6 +111,7 @@ class ImageController extends Controller
      * @response 200 {
      *   "data": {
      *     "slug": "770e8400-e29b-41d4-a716-446655440000",
+     *     "name": "Living Room View",
      *     "path": "images/panorama.jpg",
      *     "size": 2048576,
      *     "created_at": "2024-01-01T00:00:00.000000Z",
@@ -150,7 +155,7 @@ class ImageController extends Controller
     /**
      * Update an image
      * 
-     * Replace an existing image with a new file.
+     * Replace an existing image with a new file or update its name.
      * 
      * @authenticated
      * 
@@ -158,10 +163,12 @@ class ImageController extends Controller
      * @urlParam scene string required The slug of the scene. Example: 660e8400-e29b-41d4-a716-446655440000
      * @urlParam image string required The slug of the image. Example: 770e8400-e29b-41d4-a716-446655440000
      * @bodyParam image file The new image file (max 20MB). Example: public/pano/pano2.jpeg
+     * @bodyParam name string The name of the image. Example: Updated Living Room View
      * 
      * @response 200 {
      *   "data": {
      *     "slug": "770e8400-e29b-41d4-a716-446655440000",
+     *     "name": "Updated Living Room View",
      *     "path": "images/new-panorama.jpg",
      *     "size": 2148576,
      *     "created_at": "2024-01-01T00:00:00.000000Z",
@@ -174,16 +181,24 @@ class ImageController extends Controller
         $this->authorize('view', $image->scene->project);
         $this->authorize('view', $image->scene);
         
+        $updateData = [];
+        
+        if ($request->has('name')) {
+            $updateData['name'] = $request->input('name');
+        }
+        
         if ($request->hasFile('image')) {
             Storage::disk('public')->delete($image->path);
             
             $file = $request->file('image');
             $path = $file->store('images', 'public');
             
-            $image->update([
-                'path' => $path,
-                'size' => $file->getSize(),
-            ]);
+            $updateData['path'] = $path;
+            $updateData['size'] = $file->getSize();
+        }
+        
+        if (!empty($updateData)) {
+            $image->update($updateData);
         }
         
         return new ImageResource($image);

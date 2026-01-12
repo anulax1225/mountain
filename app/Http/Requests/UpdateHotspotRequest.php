@@ -19,6 +19,9 @@ class UpdateHotspotRequest extends FormRequest
             'position_x' => ['sometimes', 'required', 'numeric'],
             'position_y' => ['sometimes', 'required', 'numeric'],
             'position_z' => ['sometimes', 'required', 'numeric'],
+            'target_rotation_x' => ['sometimes', 'nullable', 'numeric'],
+            'target_rotation_y' => ['sometimes', 'nullable', 'numeric'],
+            'target_rotation_z' => ['sometimes', 'nullable', 'numeric'],
         ];
     }
 }

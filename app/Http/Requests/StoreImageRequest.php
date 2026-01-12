@@ -23,6 +23,7 @@ class StoreImageRequest extends FormRequest
     {
         return [
             'image' => ['required', 'image', 'max:20480'],
+            'name' => ['nullable', 'string', 'max:255'],
         ];
     }
 }
