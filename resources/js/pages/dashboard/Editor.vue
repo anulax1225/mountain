@@ -7,10 +7,7 @@ import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
 import EditorCanvas from '@/components/dashboard/editor/EditorCanvas.vue'
 import EditorTopBar from '@/components/dashboard/editor/EditorTopBar.vue'
-import EditorNavigation from '@/components/dashboard/editor/EditorNavigation.vue'
-import EditorInfoPanel from '@/components/dashboard/editor/EditorInfoPanel.vue'
-import EditorThumbnails from '@/components/dashboard/editor/EditorThumbnails.vue'
-import EditorModeIndicator from '@/components/dashboard/editor/EditorModeIndicator.vue'
+import HotspotTargetDialog from '@/components/dashboard/editor/HotspotTargetDialog.vue'
 import owl from '@/owl-sdk.js'
 
 const props = defineProps({
@@ -21,11 +18,14 @@ const props = defineProps({
 const scene = ref(null)
 const project = ref(null)
 const images = ref([])
+const hotspots = ref([])
+const allScenes = ref([])
 const currentImageIndex = ref(0)
 const loading = ref(true)
-const isFullscreen = ref(false)
-const showInfo = ref(true)
-const showThumbnails = ref(true)
+const mode = ref('view')
+const isCreatingHotspot = ref(false)
+const targetDialogOpen = ref(false)
+const pendingHotspotPosition = ref(null)
 
 const currentImage = computed(() => images.value[currentImageIndex.value])
 
@@ -37,7 +37,11 @@ const loadScene = async () => {
     if (scene.value?.project) {
       project.value = scene.value.project
     }
-    await loadImages()
+    await Promise.all([
+      loadImages(),
+      loadHotspots(),
+      loadAllScenes()
+    ])
   } catch (error) {
     console.error('Failed to load scene:', error)
   } finally {
@@ -54,26 +58,74 @@ const loadImages = async () => {
   }
 }
 
-const nextImage = () => {
-  if (currentImageIndex.value < images.value.length - 1) {
-    currentImageIndex.value++
+const loadHotspots = async () => {
+  try {
+    const response = await owl.hotspots.list(props.sceneSlug)
+    hotspots.value = response.data || []
+  } catch (error) {
+    console.error('Failed to load hotspots:', error)
   }
 }
 
-const prevImage = () => {
-  if (currentImageIndex.value > 0) {
-    currentImageIndex.value--
+const loadAllScenes = async () => {
+  try {
+    if (!project.value?.slug) return
+    
+    const response = await owl.scenes.list(project.value.slug)
+    const scenes = response.data || []
+    
+    for (const scene of scenes) {
+      const imagesResponse = await owl.images.list(scene.slug)
+      scene.images = imagesResponse.data || []
+    }
+    
+    allScenes.value = scenes
+  } catch (error) {
+    console.error('Failed to load all scenes:', error)
   }
 }
 
-const toggleFullscreen = () => {
-  if (!isFullscreen.value) {
-    document.querySelector("#fullscreenElement").requestFullscreen()
-    isFullscreen.value = true
-  } else {
-    if (document.fullscreenElement) document.exitFullscreen()
-    isFullscreen.value = false
+const startCreatingHotspot = () => {
+  isCreatingHotspot.value = true
+}
+
+const handleHotspotPositionSelected = (position) => {
+  pendingHotspotPosition.value = position
+  isCreatingHotspot.value = false
+  targetDialogOpen.value = true
+}
+
+const handleTargetImageSelected = async (targetImage) => {
+  if (!pendingHotspotPosition.value || !currentImage.value) return
+
+  try {
+    await owl.hotspots.create(props.sceneSlug, {
+      from_image_id: currentImage.value.id,
+      to_image_id: targetImage.id,
+      position_x: pendingHotspotPosition.value.x,
+      position_y: pendingHotspotPosition.value.y,
+      position_z: pendingHotspotPosition.value.z,
+    })
+
+    pendingHotspotPosition.value = null
+    await loadHotspots()
+  } catch (error) {
+    console.error('Failed to create hotspot:', error)
   }
+}
+
+const handleHotspotClick = (hotspot) => {
+  if (!hotspot.to_image?.id) return
+
+  const targetIndex = images.value.findIndex(img => img.id === hotspot.to_image.id)
+  if (targetIndex !== -1) {
+    currentImageIndex.value = targetIndex
+  }
+}
+
+const toggleMode = () => {
+  mode.value = mode.value === 'view' ? 'edit' : 'view'
+  isCreatingHotspot.value = false
 }
 
 onMounted(() => {
@@ -96,39 +148,30 @@ onMounted(() => {
         </Link>
       </EmptyState>
 
-      <div v-else id="fullscreenElement" class="relative w-full h-full">
-        <EditorCanvas :images="images" :current-index="currentImageIndex" />
+      <div v-else class="relative w-full h-full">
+        <EditorCanvas 
+          :images="images" 
+          :current-index="currentImageIndex"
+          :hotspots="hotspots"
+          :mode="mode"
+          :is-creating-hotspot="isCreatingHotspot"
+          @hotspot-click="handleHotspotClick"
+          @hotspot-position-selected="handleHotspotPositionSelected"
+        />
         
         <EditorTopBar
           :scene-name="scene?.name"
           :scene-slug="sceneSlug"
-          :show-info="showInfo"
-          :show-thumbnails="showThumbnails"
-          @toggle-info="showInfo = !showInfo"
-          @toggle-thumbnails="showThumbnails = !showThumbnails"
-          @toggle-fullscreen="toggleFullscreen"
+          :mode="mode"
+          @create-hotspot="startCreatingHotspot"
+          @toggle-mode="toggleMode"
         />
 
-        <EditorNavigation
-          :current-index="currentImageIndex"
-          :total-images="images.length"
-          @prev="prevImage"
-          @next="nextImage"
-        />
-
-        <EditorModeIndicator mode="Navigation" />
-
-        <EditorThumbnails
-          :images="images"
-          :current-index="currentImageIndex"
-          :scene-name="scene?.name"
-          :show="showThumbnails"
-          @select="currentImageIndex = $event"
-        />
-
-        <EditorInfoPanel
-          :current-image="currentImage"
-          :show="showInfo"
+        <HotspotTargetDialog
+          v-model:open="targetDialogOpen"
+          :all-scenes="allScenes"
+          :current-image-id="currentImage?.id"
+          @select="handleTargetImageSelected"
         />
       </div>
     </div>

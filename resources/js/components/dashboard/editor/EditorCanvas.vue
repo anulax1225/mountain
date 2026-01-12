@@ -1,14 +1,20 @@
 <script setup>
-import { ref, onMounted, onUnmounted, watch, shallowRef } from 'vue'
+import { ref, onMounted, onUnmounted, watch, shallowRef, computed } from 'vue'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 
 const props = defineProps({
   images: Array,
-  currentIndex: Number
+  currentIndex: Number,
+  hotspots: Array,
+  mode: {
+    type: String,
+    default: 'view'
+  },
+  isCreatingHotspot: Boolean
 })
 
-const emit = defineEmits(['ready'])
+const emit = defineEmits(['ready', 'hotspot-click', 'hotspot-position-selected'])
 
 const renderView = ref(null)
 const threeScene = shallowRef(null)
@@ -17,6 +23,15 @@ const renderer = shallowRef(null)
 const controls = shallowRef(null)
 const currentMesh = shallowRef(null)
 const textureLoader = shallowRef(null)
+const hotspotSprites = shallowRef([])
+const raycaster = shallowRef(null)
+const mouse = shallowRef(new THREE.Vector2())
+const isTransitioning = ref(false)
+
+const currentImage = computed(() => props.images[props.currentIndex])
+const currentHotspots = computed(() => 
+  props.hotspots?.filter(h => h.from_image?.slug === currentImage.value?.slug) || []
+)
 
 const initThreeJS = () => {
   if (!renderView.value) return
@@ -48,6 +63,7 @@ const initThreeJS = () => {
   controls.value.rotateSpeed = -0.5
 
   textureLoader.value = new THREE.TextureLoader()
+  raycaster.value = new THREE.Raycaster()
 
   const animate = () => {
     controls.value.update()
@@ -55,12 +71,75 @@ const initThreeJS = () => {
   }
   renderer.value.setAnimationLoop(animate)
 
+  renderView.value.addEventListener('click', onCanvasClick)
+  renderView.value.addEventListener('mousemove', onMouseMove)
   window.addEventListener('resize', onResize)
+  
   emit('ready')
 }
 
-const loadPanorama = async (index) => {
+const onCanvasClick = (event) => {
+  if (isTransitioning.value) return
+  
+  const rect = renderView.value.getBoundingClientRect()
+  mouse.value.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
+  mouse.value.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
+
+  raycaster.value.setFromCamera(mouse.value, camera.value)
+
+  if (props.isCreatingHotspot) {
+    const intersects = raycaster.value.intersectObject(currentMesh.value)
+    if (intersects.length > 0) {
+      const point = intersects[0].point
+      emit('hotspot-position-selected', {
+        x: point.x * 0.95,
+        y: point.y * 0.95,
+        z: point.z * 0.95
+      })
+    }
+    return
+  }
+
+  if (props.mode === 'view') {
+    const intersects = raycaster.value.intersectObjects(hotspotSprites.value)
+    if (intersects.length > 0) {
+      const hotspot = intersects[0].object.userData.hotspot
+      emit('hotspot-click', hotspot)
+    }
+  }
+}
+
+const onMouseMove = (event) => {
+  if (props.mode !== 'view' || hotspotSprites.value.length === 0) return
+  
+  const rect = renderView.value.getBoundingClientRect()
+  mouse.value.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
+  mouse.value.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
+
+  raycaster.value.setFromCamera(mouse.value, camera.value)
+  const intersects = raycaster.value.intersectObjects(hotspotSprites.value)
+
+  hotspotSprites.value.forEach(sprite => {
+    sprite.scale.set(20, 20, 1)
+  })
+
+  if (intersects.length > 0) {
+    intersects[0].object.scale.set(24, 24, 1)
+    renderView.value.style.cursor = 'pointer'
+  } else {
+    renderView.value.style.cursor = 'default'
+  }
+}
+
+const loadPanorama = async (index, transition = false) => {
   if (!props.images[index] || !threeScene.value) return
+
+  if (transition) {
+    isTransitioning.value = true
+    await fadeOut()
+  }
+
+  clearHotspots()
 
   if (currentMesh.value) {
     threeScene.value.remove(currentMesh.value)
@@ -79,6 +158,101 @@ const loadPanorama = async (index) => {
 
   threeScene.value.add(mesh)
   currentMesh.value = mesh
+
+  if (transition) {
+    await fadeIn()
+    isTransitioning.value = false
+  }
+}
+
+const clearHotspots = () => {
+  hotspotSprites.value.forEach(sprite => threeScene.value.remove(sprite))
+  hotspotSprites.value = []
+}
+
+const displayHotspots = () => {
+  clearHotspots()
+  
+  currentHotspots.value.forEach(hotspot => {
+    const sprite = createHotspotSprite(hotspot)
+    threeScene.value.add(sprite)
+    hotspotSprites.value.push(sprite)
+  })
+}
+
+const createHotspotSprite = (hotspot) => {
+  const canvas = document.createElement('canvas')
+  canvas.width = 128
+  canvas.height = 128
+  const ctx = canvas.getContext('2d')
+  
+  ctx.beginPath()
+  ctx.arc(64, 64, 50, 0, Math.PI * 2)
+  ctx.fillStyle = 'rgba(168, 85, 247, 0.9)'
+  ctx.fill()
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)'
+  ctx.lineWidth = 4
+  ctx.stroke()
+  
+  ctx.fillStyle = 'white'
+  ctx.font = 'bold 48px Arial'
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.fillText('→', 64, 64)
+
+  const texture = new THREE.CanvasTexture(canvas)
+  const material = new THREE.SpriteMaterial({ 
+    map: texture, 
+    transparent: true,
+    depthTest: false
+  })
+  const sprite = new THREE.Sprite(material)
+  
+  sprite.position.set(hotspot.position_x, hotspot.position_y, hotspot.position_z)
+  sprite.scale.set(20, 20, 1)
+  sprite.userData.hotspot = hotspot
+  
+  return sprite
+}
+
+const fadeOut = () => {
+  return new Promise(resolve => {
+    let opacity = 1
+    const interval = setInterval(() => {
+      opacity -= 0.05
+      if (currentMesh.value) {
+        currentMesh.value.material.opacity = opacity
+        currentMesh.value.material.transparent = true
+      }
+      if (opacity <= 0) {
+        clearInterval(interval)
+        resolve()
+      }
+    }, 16)
+  })
+}
+
+const fadeIn = () => {
+  return new Promise(resolve => {
+    let opacity = 0
+    if (currentMesh.value) {
+      currentMesh.value.material.opacity = 0
+      currentMesh.value.material.transparent = true
+    }
+    const interval = setInterval(() => {
+      opacity += 0.05
+      if (currentMesh.value) {
+        currentMesh.value.material.opacity = opacity
+      }
+      if (opacity >= 1) {
+        if (currentMesh.value) {
+          currentMesh.value.material.transparent = false
+        }
+        clearInterval(interval)
+        resolve()
+      }
+    }, 16)
+  })
 }
 
 const onResize = () => {
@@ -96,6 +270,10 @@ watch(() => props.currentIndex, (newIndex) => {
   loadPanorama(newIndex)
 })
 
+watch(currentHotspots, () => {
+  displayHotspots()
+}, { deep: true })
+
 onMounted(() => {
   initThreeJS()
   if (props.images.length > 0) {
@@ -104,6 +282,10 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  if (renderView.value) {
+    renderView.value.removeEventListener('click', onCanvasClick)
+    renderView.value.removeEventListener('mousemove', onMouseMove)
+  }
   window.removeEventListener('resize', onResize)
   if (renderer.value) {
     renderer.value.dispose()

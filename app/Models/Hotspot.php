@@ -17,6 +17,15 @@ class Hotspot extends Model
         'scene_id',
         'from_image_id',
         'to_image_id',
+        'position_x',
+        'position_y',
+        'position_z',
+    ];
+
+    protected $casts = [
+        'position_x' => 'float',
+        'position_y' => 'float',
+        'position_z' => 'float',
     ];
 
     protected static function boot()

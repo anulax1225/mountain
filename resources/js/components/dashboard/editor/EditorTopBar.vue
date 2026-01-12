@@ -1,16 +1,16 @@
 <script setup>
 import { Link } from '@inertiajs/vue3'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Info, Maximize2 } from 'lucide-vue-next'
+import { Badge } from '@/components/ui/badge'
+import { ArrowLeft, Plus, Eye, Pencil } from 'lucide-vue-next'
 
 defineProps({
   sceneName: String,
   sceneSlug: String,
-  showInfo: Boolean,
-  showThumbnails: Boolean
+  mode: String
 })
 
-const emit = defineEmits(['toggle-info', 'toggle-thumbnails', 'toggle-fullscreen'])
+const emit = defineEmits(['create-hotspot', 'toggle-mode'])
 </script>
 
 <template>
@@ -23,20 +23,32 @@ const emit = defineEmits(['toggle-info', 'toggle-thumbnails', 'toggle-fullscreen
           </Button>
         </Link>
         <div class="text-white">
-          <h1 class="font-semibold text-sm">{{ sceneName }}</h1>
+          <div class="flex items-center gap-2">
+            <h1 class="font-semibold text-sm">{{ sceneName }}</h1>
+            <Badge :variant="mode === 'edit' ? 'default' : 'secondary'" class="text-xs">
+              {{ mode === 'edit' ? 'Édition' : 'Aperçu' }}
+            </Badge>
+          </div>
           <p class="text-white/60 text-xs">Éditeur 360°</p>
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <Button variant="secondary" size="sm" @click="emit('toggle-thumbnails')">
-          {{ showThumbnails ? 'Masquer' : 'Afficher' }} miniatures
+        <Button 
+          v-if="mode === 'edit'"
+          variant="default" 
+          size="sm" 
+          @click="emit('create-hotspot')"
+        >
+          <Plus class="mr-2 w-4 h-4" />
+          Ajouter un point d'accès
         </Button>
-        <Button variant="secondary" size="sm" @click="emit('toggle-info')">
-          <Info class="mr-2 w-4 h-4" />
-          {{ showInfo ? 'Masquer' : 'Afficher' }} infos
-        </Button>
-        <Button variant="secondary" size="icon-sm" @click="emit('toggle-fullscreen')">
-          <Maximize2 class="w-4 h-4" />
+        <Button 
+          variant="secondary" 
+          size="sm" 
+          @click="emit('toggle-mode')"
+        >
+          <component :is="mode === 'edit' ? Eye : Pencil" class="mr-2 w-4 h-4" />
+          {{ mode === 'edit' ? 'Mode aperçu' : 'Mode édition' }}
         </Button>
       </div>
     </div>
