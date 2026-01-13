@@ -19,8 +19,12 @@ const projects = ref([])
 const loading = ref(true)
 const form = ref({
   name: '',
-  description: ''
+  description: '',
+  photo: null
 })
+
+const photoInput = ref(null)
+const photoPreview = ref(null)
 
 const loadProjects = async () => {
   try {
@@ -34,11 +38,33 @@ const loadProjects = async () => {
   }
 }
 
+const handlePhotoSelect = (event) => {
+  const file = event.target.files[0]
+  if (file) {
+    form.value.photo = file
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      photoPreview.value = e.target.result
+    }
+    reader.readAsDataURL(file)
+  }
+}
+
 const createProject = async () => {
   try {
-    await owl.projects.create(form.value)
+    const formData = new FormData()
+    formData.append('name', form.value.name)
+    if (form.value.description) {
+      formData.append('description', form.value.description)
+    }
+    if (form.value.photo) {
+      formData.append('photo', form.value.photo)
+    }
+
+    await owl.projects.create(formData)
     sheetOpen.value = false
-    form.value = { name: '', description: '' }
+    form.value = { name: '', description: '', photo: null }
+    photoPreview.value = null
     await loadProjects()
   } catch (error) {
     console.error('Failed to create project:', error)
@@ -65,10 +91,10 @@ onMounted(() => {
       <LoadingSpinner v-if="loading" />
 
       <div v-else class="gap-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        <ProjectCard 
-          v-for="project in projects" 
-          :key="project.slug" 
-          :project="project" 
+        <ProjectCard
+          v-for="project in projects"
+          :key="project.slug"
+          :project="project"
         />
 
         <CreateProjectCard @create="openCreateSheet" />
@@ -85,20 +111,33 @@ onMounted(() => {
           <form @submit.prevent="createProject" class="space-y-4 mt-6">
             <div class="space-y-2">
               <Label for="name">Nom du projet</Label>
-              <Input 
-                id="name" 
-                v-model="form.name" 
-                placeholder="Mon projet" 
+              <Input
+                id="name"
+                v-model="form.name"
+                placeholder="Mon projet"
                 required
               />
             </div>
             <div class="space-y-2">
               <Label for="description">Description</Label>
-              <Input 
-                id="description" 
-                v-model="form.description" 
+              <Input
+                id="description"
+                v-model="form.description"
                 placeholder="Description du projet (optionnel)"
               />
+            </div>
+            <div class="space-y-2">
+              <Label for="photo">Photo de couverture</Label>
+              <Input
+                id="photo"
+                ref="photoInput"
+                type="file"
+                accept="image/*"
+                @change="handlePhotoSelect"
+              />
+              <div v-if="photoPreview" class="mt-2">
+                <img :src="photoPreview" alt="Preview" class="w-full h-32 object-cover rounded-md" />
+              </div>
             </div>
             <Button type="submit" class="w-full">
               Créer le projet

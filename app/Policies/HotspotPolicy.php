@@ -21,7 +21,21 @@ class HotspotPolicy
      */
     public function view(User $user, Hotspot $hotspot): bool
     {
-        return true;
+        $project = $hotspot->scene->project;
+
+        if ($project->is_public) {
+            return true;
+        }
+
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        if ($user->id === $project->user_id) {
+            return true;
+        }
+
+        return $user->canAccessProject($project, 'view');
     }
 
     /**
@@ -37,7 +51,17 @@ class HotspotPolicy
      */
     public function update(User $user, Hotspot $hotspot): bool
     {
-        return true;
+        $project = $hotspot->scene->project;
+
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        if ($user->id === $project->user_id) {
+            return true;
+        }
+
+        return $user->canAccessProject($project, 'update');
     }
 
     /**
@@ -45,7 +69,17 @@ class HotspotPolicy
      */
     public function delete(User $user, Hotspot $hotspot): bool
     {
-        return true;
+        $project = $hotspot->scene->project;
+
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        if ($user->id === $project->user_id) {
+            return true;
+        }
+
+        return $user->canAccessProject($project, 'update');
     }
 
     /**
@@ -53,7 +87,13 @@ class HotspotPolicy
      */
     public function restore(User $user, Hotspot $hotspot): bool
     {
-        return true;
+        $project = $hotspot->scene->project;
+
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        return $user->id === $project->user_id;
     }
 
     /**
@@ -61,6 +101,12 @@ class HotspotPolicy
      */
     public function forceDelete(User $user, Hotspot $hotspot): bool
     {
-        return true;
+        $project = $hotspot->scene->project;
+
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        return $user->id === $project->user_id;
     }
 }

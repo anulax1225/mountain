@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
@@ -18,7 +19,9 @@ class Project extends Model
         'user_id',
         'name',
         'description',
-        'photo',
+        'picture_path',
+        'is_public',
+        'start_image_id',
     ];
 
     protected static function boot()
@@ -32,9 +35,9 @@ class Project extends Model
         });
 
         static::deleting(function ($project) {
-            // Delete project photo if exists
-            if ($project->photo && Storage::exists($project->photo)) {
-                Storage::delete($project->photo);
+            // Delete project picture if exists
+            if ($project->picture_path && Storage::disk('public')->exists($project->picture_path)) {
+                Storage::disk('public')->delete($project->picture_path);
             }
 
             // Delete all related scenes (which will cascade delete images and hotspots)
@@ -55,5 +58,24 @@ class Project extends Model
     public function scenes(): HasMany
     {
         return $this->hasMany(Scene::class);
+    }
+
+    public function startImage(): BelongsTo
+    {
+        return $this->belongsTo(Image::class, 'start_image_id');
+    }
+
+    public function assignedUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'project_user')
+            ->withPivot('role_id')
+            ->withTimestamps();
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'is_public' => 'boolean',
+        ];
     }
 }

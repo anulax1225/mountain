@@ -21,7 +21,21 @@ class ImagePolicy
      */
     public function view(User $user, Image $image): bool
     {
-        return true;
+        $project = $image->scene->project;
+
+        if ($project->is_public) {
+            return true;
+        }
+
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        if ($user->id === $project->user_id) {
+            return true;
+        }
+
+        return $user->canAccessProject($project, 'view');
     }
 
     /**
@@ -37,7 +51,17 @@ class ImagePolicy
      */
     public function update(User $user, Image $image): bool
     {
-        return true;
+        $project = $image->scene->project;
+
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        if ($user->id === $project->user_id) {
+            return true;
+        }
+
+        return $user->canAccessProject($project, 'update');
     }
 
     /**
@@ -45,7 +69,17 @@ class ImagePolicy
      */
     public function delete(User $user, Image $image): bool
     {
-        return true;
+        $project = $image->scene->project;
+
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        if ($user->id === $project->user_id) {
+            return true;
+        }
+
+        return $user->canAccessProject($project, 'update');
     }
 
     /**
@@ -53,7 +87,13 @@ class ImagePolicy
      */
     public function restore(User $user, Image $image): bool
     {
-        return true;
+        $project = $image->scene->project;
+
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        return $user->id === $project->user_id;
     }
 
     /**
@@ -61,6 +101,12 @@ class ImagePolicy
      */
     public function forceDelete(User $user, Image $image): bool
     {
-        return true;
+        $project = $image->scene->project;
+
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        return $user->id === $project->user_id;
     }
 }

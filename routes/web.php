@@ -3,10 +3,12 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\GalleryController;
 use Inertia\Inertia;
 use App\Http\Controllers\HotspotController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ProjectUserController;
 use App\Http\Controllers\SceneController;
 use App\Http\Controllers\StickerController;
 
@@ -32,6 +34,9 @@ Route::get('/docs', function () {
     return view('scribe.index');
 });
 
+// Public gallery routes
+Route::get('/gallery', [GalleryController::class, 'index'])->name('gallery.index');
+Route::get('/gallery/{project:slug}', [GalleryController::class, 'show'])->name('gallery.show');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -57,9 +62,19 @@ Route::middleware('auth')->group(function () {
     Route::get('/projects', [ProjectController::class, 'index']);
     Route::post('/projects', [ProjectController::class, 'store']);
     Route::get('/projects/{project:slug}', [ProjectController::class, 'show']);
+    Route::get('/projects/{project:slug}/picture', [ProjectController::class, 'downloadPicture']);
     Route::put('/projects/{project:slug}', [ProjectController::class, 'update']);
     Route::patch('/projects/{project:slug}', [ProjectController::class, 'update']);
     Route::delete('/projects/{project:slug}', [ProjectController::class, 'destroy']);
+    Route::post('/projects/{project:slug}/make-public', [ProjectController::class, 'makePublic']);
+    Route::get('/projects/{project:slug}/images', [ProjectController::class, 'getImages']);
+
+    // Project user assignment routes
+    Route::get('/projects/{project:slug}/users', [ProjectUserController::class, 'index']);
+    Route::post('/projects/{project:slug}/users', [ProjectUserController::class, 'store']);
+    Route::delete('/projects/{project:slug}/users/{user}', [ProjectUserController::class, 'destroy']);
+    Route::get('/available-users', [ProjectUserController::class, 'availableUsers']);
+    Route::get('/available-roles', [ProjectUserController::class, 'availableRoles']);
 
     // Scenes routes (nested under projects)
     Route::get('/projects/{project:slug}/scenes', [SceneController::class, 'index']);

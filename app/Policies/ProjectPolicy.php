@@ -21,7 +21,19 @@ class ProjectPolicy
      */
     public function view(User $user, Project $project): bool
     {
-        return $user->id === $project->user_id;
+        if ($project->is_public) {
+            return true;
+        }
+
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        if ($user->id === $project->user_id) {
+            return true;
+        }
+
+        return $user->canAccessProject($project, 'view');
     }
 
     /**
@@ -37,7 +49,15 @@ class ProjectPolicy
      */
     public function update(User $user, Project $project): bool
     {
-        return $user->id === $project->user_id;
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        if ($user->id === $project->user_id) {
+            return true;
+        }
+
+        return $user->canAccessProject($project, 'update');
     }
 
     /**
@@ -45,6 +65,10 @@ class ProjectPolicy
      */
     public function delete(User $user, Project $project): bool
     {
+        if ($user->isAdmin()) {
+            return true;
+        }
+
         return $user->id === $project->user_id;
     }
 
@@ -53,6 +77,10 @@ class ProjectPolicy
      */
     public function restore(User $user, Project $project): bool
     {
+        if ($user->isAdmin()) {
+            return true;
+        }
+
         return $user->id === $project->user_id;
     }
 
@@ -61,6 +89,34 @@ class ProjectPolicy
      */
     public function forceDelete(User $user, Project $project): bool
     {
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        return $user->id === $project->user_id;
+    }
+
+    /**
+     * Determine whether the user can assign other users to the project.
+     */
+    public function assignUsers(User $user, Project $project): bool
+    {
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        return $user->id === $project->user_id;
+    }
+
+    /**
+     * Determine whether the user can make the project public.
+     */
+    public function makePublic(User $user, Project $project): bool
+    {
+        if ($user->isAdmin()) {
+            return true;
+        }
+
         return $user->id === $project->user_id;
     }
 }

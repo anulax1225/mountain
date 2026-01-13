@@ -10,8 +10,8 @@ return new class extends Migration
     {
         Schema::table('projects', function (Blueprint $table) {
             $table->boolean('is_public')->default(false)->after('picture_path');
-            $table->uuid('start_image_id')->nullable()->after('is_public');
-            
+            $table->unsignedBigInteger('start_image_id')->nullable()->after('is_public');
+
             $table->foreign('start_image_id')
                 ->references('id')
                 ->on('images')

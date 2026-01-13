@@ -365,15 +365,18 @@ class ProjectsAPI {
 
     /**
      * Create a new project
-     * @param {Object} data
+     * @param {Object|FormData} data
      * @param {string} data.name - Project name
      * @param {string} [data.description] - Project description
+     * @param {File} [data.photo] - Project cover photo
      * @returns {Promise<Object>}
      */
     async create(data) {
+        const isFormData = data instanceof FormData;
         return await this.client.request('/projects', {
             method: 'POST',
             body: data,
+            isFormData,
         });
     }
 
@@ -391,30 +394,36 @@ class ProjectsAPI {
     /**
      * Update a project (full update)
      * @param {string} slug - Project slug
-     * @param {Object} data
+     * @param {Object|FormData} data
      * @param {string} [data.name] - Project name
      * @param {string} [data.description] - Project description
+     * @param {File} [data.photo] - Project cover photo
      * @returns {Promise<Object>}
      */
     async update(slug, data) {
+        const isFormData = data instanceof FormData;
         return await this.client.request(`/projects/${slug}`, {
             method: 'PUT',
             body: data,
+            isFormData,
         });
     }
 
     /**
      * Patch a project (partial update)
      * @param {string} slug - Project slug
-     * @param {Object} data
+     * @param {Object|FormData} data
      * @param {string} [data.name] - Project name
      * @param {string} [data.description] - Project description
+     * @param {File} [data.photo] - Project cover photo
      * @returns {Promise<Object>}
      */
     async patch(slug, data) {
+        const isFormData = data instanceof FormData;
         return await this.client.request(`/projects/${slug}`, {
             method: 'PATCH',
             body: data,
+            isFormData,
         });
     }
 

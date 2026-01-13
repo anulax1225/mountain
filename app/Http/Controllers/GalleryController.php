@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ProjectResource;
 use App\Models\Project;
 use Inertia\Inertia;
 
@@ -20,18 +21,18 @@ class GalleryController extends Controller
     }
 
     public function show(Project $project)
-    {
+    { 
         if (!$project->is_public) {
             abort(404);
         }
 
         $project->load([
-            'scenes.images.hotspots',
+            'scenes.images.hotspotsTo',
             'startImage',
         ]);
-
+        //dd((new ProjectResource($project))->toArray(request()));
         return Inertia::render('gallery/Show', [
-            'project' => $project,
+            'project' => (new ProjectResource($project))->toArray(request()),
         ]);
     }
 }

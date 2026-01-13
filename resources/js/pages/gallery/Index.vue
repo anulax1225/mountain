@@ -52,7 +52,8 @@ defineProps<Props>();
                     class="group">
                     <Card class="overflow-hidden transition-all hover:shadow-lg">
                         <div class="aspect-video bg-muted relative overflow-hidden">
-                            <img v-if="project.picture_path" :src="`/storage/${project.picture_path}`"
+                            <img v-if="project.picture_path"
+                                :src="`/projects/${project.slug}/picture`"
                                 :alt="project.name"
                                 class="w-full h-full object-cover transition-transform group-hover:scale-105" />
                             <div v-else class="w-full h-full flex items-center justify-center">

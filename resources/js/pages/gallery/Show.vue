@@ -5,15 +5,17 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 
-const props = defineProps();
+const props = defineProps({
+    project: Object,
+});
+console.log(props.project);
 
 const canvasRef = ref(null);
 const currentImage = ref(props.project.start_image);
-
 let scene;
 let camera;
 let renderer;
-let controlss;
+let controls;
 let sphere;
 let hotspotSprites = [];
 
@@ -68,7 +70,7 @@ function loadImage(image) {
     clearHotspots();
 
     const textureLoader = new THREE.TextureLoader();
-    textureLoader.load(`/storage/${image.path}`, (texture) => {
+    textureLoader.load(`/images/${image.slug}/download`, (texture) => {
         sphere.material.map = texture;
         sphere.material.needsUpdate = true;
 
@@ -156,7 +158,7 @@ onMounted(() => {
                 {{ project.description }}
             </p>
             <p class="text-xs text-muted-foreground">
-                Image actuelle: {{ currentImage.name }}
+                Actuellement dans : {{ currentImage.name || "Sans nom" }}
             </p>
         </div>
 

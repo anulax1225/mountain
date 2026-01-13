@@ -16,7 +16,7 @@ const mobileMenuOpen = ref(false)
         <AppBrand />
         <div class="hidden md:flex items-center gap-8">
           <a href="#features" class="text-zinc-600 hover:text-zinc-900 dark:hover:text-zinc-100 dark:text-zinc-400 text-sm transition-colors">Fonctionnalités</a>
-          <a href="#" class="text-zinc-600 hover:text-zinc-900 dark:hover:text-zinc-100 dark:text-zinc-400 text-sm transition-colors">Galerie</a>
+          <Link href="/gallery" class="text-zinc-600 hover:text-zinc-900 dark:hover:text-zinc-100 dark:text-zinc-400 text-sm transition-colors">Galerie</Link>
           <a href="#" class="text-zinc-600 hover:text-zinc-900 dark:hover:text-zinc-100 dark:text-zinc-400 text-sm transition-colors">Tarifs</a>
           <ThemeToggle />
           <div class="flex items-center gap-3 ml-4">
@@ -39,7 +39,7 @@ const mobileMenuOpen = ref(false)
     <div v-if="mobileMenuOpen" class="md:hidden bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 border-t">
       <div class="space-y-3 px-4 py-4">
         <a href="#features" class="block text-zinc-600 hover:text-zinc-900 dark:hover:text-zinc-100 dark:text-zinc-400 text-sm">Fonctionnalités</a>
-        <a href="#" class="block text-zinc-600 hover:text-zinc-900 dark:hover:text-zinc-100 dark:text-zinc-400 text-sm">Galerie</a>
+        <Link href="/gallery" class="block text-zinc-600 hover:text-zinc-900 dark:hover:text-zinc-100 dark:text-zinc-400 text-sm">Galerie</Link>
         <a href="#" class="block text-zinc-600 hover:text-zinc-900 dark:hover:text-zinc-100 dark:text-zinc-400 text-sm">Tarifs</a>
         <div class="flex items-center gap-2">
           <span class="text-zinc-600 dark:text-zinc-400 text-sm">Thème:</span>

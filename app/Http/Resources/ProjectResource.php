@@ -14,11 +14,15 @@ class ProjectResource extends JsonResource
             'slug' => $this->slug,
             'name' => $this->name,
             'description' => $this->description,
-            'photo' => $this->photo ? url('storage/' . $this->photo) : null,
+            'picture_path' => $this->picture_path,
+            'photo' => $this->picture_path, // Alias for backward compatibility
+            'is_public' => $this->is_public ?? false,
+            'start_image_id' => $this->start_image_id,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'user' => $this->whenLoaded('user'),
             'scenes' => SceneResource::collection($this->whenLoaded('scenes')),
+            'start_image' => $this->whenLoaded('startImage'),
         ];
     }
 }
