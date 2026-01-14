@@ -27,8 +27,10 @@ class GalleryController extends Controller
         }
 
         $project->load([
+            'scenes.images.hotspotsFrom',
             'scenes.images.hotspotsTo',
-            'startImage',
+            'scenes.hotspots',
+            'startImage.hotspotsFrom',
         ]);
         //dd((new ProjectResource($project))->toArray(request()));
         return Inertia::render('gallery/Show', [

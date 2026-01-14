@@ -17,8 +17,8 @@ class ImageResource extends JsonResource
             'size' => $this->size,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'hotspots_from' => HotspotResource::collection($this->whenLoaded('hotspotsFrom')),
-            'hotspots_to' => HotspotResource::collection($this->whenLoaded('hotspotsTo')),
+            'hotspots_from' => $this->whenLoaded('hotspotsFrom'),
+            'hotspots_to' => $this->whenLoaded('hotspotsTo'),
         ];
     }
 }
