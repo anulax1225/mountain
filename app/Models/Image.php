@@ -16,6 +16,7 @@ class Image extends Model
     protected $fillable = [
         'slug',
         'scene_id',
+        'size',
         'name',
         'path',
     ];

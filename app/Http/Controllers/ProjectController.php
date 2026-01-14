@@ -44,7 +44,7 @@ class ProjectController extends Controller
             $data['picture_path'] = $path;
             unset($data['photo']);
         }
-
+        
         $project = Project::create($data);
 
         return new ProjectResource($project);
