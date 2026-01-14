@@ -5,9 +5,13 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
 import { useTheme } from './composables/useTheme';
+import { configure } from './owl-sdk';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
+configure({
+    baseURL: import.meta.env.VITE_OWL_API_BASE_URL || 'https://owlaround.anulax.ch',
+});
 // Initialize theme before app
 const { initTheme } = useTheme();
 initTheme();
