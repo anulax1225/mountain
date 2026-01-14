@@ -56,13 +56,15 @@ Route::middleware('auth')->group(function () {
     // Your existing authenticated routes here...
 });
 
+Route::get('/images/{image:slug}/download', [ImageController::class, 'download']);
+Route::get('/projects/{project:slug}/picture', [ProjectController::class, 'downloadPicture']);
+
 Route::middleware('auth')->group(function () {
 
     // Projects routes
     Route::get('/projects', [ProjectController::class, 'index']);
     Route::post('/projects', [ProjectController::class, 'store']);
     Route::get('/projects/{project:slug}', [ProjectController::class, 'show']);
-    Route::get('/projects/{project:slug}/picture', [ProjectController::class, 'downloadPicture']);
     Route::put('/projects/{project:slug}', [ProjectController::class, 'update']);
     Route::patch('/projects/{project:slug}', [ProjectController::class, 'update']);
     Route::delete('/projects/{project:slug}', [ProjectController::class, 'destroy']);
@@ -88,7 +90,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/scenes/{scene:slug}/images', [ImageController::class, 'index']);
     Route::post('/scenes/{scene:slug}/images', [ImageController::class, 'store']);
     Route::get('/images/{image:slug}', [ImageController::class, 'show']);
-    Route::get('/images/{image:slug}/download', [ImageController::class, 'download']);
     Route::post('/images/{image:slug}', [ImageController::class, 'update']); // POST for file uploads
     Route::delete('/images/{image:slug}', [ImageController::class, 'destroy']);
 
