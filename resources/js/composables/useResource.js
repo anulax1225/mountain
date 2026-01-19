@@ -1,6 +1,6 @@
 import { ref, computed, watch } from 'vue';
 import { useApiError } from './useApiError';
-import api from '@/lib/api';
+import owl from '@/owl-sdk.js';
 
 export function useResource(resourceType, slug, options = {}) {
     const {
@@ -77,22 +77,23 @@ export function useResource(resourceType, slug, options = {}) {
         try {
             const fetchFn = async () => {
                 let response;
-                
+
                 switch (resourceType) {
                     case 'project':
-                        response = await api.projects.get(slug);
+                        response = await owl.projects.get(slug);
                         break;
                     case 'scene':
-                        response = await api.scenes.get(slug);
+                        response = await owl.scenes.get(slug);
                         break;
                     case 'image':
-                        response = await api.images.get(slug);
+                        response = await owl.images.get(slug);
                         break;
                     default:
                         throw new Error(`Unknown resource type: ${resourceType}`);
                 }
-                
-                return response.data;
+
+                // Single resource GET routes return data directly (no .data wrapper)
+                return response;
             };
 
             const result = await withRetry(fetchFn, {

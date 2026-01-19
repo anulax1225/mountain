@@ -1,19 +1,19 @@
 import { computed } from 'vue';
 
 export function useImagePath() {
-    const getImageUrl = (imagePath) => {
-        if (!imagePath) return null;
+    const getImageUrl = (imageSlug) => {
+        if (!imageSlug) return null;
         
         // If already a full URL, return as-is
-        if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
-            return imagePath;
+        if (imageSlug.startsWith('http://') || imageSlug.startsWith('https://')) {
+            return imageSlug;
         }
         
         // Remove leading slash if present
-        const cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath;
+        const cleanPath = imageSlug.startsWith('/') ? imageSlug.slice(1) : imageSlug;
         
         // Construct full URL
-        return `${window.location.origin}/storage/${cleanPath}`;
+        return `${window.location.origin}/images/${cleanPath}/download`;
     };
 
     const getThumbnailUrl = (imagePath, size = 'medium') => {
@@ -35,7 +35,7 @@ export function useImagePath() {
         // Try thumbnail first, fallback to full image
         return image.thumbnail_path 
             ? getImageUrl(image.thumbnail_path)
-            : getImageUrl(image.path);
+            : getImageUrl(image.slug);
     };
 
     const isValidImageUrl = (url) => {

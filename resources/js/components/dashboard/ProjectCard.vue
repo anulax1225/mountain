@@ -3,6 +3,7 @@ import { Link } from '@inertiajs/vue3'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Globe } from 'lucide-vue-next'
 
 defineProps({
   project: Object
@@ -30,9 +31,7 @@ defineProps({
           :alt="project.name"
           class="w-full h-full object-cover"
         />
-        <svg v-else class="w-12 h-12 text-zinc-400 dark:text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9 3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
-        </svg>
+        <Globe v-else class="w-16 h-16 text-zinc-400 dark:text-zinc-500"/>
       </div>
       <div class="flex justify-between items-center text-sm">
         <span class="text-zinc-500 dark:text-zinc-400">Créé {{ new Date(project.created_at).toLocaleDateString() }}</span>

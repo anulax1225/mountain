@@ -1,13 +1,16 @@
 <script setup>
     import { ref, computed } from 'vue'
     import { ScrollArea } from '@/components/ui/scroll-area'
-    
+    import { useImagePath } from '@/composables/useImagePath'
+
     const props = defineProps({
       images: Array,
       currentIndex: Number
     })
-    
+
     const emit = defineEmits(['select'])
+
+    const { getImageUrl } = useImagePath()
     </script>
     
     <template>
@@ -26,12 +29,12 @@
                   : 'opacity-70 hover:opacity-100 hover:scale-105'
               ]"
             >
-              <img 
-                :src="`/images/${image.slug}/download`" 
+              <img
+                :src="getImageUrl(image.slug)"
                 :alt="image.name"
                 class="w-full h-full object-cover"
               />
-              <div 
+              <div
                 v-if="index === currentIndex"
                 class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"
               ></div>

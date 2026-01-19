@@ -1,6 +1,7 @@
 <script setup>
 import { Button } from '@/components/ui/button'
 import { X, ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { useImagePath } from '@/composables/useImagePath'
 
 const props = defineProps({
   open: Boolean,
@@ -10,6 +11,8 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['update:open', 'update:currentIndex'])
+
+const { getImageUrl } = useImagePath()
 
 const close = () => emit('update:open', false)
 
@@ -60,8 +63,8 @@ const prevSlide = () => {
     </Button>
 
     <div class="flex justify-center items-center w-full h-full">
-      <img 
-        :src="`/images/${images[currentIndex].slug}/download`" 
+      <img
+        :src="getImageUrl(images[currentIndex].path)"
         :alt="sceneName"
         class="max-w-full max-h-full object-contain"
       />

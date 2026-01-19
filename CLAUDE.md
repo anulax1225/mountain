@@ -64,6 +64,396 @@ Development approach
 - API: Nested route structures with FormRequest validation and authorization policies
 - 3D Rendering: Composable-based architecture using useThreeScene, usePanoramaLoader, spatialMath utilities, and spriteFactory for ALL Three.js operations
 - Configuration: All magic numbers centralized in editorConstants - NEVER hardcode values
+- Composable-first: ALWAYS use existing composables instead of reimplementing functionality
+
+Composable Architecture
+The application uses a comprehensive set of Vue 3 composables to encapsulate reusable logic and eliminate code duplication. CRITICAL: ALWAYS import these composables from `@/composables` and NEVER reimplement this functionality.
+
+Core Utility Composables:
+
+1. useImagePath - Image URL generation and validation
+   - getImageUrl(imagePath): Converts storage path to full URL
+   - getThumbnailUrl(imagePath, size): Generates thumbnail URL with size variant
+   - getImagePreview(image): Returns best preview URL (thumbnail fallback to full)
+   - isValidImageUrl(url): Validates image file extension
+
+   Usage:
+   ```javascript
+   import { useImagePath } from '@/composables'
+
+   const { getImageUrl, getThumbnailUrl } = useImagePath()
+   const imageUrl = getImageUrl(image.slug)
+   const thumbUrl = getThumbnailUrl(image.path, 'medium')
+   ```
+
+2. useDateTime - Comprehensive date/time formatting with French localization
+   - formatDate(date, options): Format date with Intl.DateTimeFormat
+   - formatTime(date, options): Format time portion
+   - formatDateTime(date, options): Format both date and time
+   - formatShortDate(date): Abbreviated date format
+   - formatLongDate(date): Long format with weekday
+   - formatNumericDate(date): Numeric format (DD/MM/YYYY)
+   - formatSmartDate(date): Context-aware formatting (Today/Yesterday/weekday/full)
+   - relativeTime(date): Relative time strings ("il y a 2 heures")
+   - relativeTimeShort(date): Short relative format ("2h")
+   - isToday/isYesterday/isTomorrow(date): Date comparison helpers
+   - parseDate(dateString): Parse date string safely
+   - addDays/addMonths/addYears(date, amount): Date arithmetic
+   - diffInDays(date1, date2): Calculate day difference
+
+   Usage:
+   ```javascript
+   import { useDateTime } from '@/composables'
+
+   const { formatSmartDate, relativeTime } = useDateTime('fr-FR')
+   const displayDate = formatSmartDate(image.created_at) // "Aujourd'hui à 14:30"
+   const timeAgo = relativeTime(project.updated_at) // "il y a 2 heures"
+   ```
+
+3. useFileSize - File size formatting and calculations
+   - formatBytes(bytes, decimals): Format bytes as human-readable (12.5 Mo)
+   - formatBytesShort(bytes): Short format (12M)
+   - parseFileSize(sizeString): Parse size string to bytes
+   - convertTo(bytes, targetUnit): Convert to specific unit
+   - getFileSizeCategory(bytes): Categorize size (tiny/small/medium/large/huge)
+   - compareFileSizes(bytes1, bytes2): Compare two file sizes
+   - sumFileSizes(bytesArray): Sum array of file sizes
+   - averageFileSize(bytesArray): Calculate average size
+   - formatSpeed(bytesPerSecond): Format transfer speed
+   - estimateDownloadTime(bytes, speedBps): Estimate download duration
+   - formatDownloadTime(seconds): Format time estimate
+
+   Usage:
+   ```javascript
+   import { useFileSize } from '@/composables'
+
+   const { formatBytes, getFileSizeCategory } = useFileSize()
+   const sizeDisplay = formatBytes(image.file_size) // "12.5 Mo"
+   const category = getFileSizeCategory(image.file_size) // "large"
+   ```
+
+User Interaction Composables:
+
+4. useConfirm - Programmatic confirmation dialogs
+   - confirm(options): Show customizable confirmation dialog
+   - confirmDelete(itemName): Pre-configured delete confirmation
+   - confirmLeave(hasUnsavedChanges): Pre-configured leave confirmation
+   - confirmAction(action, itemName): Pre-configured action confirmations (publish/archive/restore/duplicate)
+
+   Returns Promise<boolean> that resolves to true if confirmed, false if cancelled.
+
+   Usage:
+   ```javascript
+   import { useConfirm } from '@/composables'
+
+   const { confirmDelete } = useConfirm()
+
+   const handleDelete = async () => {
+       const confirmed = await confirmDelete('cette image')
+       if (confirmed) {
+           await deleteImage()
+       }
+   }
+   ```
+
+5. useDialog - Dialog state management with accessibility features
+   - isOpen: Reactive ref for open/closed state
+   - open(): Open dialog and store previous focus
+   - close(): Close dialog and restore focus
+   - toggle(): Toggle dialog state
+   - dialogElement: Ref for dialog DOM element
+
+   Features: Escape key handling, focus trapping, body scroll lock, click outside detection.
+
+   Also exports useDialogStack() for managing multiple dialogs.
+
+   Usage:
+   ```javascript
+   import { useDialog } from '@/composables'
+
+   const dialog = useDialog({
+       closeOnEscape: true,
+       closeOnClickOutside: false,
+       onOpen: () => console.log('opened'),
+       onClose: () => console.log('closed')
+   })
+   ```
+
+6. useViewMode - Persistent view mode state management
+   - viewMode: Current mode (grid/list/slider)
+   - availableModes: Array of available modes
+   - setViewMode(mode): Set specific mode
+   - toggleViewMode(): Cycle through modes
+   - isGrid/isList/isSlider: Computed mode checks
+   - getViewModeIcon: Get lucide icon name for current mode
+   - getViewModeLabel: Get French label for current mode
+
+   Automatically persists to localStorage and restores on mount.
+
+   Usage:
+   ```javascript
+   import { useViewMode } from '@/composables'
+
+   const { viewMode, toggleViewMode, isGrid } = useViewMode('projectsView', 'grid')
+   ```
+
+Data Management Composables:
+
+7. useResource - Fetching single resources with caching and retry logic
+   - data: Reactive resource data
+   - isLoading: Loading state
+   - error: Error state
+   - isEmpty/hasError/isStale: Computed states
+   - fetchData(forceRefresh): Fetch resource data
+   - refresh(): Force refresh from server
+   - update(updates): Optimistically update cached data
+   - remove(): Clear resource and cache
+   - clearCache(): Clear only cache entry
+
+   Features: Automatic caching (5min default), retry on failure, slug watching, transform support.
+
+   Also exports convenience functions: useProject(slug), useScene(slug), useImage(slug).
+
+   Usage:
+   ```javascript
+   import { useProject } from '@/composables'
+
+   const { data: project, isLoading, refresh } = useProject(projectSlug, {
+       immediate: true,
+       cache: true,
+       onSuccess: (data) => console.log('Loaded:', data)
+   })
+   ```
+
+8. useApiError - Centralized API error handling
+   - handleError(error, options): Process and display errors
+   - getErrorMessage(error): Extract user-friendly error message
+   - isNetworkError(error): Check if network error
+   - isValidationError(error): Check if validation error (422)
+   - isAuthError(error): Check if auth error (401/403)
+   - getValidationErrors(error): Extract validation error object
+   - withRetry(fn, options): Retry failed requests with exponential backoff
+   - lastError: Last error encountered
+
+   Handles validation errors, network errors, status codes, and integrates with toast notifications.
+
+   Usage:
+   ```javascript
+   import { useApiError } from '@/composables'
+
+   const { handleError, withRetry } = useApiError()
+
+   try {
+       const result = await withRetry(() => owl.projects.get(slug), {
+           maxRetries: 3,
+           backoff: true
+       })
+   } catch (error) {
+       handleError(error, { context: 'Loading project', showToast: true })
+   }
+   ```
+
+9. useForm - Form state management with validation
+   - data: Reactive form data object
+   - errors: Validation errors object
+   - isSubmitting: Submission state
+   - isDirty: Modified state
+   - hasErrors: Computed error check
+   - touched: Set of touched fields
+   - setData(field, value): Update field value
+   - setErrors/clearErrors/clearError: Error management
+   - validateField(field): Validate single field
+   - validateAll(): Validate entire form
+   - submit(submitFn): Submit form with validation
+   - reset(): Reset to initial values
+   - fill(newData): Fill form with new data
+   - hasError(field)/getError(field): Field error checks
+   - isTouched(field)/touch(field): Touch tracking
+
+   Also exports validators object with common rules: required, minLength, maxLength, email, url, min, max, pattern, matches.
+
+   Usage:
+   ```javascript
+   import { useForm, validators } from '@/composables'
+
+   const form = useForm(
+       { name: '', description: '' },
+       {
+           validate: {
+               name: [validators.required(), validators.minLength(3)],
+               description: validators.maxLength(500)
+           },
+           onSuccess: (response) => router.push('/success'),
+           resetOnSuccess: true
+       }
+   )
+
+   const handleSubmit = () => {
+       form.submit(async (data) => {
+           return await owl.projects.create(data)
+       })
+   }
+   ```
+
+File Operation Composables:
+
+10. useImageUpload - Image upload with validation and progress
+    - isUploading: Upload state
+    - uploadProgress: Progress percentage (0-100)
+    - uploadedFiles: Array of successfully uploaded files
+    - errors: Validation/upload errors array
+    - hasErrors: Computed error check
+    - successCount/errorCount: Computed counts
+    - validateFiles(files): Validate file type/size/dimensions
+    - uploadFile(file, uploadFn, onProgress): Upload single file
+    - uploadFiles(files, uploadFn, onProgress): Upload multiple files
+    - reset(): Clear state
+
+    Features: File type validation, size limits, equirectangular aspect ratio validation, progress tracking.
+
+    Usage:
+    ```javascript
+    import { useImageUpload } from '@/composables'
+
+    const upload = useImageUpload({
+        maxFileSize: 50 * 1024 * 1024,
+        allowedTypes: ['image/jpeg', 'image/png'],
+        validateEquirectangular: true,
+        onSuccess: (files) => console.log('Uploaded:', files)
+    })
+
+    const handleUpload = async (files) => {
+        await upload.uploadFiles(files, (formData) => {
+            return owl.images.upload(sceneSlug, formData)
+        }, (progress) => {
+            console.log(`Progress: ${progress}%`)
+        })
+    }
+    ```
+
+11. useFileDownload - File downloads with progress tracking
+    - isDownloading: Download state
+    - downloadProgress: Progress percentage
+    - downloadFromUrl(url, filename, options): Download from URL with progress
+    - downloadFromResponse(response, filename): Download from axios response
+    - downloadMultiple(downloads, options): Download multiple files
+    - downloadBlob(blob, filename): Download blob directly
+    - downloadAsJson(data, filename): Export data as JSON
+    - downloadAsText(text, filename): Download text file
+    - downloadAsCsv(data, filename, headers): Export data as CSV
+    - extractFilename(contentDisposition, fallbackUrl): Extract filename from headers
+
+    Features: Progress tracking, filename extraction, multiple formats, sequential/parallel downloads.
+
+    Usage:
+    ```javascript
+    import { useFileDownload } from '@/composables'
+
+    const { downloadFromUrl, downloadAsJson } = useFileDownload()
+
+    const handleDownload = async () => {
+        await downloadFromUrl(
+            `/api/images/${imageSlug}/download`,
+            'panorama.jpg',
+            { onProgress: (progress) => console.log(`${progress}%`) }
+        )
+    }
+
+    const exportProject = () => {
+        downloadAsJson(projectData, 'project-export.json')
+    }
+    ```
+
+Pagination Composables:
+
+12. usePagination - Traditional page-based pagination
+    - currentPage: Current page number
+    - perPage: Items per page
+    - totalItems: Total item count
+    - totalPages: Computed total pages
+    - offset: Computed offset for API calls
+    - hasNextPage/hasPreviousPage: Navigation checks
+    - isFirstPage/isLastPage: Position checks
+    - startItem/endItem: Display range ("Showing 11-20 of 50")
+    - pageRange: Smart page number array with ellipsis
+    - goToPage(page): Navigate to specific page
+    - nextPage/previousPage: Navigate relative
+    - firstPage/lastPage: Navigate to extremes
+    - setPerPage(newPerPage): Change items per page
+    - setTotal(newTotal): Update total item count
+    - reset(): Reset to initial state
+    - paginateArray(array): Paginate client-side array
+
+    Features: Optional localStorage persistence, page range with ellipsis, automatic state management.
+
+    Usage:
+    ```javascript
+    import { usePagination } from '@/composables'
+
+    const pagination = usePagination({
+        initialPage: 1,
+        initialPerPage: 10,
+        total: images.length,
+        persistState: true,
+        storageKey: 'imagesPagination',
+        onPageChange: (newPage, oldPage) => fetchImages(newPage)
+    })
+
+    // In template: pagination.startItem - pagination.endItem of pagination.totalItems
+    ```
+
+13. useInfiniteScroll - Infinite scroll with two implementation strategies
+    - items: Array of loaded items
+    - isLoading: Loading state
+    - hasMore: More items available
+    - currentPage: Current page number
+    - error: Error state
+    - canLoadMore: Computed load check
+    - load(): Manually trigger load
+    - reset(): Clear items and reset
+    - refresh(): Reset and reload
+    - append/prepend(newItems): Add items manually
+    - remove(predicate): Remove items by condition
+    - update(predicate, updates): Update specific item
+
+    Two variants:
+    - useInfiniteScroll(): Scroll-based (distance from bottom)
+    - useInfiniteScrollObserver(): IntersectionObserver-based (more efficient)
+
+    Usage:
+    ```javascript
+    import { useInfiniteScroll } from '@/composables'
+
+    const scroll = useInfiniteScroll({
+        loadMore: async (page, perPage) => {
+            const response = await owl.projects.list({ page, perPage })
+            return {
+                data: response.data,
+                total: response.meta.total
+            }
+        },
+        threshold: 200,
+        perPage: 20
+    })
+
+    // Or with IntersectionObserver:
+    import { useInfiniteScrollObserver } from '@/composables'
+
+    const { items, sentinelElement } = useInfiniteScrollObserver({ loadMore })
+    // Place sentinel element in template: <div ref="sentinelElement"></div>
+    ```
+
+CRITICAL Composable Usage Rules:
+1. ALWAYS import composables from `@/composables` index file (not direct paths)
+2. NEVER duplicate functionality that exists in composables
+3. ALWAYS use useApiError for error handling (never manual toast calls)
+4. ALWAYS use useImagePath for image URLs (never manual concatenation)
+5. ALWAYS use useDateTime for date formatting (never manual Intl.DateTimeFormat)
+6. ALWAYS use useForm for forms with validation (handles errors automatically)
+7. ALWAYS use useConfirm for confirmations (never manual confirm dialogs)
+8. ALWAYS use useResource for fetching single resources (includes caching and retry)
+9. ALWAYS use useImageUpload for image uploads (includes validation and progress)
+10. ALWAYS use usePagination or useInfiniteScroll for lists (never manual pagination)
 
 Data model hierarchy
 The application follows a clear four-level hierarchy with UUID slug-based routing:

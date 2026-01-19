@@ -15,6 +15,10 @@ import ImageDetailsSheet from '@/components/dashboard/scene/ImageDetailsSheet.vu
 import ImageFullscreen from '@/components/dashboard/scene/ImageFullscreen.vue'
 import { ArrowLeft, Upload } from 'lucide-vue-next'
 import owl from '@/owl-sdk.js'
+import { useConfirm } from '@/composables/useConfirm'
+import { useFileDownload } from '@/composables/useFileDownload'
+import { useViewMode } from '@/composables/useViewMode'
+import { useImageUpload } from '@/composables/useImageUpload'
 
 const props = defineProps({
   auth: Object,
@@ -25,13 +29,20 @@ const scene = ref(null)
 const project = ref(null)
 const images = ref([])
 const loading = ref(true)
-const viewMode = ref('grid')
 const currentSlideIndex = ref(0)
 const uploadSheetOpen = ref(false)
 const detailsSheetOpen = ref(false)
 const fullscreenOpen = ref(false)
 const selectedImage = ref(null)
-const uploadingImages = ref(false)
+
+// Composables
+const { confirmDelete } = useConfirm()
+const { downloadBlob } = useFileDownload()
+const { viewMode } = useViewMode('sceneViewMode', 'grid', ['grid', 'list', 'slider'])
+const { uploadFiles, isUploading, errors: uploadErrors } = useImageUpload({
+    maxFileSize: 50 * 1024 * 1024,
+    validateEquirectangular: true
+})
 
 const loadScene = async () => {
   try {
@@ -52,27 +63,26 @@ const loadScene = async () => {
 
 const uploadImages = async (files) => {
   if (!files.length) return
-  
-  try {
-    uploadingImages.value = true
-    for (const file of files) {
-      await owl.images.upload(props.sceneSlug, file)
-    }
+
+  const result = await uploadFiles(files, async (formData) => {
+    // Extract file from formData
+    const file = formData.get('file')
+    return await owl.images.upload(props.sceneSlug, file)
+  })
+
+  if (result.success) {
     uploadSheetOpen.value = false
-    await loadImages()
-  } catch (error) {
-    console.error('Failed to upload images:', error)
-  } finally {
-    uploadingImages.value = false
+    await loadScene()
   }
 }
 
 const deleteImage = async (imageSlug) => {
-  if (!confirm('Êtes-vous sûr de vouloir supprimer cette image?')) return
-  
+  const confirmed = await confirmDelete('cette image')
+  if (!confirmed) return
+
   try {
     await owl.images.delete(imageSlug)
-    await loadImages()
+    await loadScene()
   } catch (error) {
     console.error('Failed to delete image:', error)
   }
@@ -81,14 +91,8 @@ const deleteImage = async (imageSlug) => {
 const downloadImage = async (imageSlug, imagePath) => {
   try {
     const blob = await owl.images.download(imageSlug)
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = imagePath.split('/').pop()
-    document.body.appendChild(a)
-    a.click()
-    window.URL.revokeObjectURL(url)
-    document.body.removeChild(a)
+    const filename = imagePath.split('/').pop()
+    downloadBlob(blob, filename)
   } catch (error) {
     console.error('Failed to download image:', error)
   }
@@ -193,7 +197,7 @@ onMounted(() => {
 
       <ImageUploadSheet
         v-model:open="uploadSheetOpen"
-        :uploading="uploadingImages"
+        :uploading="isUploading"
         @upload="uploadImages"
       />
 

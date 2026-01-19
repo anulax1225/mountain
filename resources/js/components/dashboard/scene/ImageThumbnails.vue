@@ -1,4 +1,6 @@
 <script setup>
+import { useImagePath } from '@/composables/useImagePath'
+
 defineProps({
   images: Array,
   currentIndex: Number,
@@ -6,6 +8,8 @@ defineProps({
 })
 
 const emit = defineEmits(['select'])
+
+const { getImageUrl } = useImagePath()
 </script>
 
 <template>
@@ -16,13 +20,13 @@ const emit = defineEmits(['select'])
       @click="emit('select', index)"
       :class="[
         'relative flex-shrink-0 w-24 h-16 rounded-lg overflow-hidden transition-all',
-        currentIndex === index 
-          ? 'ring-2 ring-purple-500 dark:ring-purple-400 ring-offset-2 dark:ring-offset-zinc-900' 
+        currentIndex === index
+          ? 'ring-2 ring-purple-500 dark:ring-purple-400 ring-offset-2 dark:ring-offset-zinc-900'
           : 'opacity-60 hover:opacity-100'
       ]"
     >
-      <img 
-        :src="`/images/${image.slug}/download`" 
+      <img
+        :src="getImageUrl(image.slug)"
         :alt="sceneName"
         class="w-full h-full object-cover"
       />
