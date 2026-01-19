@@ -32,7 +32,7 @@ const loadProject = async () => {
   try {
     loading.value = true
     const response = await owl.projects.get(props.projectSlug)
-    project.value = response.data
+    project.value = response
     await loadScenes()
   } catch (error) {
     console.error('Failed to load project:', error)

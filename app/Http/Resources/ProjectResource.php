@@ -21,8 +21,8 @@ class ProjectResource extends JsonResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'user' => $this->whenLoaded('user'),
-            'scenes' => SceneResource::collection($this->whenLoaded('scenes'))->toArray($request),
-            'start_image' => $this->start_image_id ? ImageResource::make($this->whenLoaded('startImage'))->toArray($request) : null,
+            'scenes' => SceneResource::collection($this->whenLoaded('scenes')),
+            'start_image' => new ImageResource($this->whenLoaded('startImage')),
         ];
     }
 }

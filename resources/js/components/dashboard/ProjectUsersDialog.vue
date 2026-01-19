@@ -28,7 +28,7 @@ const loadAssignedUsers = async () => {
   try {
     loading.value = true
     const response = await axios.get(`/projects/${props.project.slug}/users`)
-    assignedUsers.value = response.data || []
+    assignedUsers.value = response || []
   } catch (error) {
     console.error('Failed to load assigned users:', error)
   } finally {
@@ -42,8 +42,8 @@ const loadAvailableData = async () => {
       axios.get('/available-users'),
       axios.get('/available-roles')
     ])
-    availableUsers.value = usersRes.data || []
-    availableRoles.value = rolesRes.data || []
+    availableUsers.value = usersRes || []
+    availableRoles.value = rolesRes || []
   } catch (error) {
     console.error('Failed to load available data:', error)
   }

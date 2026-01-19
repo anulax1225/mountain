@@ -101,7 +101,10 @@ class SceneController extends Controller
         $this->authorize('view', $scene->project);
         $this->authorize('view', $scene);
         
-        $scene->load('project');
+        $scene->load([
+            'project',
+            'images',
+        ]);
         
         return new SceneResource($scene);
     }

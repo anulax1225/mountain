@@ -46,7 +46,7 @@ const loadImages = async () => {
     try {
         loading.value = true
         const response = await axios.get(`/projects/${props.project.slug}/images`)
-        images.value = response.data || []
+        images.value = response || []
         console.log('Loaded images:', images.value, groupedImages.value);
     } catch (error) {
         console.error('Failed to load images:', error)

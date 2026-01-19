@@ -37,24 +37,16 @@ const loadScene = async () => {
   try {
     loading.value = true
     const response = await owl.scenes.get(props.sceneSlug)
-    scene.value = response.data
+    console.log(response);
+    scene.value = response
     if (scene.value?.project) {
       project.value = scene.value.project
+      images.value = scene.value.images || []
     }
-    await loadImages()
   } catch (error) {
     console.error('Failed to load scene:', error)
   } finally {
     loading.value = false
-  }
-}
-
-const loadImages = async () => {
-  try {
-    const response = await owl.images.list(props.sceneSlug)
-    images.value = response.data || []
-  } catch (error) {
-    console.error('Failed to load images:', error)
   }
 }
 

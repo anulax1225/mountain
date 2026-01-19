@@ -22,8 +22,8 @@ class HotspotResource extends JsonResource
             'to_image_id' => $this->to_image_id,
             'custom_image' => $this->custom_image,
             'custom_color' => $this->custom_color,
-            'from_image' => $this->whenLoaded('fromImage'),
-            'to_image' => $this->whenLoaded('toImage'),
+            'from_image' => new ImageResource($this->whenLoaded('fromImage')),
+            'to_image' => new ImageResource($this->whenLoaded('toImage')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

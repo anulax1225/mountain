@@ -56,7 +56,7 @@ const loadScene = async () => {
     try {
         loading.value = true
         const response = await owl.scenes.get(props.sceneSlug)
-        scene.value = response.data
+        scene.value = response
         if (scene.value?.project) {
             project.value = scene.value.project
         }
