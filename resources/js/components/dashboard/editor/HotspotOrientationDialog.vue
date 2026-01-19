@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, onMounted, onUnmounted } from 'vue'
+import { ref, watch } from 'vue'
 import {
     Dialog,
     DialogContent,
@@ -12,8 +12,10 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { RotateCw, Eye, ArrowLeftRight } from 'lucide-vue-next'
-import * as THREE from 'three'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import { useThreeScene } from '@/composables/useThreeScene.js'
+import { usePanoramaLoader } from '@/composables/usePanoramaLoader.js'
+import { calculateOppositePosition } from '@/lib/spatialMath.js'
+import { SPHERE, SPRITE, TIMING } from '@/lib/editorConstants.js'
 
 const props = defineProps({
     open: Boolean,
@@ -25,123 +27,67 @@ const emit = defineEmits(['update:open', 'save'])
 
 const previewContainer = ref(null)
 const createBidirectional = ref(true)
-let scene = null
-let camera = null
-let renderer = null
-let controls = null
-let mesh = null
-let animationId = null
+
+// Initialize Three.js scene for preview
+const {
+    threeScene,
+    camera,
+    renderer,
+    controls,
+    textureLoader,
+    init: initThreeScene,
+    cleanup: cleanupThreeScene
+} = useThreeScene(previewContainer)
+
+// Initialize panorama loader
+const { loadPanorama } = usePanoramaLoader(threeScene, textureLoader)
 
 const initPreview = async () => {
     if (!previewContainer.value || !props.targetImage) return
 
     // Clean up existing scene
-    cleanup()
+    cleanupThreeScene()
 
-    // Setup Three.js scene
-    scene = new THREE.Scene()
-    scene.background = new THREE.Color(0x000000)
+    // Initialize Three.js
+    const initialized = initThreeScene()
 
-    const width = previewContainer.value.clientWidth
-    const height = previewContainer.value.clientHeight
-
-    camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1500)
-    camera.position.set(0, 0, 0.1)
-
-    renderer = new THREE.WebGLRenderer({ antialias: true })
-    renderer.setSize(width, height)
-    renderer.setPixelRatio(window.devicePixelRatio)
-    previewContainer.value.appendChild(renderer.domElement)
-
-    // Setup controls
-    controls = new OrbitControls(camera, renderer.domElement)
-    controls.enableDamping = true
-    controls.dampingFactor = 0.05
-    controls.enableZoom = true
-    controls.enablePan = false
-    controls.rotateSpeed = -0.5
-    controls.minDistance = 1
-    controls.maxDistance = 100
+    if (!initialized) return
 
     // Apply initial rotation if provided
-    if (props.initialRotation) {
-        controls.setAzimuthalAngle(props.initialRotation.x)
-        controls.setPolarAngle(props.initialRotation.y)
-        controls.update()
+    if (props.initialRotation && controls.value) {
+        controls.value.setAzimuthalAngle(props.initialRotation.x)
+        controls.value.setPolarAngle(props.initialRotation.y)
+        controls.value.update()
     }
 
-    // Load panorama texture
-    const textureLoader = new THREE.TextureLoader()
-    const texture = await textureLoader.loadAsync(`/images/${props.targetImage.slug}/download`)
-    texture.colorSpace = THREE.SRGBColorSpace
-    texture.minFilter = THREE.LinearFilter
-    texture.magFilter = THREE.LinearFilter
-
-    const geometry = new THREE.SphereGeometry(500, 60, 40)
-    geometry.scale(-1, 1, 1)
-
-    const material = new THREE.MeshBasicMaterial({ map: texture })
-    mesh = new THREE.Mesh(geometry, material)
-    scene.add(mesh)
-
-    // Animation loop
-    const animate = () => {
-        controls.update()
-        renderer.render(scene, camera)
-        animationId = requestAnimationFrame(animate)
-    }
-    animate()
-}
-
-const cleanup = () => {
-    if (animationId) {
-        cancelAnimationFrame(animationId)
-        animationId = null
-    }
-    if (renderer && previewContainer.value) {
-        previewContainer.value.removeChild(renderer.domElement)
-        renderer.dispose()
-    }
-    scene = null
-    camera = null
-    renderer = null
-    controls = null
-    mesh = null
+    // Load panorama
+    await loadPanorama(
+        `/images/${props.targetImage.slug}/download`,
+        false, // No transition for preview
+        null, // No rotation (already set via controls)
+        null
+    )
 }
 
 const resetOrientation = () => {
-    if (controls) {
-        controls.reset()
+    if (controls.value) {
+        controls.value.reset()
     }
 }
 
 const handleSave = () => {
-    if (!controls) return
+    if (!controls.value) return
 
     const rotation = {
-        x: controls.getAzimuthalAngle(),
-        y: controls.getPolarAngle(),
-        z: controls.target.z
+        x: controls.value.getAzimuthalAngle(),
+        y: controls.value.getPolarAngle(),
+        z: controls.value.target.z
     }
 
     // Calculate the return hotspot position (OPPOSITE side of the sphere from orientation)
     // When you arrive at the target image looking in a direction,
     // the return hotspot should be BEHIND you (opposite direction)
-    const azimuthal = rotation.x
-    const polar = rotation.y
-    const radius = 500 * 0.95
-
-    // Calculate the forward direction vector
-    const forwardX = Math.sin(polar) * Math.sin(azimuthal) * radius
-    const forwardY = Math.cos(polar) * radius
-    const forwardZ = Math.sin(polar) * Math.cos(azimuthal) * radius
-
-    // Invert to get opposite position (behind the camera)
-    const returnPosition = {
-        x: -forwardX,
-        y: -forwardY,
-        z: -forwardZ
-    }
+    const returnPosition = calculateOppositePosition(rotation, SPHERE.RADIUS, SPRITE.POSITION_SCALE)
 
     emit('save', {
         rotation,
@@ -159,14 +105,10 @@ watch(() => props.open, (isOpen) => {
     if (isOpen && props.targetImage) {
         setTimeout(() => {
             initPreview()
-        }, 100)
+        }, TIMING.DIALOG_TRANSITION_DELAY_MS)
     } else {
-        cleanup()
+        cleanupThreeScene()
     }
-})
-
-onUnmounted(() => {
-    cleanup()
 })
 </script>
 

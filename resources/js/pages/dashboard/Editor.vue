@@ -15,6 +15,8 @@ import HotspotsListPanel from '@/components/dashboard/editor/HotspotsListPanel.v
 import HotspotCustomizeDialog from '@/components/dashboard/editor/HotspotCustomizeDialog.vue'
 import StickerCreationDialog from '@/components/dashboard/editor/StickerCreationDialog.vue'
 import owl from '@/owl-sdk.js'
+import { calculateReturnRotation } from '@/lib/spatialMath.js'
+import { TIMING } from '@/lib/editorConstants.js'
 
 const props = defineProps({
     auth: Object,
@@ -144,7 +146,7 @@ const handleTargetImageSelected = (targetImage) => {
 
     setTimeout(() => {
         orientationDialogOpen.value = true
-    }, 100)
+    }, TIMING.DIALOG_TRANSITION_DELAY_MS)
 }
 
 const handleOrientationSaved = async (data) => {
@@ -161,7 +163,7 @@ const handleOrientationSaved = async (data) => {
     // Open customize dialog
     setTimeout(() => {
         customizeDialogOpen.value = true
-    }, 100)
+    }, TIMING.DIALOG_TRANSITION_DELAY_MS)
 }
 
 const handleHotspotCustomized = async (customization) => {
@@ -268,30 +270,6 @@ const handleDeleteSticker = async (sticker) => {
         console.log('Images reloaded after sticker delete')
     } catch (error) {
         console.error('Failed to delete sticker:', error)
-    }
-}
-
-const calculateReturnRotation = (hotspotPosition, forwardRotation) => {
-    // Calculate the camera rotation for the return journey
-    // hotspotPosition is the original hotspot position at the source image (e.g., P_A)
-    // This position represents the approximate direction of the target image
-    // When returning, we want to look in this direction (toward where we came from)
-
-    // Calculate spherical angles to look toward the hotspot position
-    const azimuthal = Math.atan2(hotspotPosition.x, hotspotPosition.z)
-
-    const radius = Math.sqrt(
-        hotspotPosition.x * hotspotPosition.x +
-        hotspotPosition.y * hotspotPosition.y +
-        hotspotPosition.z * hotspotPosition.z
-    )
-
-    const polar = Math.acos(hotspotPosition.y / radius)
-
-    return {
-        x: azimuthal,
-        y: polar,
-        z: 0
     }
 }
 
