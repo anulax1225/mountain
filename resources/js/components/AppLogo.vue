@@ -1,3 +1,3 @@
 <template>
-    <img src="/Owl03_2 3.png">
+    <img src="/owl-logo.png">
 </template>
