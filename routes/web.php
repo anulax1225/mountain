@@ -18,11 +18,11 @@ Route::get('/', function () {
 
 Route::get('/login', function () {
     return Inertia::render('auth/Login');
-})->name('welcome');
+})->name('login.form');
 
 Route::get('/register', function () {
     return Inertia::render('auth/Register');
-})->name('welcome');
+})->name('register.form');
 
 Route::get('/pricing', function () {
     return Inertia::render('Pricing');
