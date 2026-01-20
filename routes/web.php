@@ -24,6 +24,10 @@ Route::get('/register', function () {
     return Inertia::render('auth/Register');
 })->name('welcome');
 
+Route::get('/pricing', function () {
+    return Inertia::render('Pricing');
+})->name('pricing');
+
 Route::post('/register', [AuthController::class, 'webRegister']);
 Route::post('/login', [AuthController::class, 'webLogin']);
 

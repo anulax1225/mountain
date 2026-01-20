@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
+import LandingLayout from '@/layouts/LandingLayout.vue';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
@@ -31,11 +32,10 @@ defineProps<Props>();
 </script>
 
 <template>
-    <div class="min-h-screen bg-background">
-
+    <LandingLayout>
         <Head title="Galerie Publique" />
 
-        <div class="container mx-auto px-4 py-8">
+        <div class="container mx-auto px-4 py-8 pt-24">
             <div class="mb-8">
                 <h1 class="text-4xl font-bold mb-2">Galerie</h1>
                 <p class="text-muted-foreground">
@@ -90,5 +90,5 @@ defineProps<Props>();
                 ]" :disabled="!link.url" v-html="link.label" />
             </div>
         </div>
-    </div>
+    </LandingLayout>
 </template>
