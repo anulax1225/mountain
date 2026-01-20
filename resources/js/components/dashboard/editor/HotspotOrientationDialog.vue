@@ -53,19 +53,12 @@ const initPreview = async () => {
 
     if (!initialized) return
 
-    // Apply initial rotation if provided
-    if (props.initialRotation && controls.value) {
-        controls.value.setAzimuthalAngle(props.initialRotation.x)
-        controls.value.setPolarAngle(props.initialRotation.y)
-        controls.value.update()
-    }
-
-    // Load panorama
+    // Load panorama first
     await loadPanorama(
         `/images/${props.targetImage.slug}/download`,
         false, // No transition for preview
-        null, // No rotation (already set via controls)
-        null
+        props.initialRotation, // Apply rotation via panorama loader
+        controls.value
     )
 }
 

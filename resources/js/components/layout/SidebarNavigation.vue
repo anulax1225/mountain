@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { Link } from '@inertiajs/vue3'
-import { FolderOpen, ChevronLeft, LayoutGrid } from 'lucide-vue-next'
+import { FolderOpen, ChevronLeft, LayoutGrid, GalleryVerticalEnd } from 'lucide-vue-next'
 
 const props = defineProps({
   isOpen: Boolean,
@@ -10,6 +10,7 @@ const props = defineProps({
 
 const baseNavigation = [
   { name: 'Projets', icon: FolderOpen, href: '/dashboard' },
+  { name: 'Galerie', icon: GalleryVerticalEnd, href: '/gallery' },
 ]
 
 const navigation = computed(() => {

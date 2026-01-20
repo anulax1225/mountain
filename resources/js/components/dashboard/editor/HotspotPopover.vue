@@ -27,7 +27,22 @@ const style = computed(() => {
         <div v-if="visible && hotspot"
             class="absolute z-50 bg-white dark:bg-zinc-800 shadow-xl border border-zinc-200 dark:border-zinc-700 rounded-lg overflow-hidden"
             :style="style" @mouseenter="emit('mouseenter')" @mouseleave="emit('mouseleave')">
-            <div class="flex flex-col gap-2 p-2 w-64">
+            <!-- Edit mode - Show only buttons prominently -->
+            <div v-if="mode === 'edit'" class="flex flex-col">
+                <button @click="emit('edit', hotspot)"
+                    class="flex items-center gap-3 px-4 py-3 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors text-left">
+                    <Pencil class="w-4 h-4 text-zinc-600 dark:text-zinc-400" />
+                    <span class="text-sm font-medium text-zinc-900 dark:text-zinc-100">Modifier le point d'accès</span>
+                </button>
+                <button @click="emit('delete', hotspot)"
+                    class="flex items-center gap-3 px-4 py-3 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-left border-t border-zinc-200 dark:border-zinc-700">
+                    <Trash2 class="w-4 h-4 text-red-600 dark:text-red-400" />
+                    <span class="text-sm font-medium text-red-600 dark:text-red-400">Supprimer</span>
+                </button>
+            </div>
+
+            <!-- View mode - Show thumbnail with subtle edit button -->
+            <div v-else class="flex flex-col gap-2 p-2 w-64">
                 <div v-if="hotspot.to_image" class="relative rounded overflow-hidden aspect-video">
                     <img :src="`/images/${hotspot.to_image.slug}/download`" :alt="hotspot.to_image.name"
                         class="w-full h-full object-cover" />
@@ -40,17 +55,6 @@ const style = computed(() => {
                     <p class="font-medium text-sm text-zinc-900 dark:text-zinc-100 truncate">
                         {{ hotspot.to_image.name || 'Sans nom' }}
                     </p>
-                </div>
-
-                <div v-if="mode === 'edit'" class="flex gap-2">
-                    <Button variant="outline" size="sm" class="flex-1" @click="emit('edit', hotspot)">
-                        <Pencil class="mr-1 w-3 h-3" />
-                        Modifier
-                    </Button>
-                    <Button variant="outline" size="sm" class="flex-1" @click="emit('delete', hotspot)">
-                        <Trash2 class="mr-1 w-3 h-3" />
-                        Supprimer
-                    </Button>
                 </div>
             </div>
         </div>

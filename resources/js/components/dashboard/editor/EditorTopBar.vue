@@ -2,16 +2,15 @@
     import { Link } from '@inertiajs/vue3'
     import { Button } from '@/components/ui/button'
     import { Badge } from '@/components/ui/badge'
-    import { ArrowLeft, Plus, Eye, Pencil, Maximize, Minimize, Sticker } from 'lucide-vue-next'
-    
+    import { ArrowLeft, Plus, Eye, Pencil, Sticker } from 'lucide-vue-next'
+
     defineProps({
       sceneName: String,
       sceneSlug: String,
-      mode: String,
-      isFullscreen: Boolean
+      mode: String
     })
-    
-    const emit = defineEmits(['create-hotspot', 'create-sticker', 'toggle-mode', 'toggle-fullscreen'])
+
+    const emit = defineEmits(['create-hotspot', 'create-sticker', 'toggle-mode'])
     </script>
     
     <template>
@@ -52,20 +51,13 @@
               <Sticker class="mr-2 w-4 h-4" />
               Sticker
             </Button>
-            <Button 
-              variant="secondary" 
-              size="sm" 
+            <Button
+              variant="secondary"
+              size="sm"
               @click="emit('toggle-mode')"
             >
               <component :is="mode === 'edit' ? Eye : Pencil" class="mr-2 w-4 h-4" />
               {{ mode === 'edit' ? 'Mode aperçu' : 'Mode édition' }}
-            </Button>
-            <Button 
-              variant="secondary" 
-              size="icon-sm" 
-              @click="emit('toggle-fullscreen')"
-            >
-              <component :is="isFullscreen ? Minimize : Maximize" class="w-4 h-4" />
             </Button>
           </div>
         </div>

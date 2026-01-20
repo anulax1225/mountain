@@ -103,6 +103,13 @@ const viewImage = (image) => {
   detailsSheetOpen.value = true
 }
 
+const handleImageReplaced = async (imageSlug) => {
+  // Reload scene data to get updated image
+  await loadScene()
+
+  console.log('Image replaced, scene reloaded')
+}
+
 onMounted(() => {
   loadScene()
 })
@@ -207,6 +214,7 @@ onMounted(() => {
         :scene-name="scene?.name"
         @download="downloadImage"
         @delete="deleteImage"
+        @image-replaced="handleImageReplaced"
       />
 
       <ImageFullscreen
