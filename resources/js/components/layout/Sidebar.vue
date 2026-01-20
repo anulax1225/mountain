@@ -1,5 +1,5 @@
 <script setup>
-import AppBrand from '@/components/AppBrand.vue'
+import { Link } from '@inertiajs/vue3'
 import AppLogo from '@/components/AppLogo.vue'
 import SidebarNavigation from './SidebarNavigation.vue'
 import SidebarProjectContext from './SidebarProjectContext.vue'
@@ -15,17 +15,18 @@ defineProps({
 
 <template>
   <aside :class="[
-    'fixed inset-y-0 left-0 z-50 flex flex-col justify-items-start bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 transition-all duration-300',
-    isOpen ? 'w-64' : 'w-20'
+    'fixed inset-y-0 left-0 z-50 flex flex-col bg-zinc-50 dark:bg-zinc-900 border-r border-zinc-200/80 dark:border-zinc-800/80 transition-all duration-300 ease-in-out',
+    isOpen ? 'w-64' : 'w-16'
   ]">
     <!-- Brand -->
-    <div class="flex justify-between items-center px-4 border-zinc-200 dark:border-zinc-800 h-16">
-      <div v-if="isOpen" class="flex items-center gap-2">
-        <AppBrand />
-      </div>
-      <div v-else class="flex justify-center items-center">
-        <AppLogo class="w-9 h-9" />
-      </div>
+    <div :class="[
+      'flex items-center h-14 border-b border-zinc-200/80 dark:border-zinc-800/80 shrink-0',
+      isOpen ? 'px-4 justify-start' : 'justify-center'
+    ]">
+      <Link href="/dashboard" class="flex items-center gap-2.5 group">
+        <AppLogo class="w-8 h-8 group-hover:scale-105 transition-transform" />
+        <span v-if="isOpen" class="font-semibold text-zinc-900 dark:text-zinc-100 tracking-tight">Owlaround</span>
+      </Link>
     </div>
 
     <!-- Navigation -->

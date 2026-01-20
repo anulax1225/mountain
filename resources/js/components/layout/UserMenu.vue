@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Settings, LogOut } from 'lucide-vue-next'
+import { Settings, LogOut, ChevronUp } from 'lucide-vue-next'
 
 defineProps({
   isOpen: Boolean,
@@ -23,42 +23,67 @@ const getInitials = (name) => {
     .map(n => n[0])
     .join('')
     .toUpperCase()
+    .slice(0, 2)
 }
 </script>
 
 <template>
-  <div class="p-4 border-zinc-200 dark:border-zinc-800 border-t">
+  <div class="p-3 border-t border-zinc-200/80 dark:border-zinc-800/80">
     <DropdownMenu>
       <DropdownMenuTrigger as-child>
-        <button 
+        <button
           :class="[
-            'w-full flex items-center gap-3 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors',
+            'w-full flex items-center gap-3 p-2 rounded-xl transition-all duration-200',
+            'hover:bg-zinc-200/80 dark:hover:bg-zinc-800/80',
+            'focus:outline-none focus:ring-2 focus:ring-zinc-400 dark:focus:ring-zinc-600 focus:ring-offset-2 focus:ring-offset-zinc-50 dark:focus:ring-offset-zinc-900',
             !isOpen && 'justify-center'
           ]"
         >
-          <Avatar class="w-8 h-8">
-            <AvatarFallback class="bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-sm">
+          <Avatar class="w-9 h-9 shrink-0">
+            <AvatarFallback class="bg-gradient-to-br from-zinc-700 to-zinc-900 dark:from-zinc-200 dark:to-zinc-400 text-white dark:text-zinc-900 text-sm font-medium">
               {{ getInitials(auth?.user?.name) }}
             </AvatarFallback>
           </Avatar>
-          <div v-if="isOpen" class="flex-1 text-left">
-            <p class="font-medium text-zinc-900 dark:text-zinc-100 text-sm">{{ auth?.user?.name || 'Utilisateur' }}</p>
-            <p class="text-zinc-500 dark:text-zinc-400 text-xs">{{ auth?.user?.email || 'utilisateur@exemple.com' }}</p>
+          <div v-if="isOpen" class="flex-1 text-left min-w-0">
+            <p class="font-medium text-zinc-900 dark:text-zinc-100 text-sm truncate">
+              {{ auth?.user?.name || 'Utilisateur' }}
+            </p>
+            <p class="text-zinc-500 dark:text-zinc-400 text-xs truncate">
+              {{ auth?.user?.email || 'utilisateur@exemple.com' }}
+            </p>
           </div>
+          <ChevronUp v-if="isOpen" class="w-4 h-4 text-zinc-400 shrink-0" />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" class="w-56">
-        <DropdownMenuLabel>Mon compte</DropdownMenuLabel>
+      <DropdownMenuContent
+        :align="isOpen ? 'end' : 'center'"
+        :side="isOpen ? 'top' : 'right'"
+        :side-offset="8"
+        class="w-56"
+      >
+        <DropdownMenuLabel class="font-normal">
+          <div class="flex flex-col space-y-1">
+            <p class="text-sm font-medium">{{ auth?.user?.name || 'Utilisateur' }}</p>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 truncate">
+              {{ auth?.user?.email || 'utilisateur@exemple.com' }}
+            </p>
+          </div>
+        </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <Link href="/dashboard/settings" class="flex items-center gap-2 w-full">
+        <DropdownMenuItem as-child>
+          <Link href="/dashboard/settings" class="flex items-center gap-2 w-full cursor-pointer">
             <Settings class="w-4 h-4" />
             <span>Paramètres</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <Link href="/logout" method="post" as="button" class="flex items-center gap-2 w-full text-left">
+        <DropdownMenuItem as-child>
+          <Link
+            href="/logout"
+            method="post"
+            as="button"
+            class="flex items-center gap-2 w-full text-left text-red-600 dark:text-red-400 cursor-pointer"
+          >
             <LogOut class="w-4 h-4" />
             <span>Se déconnecter</span>
           </Link>

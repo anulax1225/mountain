@@ -6,6 +6,7 @@ import EditorCanvas from '@/components/dashboard/editor/EditorCanvas.vue'
 import ImageThumbnailsPanel from '@/components/dashboard/editor/ImageThumbnailsPanel.vue'
 import HotspotPopover from '@/components/dashboard/editor/HotspotPopover.vue'
 import owl from '@/owl-sdk.js'
+import EditorZoomControls from './EditorZoomControls.vue'
 
 const props = defineProps({
     project: Object,
@@ -121,14 +122,9 @@ onUnmounted(() => {
         <div class="absolute top-1/2 -translate-y-1/2 right-6 z-40 flex flex-col gap-2">
             <!-- Fullscreen button (always visible when not in immersion mode) -->
             <Transition name="fade">
-                <Button
-                    v-show="!isImmersive"
-                    @click="toggleFullscreen"
-                    size="icon"
-                    variant="secondary"
+                <Button v-show="!isImmersive" @click="toggleFullscreen" size="icon" variant="secondary"
                     class="w-10 h-10 bg-white/90 dark:bg-zinc-800/90 backdrop-blur shadow-lg hover:bg-white dark:hover:bg-zinc-800"
-                    :title="isFullscreen ? 'Quitter le plein écran' : 'Plein écran'"
-                >
+                    :title="isFullscreen ? 'Quitter le plein écran' : 'Plein écran'">
                     <Maximize v-if="!isFullscreen" class="w-5 h-5" />
                     <Minimize v-else class="w-5 h-5" />
                 </Button>
@@ -136,50 +132,34 @@ onUnmounted(() => {
 
             <!-- Immersion mode toggle (not in immersion) -->
             <Transition name="fade">
-                <Button
-                    v-show="!isImmersive"
-                    @click="toggleImmersion"
-                    size="icon"
-                    variant="secondary"
+                <Button v-show="!isImmersive" @click="toggleImmersion" size="icon" variant="secondary"
                     class="w-10 h-10 bg-white/90 dark:bg-zinc-800/90 backdrop-blur shadow-lg hover:bg-white dark:hover:bg-zinc-800"
-                    title="Mode immersion"
-                >
+                    title="Mode immersion">
                     <VenetianMask class="w-5 h-5" />
                 </Button>
             </Transition>
 
             <!-- Exit immersion button (only visible in immersion mode) -->
             <Transition name="fade">
-                <Button
-                    v-show="isImmersive"
-                    @click="toggleImmersion"
-                    size="icon"
-                    variant="secondary"
+                <Button v-show="isImmersive" @click="toggleImmersion" size="icon" variant="secondary"
                     class="w-10 h-10 bg-white/10 dark:bg-zinc-800/10 backdrop-blur shadow-lg hover:bg-white/20 dark:hover:bg-zinc-800/20"
-                    title="Quitter le mode immersion"
-                >
+                    title="Quitter le mode immersion">
                     <VenetianMask class="w-5 h-5" />
                 </Button>
             </Transition>
         </div>
 
         <Transition name="fade">
-            <ImageThumbnailsPanel
-                v-show="!isImmersive"
-                :images="images"
-                :current-index="currentImageIndex"
-                @select="handleImageSelect"
-            />
+            <ImageThumbnailsPanel v-show="!isImmersive" :images="images" :current-index="currentImageIndex"
+                @select="handleImageSelect" />
         </Transition>
 
-        <HotspotPopover
-            :hotspot="hoveredHotspot"
-            :position="hotspotHoverPosition"
-            :mode="mode"
-            :visible="!!hoveredHotspot"
-            @mouseenter="handlePopoverMouseEnter"
-            @mouseleave="handlePopoverMouseLeave"
-        />
+        <Transition name="fade">
+            <EditorZoomControls v-show="!isImmersive" :controls="editorCanvasRef?.controls" />
+        </Transition>
+
+        <HotspotPopover :hotspot="hoveredHotspot" :position="hotspotHoverPosition" :mode="mode"
+            :visible="!!hoveredHotspot" @mouseenter="handlePopoverMouseEnter" @mouseleave="handlePopoverMouseLeave" />
     </div>
 </template>
 

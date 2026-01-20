@@ -7,17 +7,15 @@ import AppLogo from '@/components/AppLogo.vue'
     <div class="mx-auto max-w-7xl">
       <div class="flex md:flex-row flex-col justify-between items-center gap-4">
         <div class="flex items-center gap-2">
-          <div class="flex justify-center items-center bg-zinc-900 dark:bg-white rounded-lg w-8 h-8">
-            <span class="font-bold text-white dark:text-zinc-900 text-sm">A</span>
-          </div>
-          <span class="font-bold text-zinc-900 dark:text-zinc-100">Anulax</span>
+          <AppLogo class="w-8 h-8" />
+          <span class="font-bold text-zinc-900 dark:text-zinc-100">Owlaround</span>
         </div>
         <div class="flex items-center gap-6 text-zinc-600 dark:text-zinc-400 text-sm">
           <a href="#" class="hover:text-zinc-900 dark:hover:text-zinc-100">Confidentialité</a>
           <a href="#" class="hover:text-zinc-900 dark:hover:text-zinc-100">Conditions</a>
           <a href="#" class="hover:text-zinc-900 dark:hover:text-zinc-100">Contact</a>
         </div>
-        <p class="text-zinc-500 dark:text-zinc-400 text-sm">© 2025 Anulax. Créé avec Three.js & Laravel.</p>
+        <p class="text-zinc-500 dark:text-zinc-400 text-sm">© 2025 Owlaround. Créé avec Three.js & Laravel.</p>
       </div>
     </div>
   </footer>

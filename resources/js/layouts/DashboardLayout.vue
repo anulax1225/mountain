@@ -27,7 +27,7 @@ const toggleSidebar = () => {
       :scene="scene" 
     />
 
-    <div :class="['transition-all duration-300', sidebarOpen ? 'ml-64' : 'ml-20']">
+    <div :class="['transition-all duration-300 ease-in-out', sidebarOpen ? 'ml-64' : 'ml-16']">
       <header class="flex justify-between items-center bg-zinc-50 dark:bg-zinc-950 px-6 border-zinc-200 dark:border-zinc-800 border-b h-14">
         <Button variant="ghost" size="icon" @click="toggleSidebar">
           <Menu class="w-5 h-5" />

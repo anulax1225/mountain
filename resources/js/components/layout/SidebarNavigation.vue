@@ -1,12 +1,14 @@
 <script setup>
 import { computed } from 'vue'
-import { Link } from '@inertiajs/vue3'
-import { FolderOpen, ChevronLeft, LayoutGrid, GalleryVerticalEnd } from 'lucide-vue-next'
+import { Link, usePage } from '@inertiajs/vue3'
+import { FolderOpen, ChevronLeft, LayoutGrid, GalleryVerticalEnd, Home } from 'lucide-vue-next'
 
 const props = defineProps({
   isOpen: Boolean,
   project: Object
 })
+
+const page = usePage()
 
 const baseNavigation = [
   { name: 'Projets', icon: FolderOpen, href: '/dashboard' },
@@ -22,25 +24,37 @@ const navigation = computed(() => {
   }
   return baseNavigation
 })
+
+const isActive = (href) => {
+  const currentUrl = page.url
+  return currentUrl === href
+}
 </script>
 
 <template>
-  <nav class="flex-1 py-4 overflow-y-auto">
-    <ul class="space-y-1 px-2">
-      <li v-for="item in navigation" :key="item.name">
-        <Link
-          :href="item.href"
-          :class="[
-            'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
-            'hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100',
-            'text-zinc-700 dark:text-zinc-300'
-          ]"
-        >
-          <component :is="item.icon" class="flex-shrink-0 w-5 h-5" />
-          <span v-if="isOpen">{{ item.name }}</span>
-        </Link>
-      </li>
-    </ul>
-    <slot/>
+  <nav class="flex-1 py-3 overflow-y-auto">
+    <div :class="['px-3', isOpen ? '' : 'px-2']">
+      <p v-if="isOpen" class="px-3 mb-2 text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+        Général
+      </p>
+      <ul class="space-y-2">
+        <li v-for="item in navigation" :key="item.name">
+          <Link
+            :href="item.href"
+            :title="!isOpen ? item.name : undefined"
+            :class="[
+                'flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors',
+                isActive(item.href) 
+                ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-medium' 
+                : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-zinc-100'
+            ]"
+          >
+            <component :is="item.icon" class="w-5 h-5 shrink-0" />
+            <span v-if="isOpen">{{ item.name }}</span>
+          </Link>
+        </li>
+      </ul>
+    </div>
+    <slot />
   </nav>
 </template>

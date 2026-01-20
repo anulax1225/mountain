@@ -1,23 +1,37 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import DashboardLayout from '@/layouts/DashboardLayout.vue'
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import ProjectCard from '@/components/dashboard/ProjectCard.vue'
 import CreateProjectCard from '@/components/dashboard/CreateProjectCard.vue'
+import { useConfirm } from '@/composables'
 import owl from '@/owl-sdk.js'
 
 defineProps({
   auth: Object,
 })
 
+const { confirmDelete } = useConfirm()
+
 const sheetOpen = ref(false)
+const editSheetOpen = ref(false)
 const projects = ref([])
 const loading = ref(true)
+const editingProject = ref(null)
+const submitting = ref(false)
+
 const form = ref({
+  name: '',
+  description: '',
+  photo: null
+})
+
+const editForm = ref({
   name: '',
   description: '',
   photo: null
@@ -25,6 +39,7 @@ const form = ref({
 
 const photoInput = ref(null)
 const photoPreview = ref(null)
+const editPhotoPreview = ref(null)
 
 const loadProjects = async () => {
   try {
@@ -75,6 +90,67 @@ const openCreateSheet = () => {
   sheetOpen.value = true
 }
 
+const openEditSheet = (project) => {
+  editingProject.value = project
+  editForm.value = {
+    name: project.name,
+    description: project.description || '',
+    photo: null
+  }
+  editPhotoPreview.value = project.picture_path ? `/projects/${project.slug}/picture` : null
+  editSheetOpen.value = true
+}
+
+const handleEditPhotoSelect = (event) => {
+  const file = event.target.files[0]
+  if (file) {
+    editForm.value.photo = file
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      editPhotoPreview.value = e.target.result
+    }
+    reader.readAsDataURL(file)
+  }
+}
+
+const updateProject = async () => {
+  if (!editingProject.value || submitting.value) return
+
+  try {
+    submitting.value = true
+    const formData = new FormData()
+    formData.append('name', editForm.value.name)
+    formData.append('description', editForm.value.description || '')
+    if (editForm.value.photo) {
+      formData.append('photo', editForm.value.photo)
+    }
+    formData.append('_method', 'PUT')
+
+    await owl.projects.update(editingProject.value.slug, formData)
+    editSheetOpen.value = false
+    editingProject.value = null
+    editForm.value = { name: '', description: '', photo: null }
+    editPhotoPreview.value = null
+    await loadProjects()
+  } catch (error) {
+    console.error('Failed to update project:', error)
+  } finally {
+    submitting.value = false
+  }
+}
+
+const handleDeleteProject = async (project) => {
+  const confirmed = await confirmDelete(project.name)
+  if (!confirmed) return
+
+  try {
+    await owl.projects.delete(project.slug)
+    await loadProjects()
+  } catch (error) {
+    console.error('Failed to delete project:', error)
+  }
+}
+
 onMounted(() => {
   loadProjects()
 })
@@ -95,6 +171,8 @@ onMounted(() => {
           v-for="project in projects"
           :key="project.slug"
           :project="project"
+          @edit="openEditSheet"
+          @delete="handleDeleteProject"
         />
 
         <CreateProjectCard @create="openCreateSheet" />
@@ -120,10 +198,11 @@ onMounted(() => {
             </div>
             <div class="space-y-2">
               <Label for="description">Description</Label>
-              <Input
+              <Textarea
                 id="description"
                 v-model="form.description"
                 placeholder="Description du projet (optionnel)"
+                rows="3"
               />
             </div>
             <div class="space-y-2">
@@ -141,6 +220,52 @@ onMounted(() => {
             </div>
             <Button type="submit" class="w-full">
               Créer le projet
+            </Button>
+          </form>
+        </SheetContent>
+      </Sheet>
+
+      <Sheet v-model:open="editSheetOpen">
+        <SheetContent class="px-6">
+          <SheetHeader>
+            <SheetTitle>Modifier le projet</SheetTitle>
+            <SheetDescription>
+              Modifiez les informations du projet
+            </SheetDescription>
+          </SheetHeader>
+          <form @submit.prevent="updateProject" class="space-y-4 mt-6">
+            <div class="space-y-2">
+              <Label for="edit-name">Nom du projet</Label>
+              <Input
+                id="edit-name"
+                v-model="editForm.name"
+                placeholder="Mon projet"
+                required
+              />
+            </div>
+            <div class="space-y-2">
+              <Label for="edit-description">Description</Label>
+              <Textarea
+                id="edit-description"
+                v-model="editForm.description"
+                placeholder="Description du projet (optionnel)"
+                rows="3"
+              />
+            </div>
+            <div class="space-y-2">
+              <Label for="edit-photo">Photo de couverture</Label>
+              <Input
+                id="edit-photo"
+                type="file"
+                accept="image/*"
+                @change="handleEditPhotoSelect"
+              />
+              <div v-if="editPhotoPreview" class="mt-2">
+                <img :src="editPhotoPreview" alt="Preview" class="w-full h-32 object-cover rounded-md" />
+              </div>
+            </div>
+            <Button type="submit" class="w-full" :disabled="submitting">
+              {{ submitting ? 'Enregistrement...' : 'Enregistrer les modifications' }}
             </Button>
           </form>
         </SheetContent>

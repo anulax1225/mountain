@@ -1,6 +1,7 @@
 <script setup>
 import { Globe, Layers, Zap } from 'lucide-vue-next';
 import ThemeToggle from '@/components/ThemeToggle.vue';
+import AppLogo from '@/components/AppLogo.vue';
 </script>
 
 <template>
@@ -10,11 +11,9 @@ import ThemeToggle from '@/components/ThemeToggle.vue';
       <div class="absolute inset-0 bg-[linear-gradient(to_right,#52525b_1px,transparent_1px),linear-gradient(to_bottom,#52525b_1px,transparent_1px)] bg-[size:4rem_4rem] dark:bg-[linear-gradient(to_right,#3f3f46_1px,transparent_1px),linear-gradient(to_bottom,#3f3f46_1px,transparent_1px)] opacity-10"></div>
       <div class="z-10 relative flex flex-col justify-center px-12 py-16 text-white">
         <div class="mb-8">
-          <div class="flex items-center gap-2 mb-2">
-            <div class="flex justify-center items-center bg-white/10 rounded-lg w-10 h-10">
-              <span class="font-bold text-white">A</span>
-            </div>
-            <h1 class="font-bold text-4xl">Anulax</h1>
+          <div class="flex items-center gap-3 mb-2">
+            <AppLogo class="w-10 h-10" />
+            <h1 class="font-bold text-4xl">Owlaround</h1>
           </div>
           <p class="text-zinc-400 dark:text-zinc-500">Éditeur de visites virtuelles 360°</p>
         </div>

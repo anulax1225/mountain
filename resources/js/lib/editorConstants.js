@@ -33,13 +33,13 @@ export const SPRITE = {
 
 // OrbitControls Configuration
 export const CONTROLS = {
-    ENABLE_DAMPING: true,
+    ENABLE_DAMPING: false,
     DAMPING_FACTOR: 0.05,
     ENABLE_ZOOM: true,
     ENABLE_PAN: false,
     ROTATE_SPEED: -0.5,
     MIN_DISTANCE: 1,
-    MAX_DISTANCE: 100,
+    MAX_DISTANCE: 400,
 }
 
 // Transition Effects

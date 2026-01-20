@@ -1,7 +1,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { Link } from '@inertiajs/vue3'
-import { Image } from 'lucide-vue-next'
+import { Aperture, Camera, Image, Spotlight, Theater } from 'lucide-vue-next'
 import { Separator } from '@/components/ui/separator'
 import owl from '@/owl-sdk.js'
 
@@ -56,8 +56,8 @@ watch(() => props.project, (newProject) => {
     </div>
 
     <!-- Scenes List -->
-    <ul v-else class="space-y-1 px-2">
-      <li v-for="sceneItem in projectScenes" :key="sceneItem.slug">
+    <ul v-else class="space-y-1.5 px-2">
+      <li v-for="(sceneItem, index) in projectScenes" :key="sceneItem.slug">
         <Link
           :href="`/dashboard/scenes/${sceneItem.slug}`"
           :class="[
@@ -67,7 +67,7 @@ watch(() => props.project, (newProject) => {
               : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-zinc-100'
           ]"
         >
-          <Image class="flex-shrink-0 w-4 h-4" />
+            <component :is="([ Theater, Spotlight, Image, Camera, Aperture ])[index % 5]" class="flex-shrink-0 w-4 h-4"/>
           <span class="truncate">{{ sceneItem.name || 'Sans nom' }}</span>
         </Link>
       </li>
