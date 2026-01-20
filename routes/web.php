@@ -40,7 +40,9 @@ Route::get('/docs', function () {
 
 // Public gallery routes
 Route::get('/gallery', [GalleryController::class, 'index'])->name('gallery.index');
-Route::get('/gallery/{project:slug}', [GalleryController::class, 'show'])->name('gallery.show');
+Route::get('/gallery/{project:slug}', [GalleryController::class, 'show'])
+    ->middleware('allow-iframe')
+    ->name('gallery.show');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

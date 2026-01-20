@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import DashboardLayout from '@/layouts/DashboardLayout.vue'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Settings, Users, Edit } from 'lucide-vue-next'
+import { ArrowLeft, Settings, Users, Edit, Share2 } from 'lucide-vue-next'
 import { Link } from '@inertiajs/vue3'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import SceneCard from '@/components/dashboard/SceneCard.vue'
@@ -11,6 +11,7 @@ import SceneFormSheet from '@/components/dashboard/SceneFormSheet.vue'
 import ProjectSettingsDialog from '@/components/dashboard/ProjectSettingsDialog.vue'
 import ProjectUsersDialog from '@/components/dashboard/ProjectUsersDialog.vue'
 import ProjectEditDialog from '@/components/dashboard/ProjectEditDialog.vue'
+import ProjectShareDialog from '@/components/dashboard/ProjectShareDialog.vue'
 import owl from '@/owl-sdk.js'
 
 const props = defineProps({
@@ -25,6 +26,7 @@ const sceneSheetOpen = ref(false)
 const settingsDialogOpen = ref(false)
 const usersDialogOpen = ref(false)
 const editDialogOpen = ref(false)
+const shareDialogOpen = ref(false)
 const editingScene = ref(null)
 const sceneForm = ref({ name: '' })
 
@@ -148,6 +150,16 @@ onMounted(() => {
             <Settings class="w-4 h-4" />
             Paramètres
           </Button>
+          <Button
+            v-if="project?.is_public"
+            variant="outline"
+            size="sm"
+            @click="shareDialogOpen = true"
+            class="gap-2"
+          >
+            <Share2 class="w-4 h-4" />
+            Partager
+          </Button>
         </div>
       </div>
 
@@ -194,6 +206,11 @@ onMounted(() => {
         v-model:open="editDialogOpen"
         :project="project"
         @saved="handleEditSaved"
+      />
+
+      <ProjectShareDialog
+        v-model:open="shareDialogOpen"
+        :project="project"
       />
     </div>
   </DashboardLayout>
