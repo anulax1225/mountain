@@ -22,19 +22,39 @@ class ProjectController extends Controller
 {
     /**
      * List projects
+     *
+     * Admin sees all projects, others see only their own + assigned projects.
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $projects = $request->user()->projects()->with('scenes')->paginate(15);
-        
+        $user = $request->user();
+
+        if ($user->isAdmin()) {
+            // Admin sees all projects
+            $projects = Project::with('scenes')->paginate(15);
+        } else {
+            // Get own projects + assigned projects
+            $ownProjectIds = $user->projects()->pluck('id');
+            $assignedProjectIds = $user->projectAccess()->pluck('projects.id');
+            $allProjectIds = $ownProjectIds->merge($assignedProjectIds)->unique();
+
+            $projects = Project::whereIn('id', $allProjectIds)
+                ->with('scenes')
+                ->paginate(15);
+        }
+
         return ProjectResource::collection($projects);
     }
 
     /**
      * Create a project
+     *
+     * Only Admin users can create projects.
      */
     public function store(StoreProjectRequest $request): ProjectResource
     {
+        $this->authorize('create', Project::class);
+
         $data = $request->validated();
         $data['user_id'] = $request->user()->id;
 

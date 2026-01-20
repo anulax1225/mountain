@@ -6,8 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth; 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use Inertia\Inertia;
 
 class AuthController extends Controller
 {
@@ -141,7 +142,84 @@ class AuthController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        
+
         return redirect('/');
+    }
+
+    /**
+     * Show the invitation registration form
+     */
+    public function showInvitationForm(string $token)
+    {
+        $user = User::where('invitation_token', $token)->first();
+
+        if (!$user) {
+            return redirect('/login')->withErrors([
+                'token' => 'Ce lien d\'invitation est invalide ou a expiré.',
+            ]);
+        }
+
+        if ($user->invitation_accepted_at) {
+            return redirect('/login')->withErrors([
+                'token' => 'Cette invitation a déjà été utilisée. Veuillez vous connecter.',
+            ]);
+        }
+
+        // Check if invitation is older than 7 days
+        if ($user->invitation_sent_at && $user->invitation_sent_at->addDays(7)->isPast()) {
+            return redirect('/login')->withErrors([
+                'token' => 'Ce lien d\'invitation a expiré. Contactez un administrateur.',
+            ]);
+        }
+
+        return Inertia::render('auth/CompleteRegistration', [
+            'token' => $token,
+            'email' => $user->email,
+            'name' => $user->name,
+        ]);
+    }
+
+    /**
+     * Complete the invitation registration
+     */
+    public function completeInvitation(Request $request, string $token)
+    {
+        $user = User::where('invitation_token', $token)->first();
+
+        if (!$user) {
+            return back()->withErrors([
+                'token' => 'Ce lien d\'invitation est invalide ou a expiré.',
+            ]);
+        }
+
+        if ($user->invitation_accepted_at) {
+            return redirect('/login')->withErrors([
+                'token' => 'Cette invitation a déjà été utilisée.',
+            ]);
+        }
+
+        // Check if invitation is older than 7 days
+        if ($user->invitation_sent_at && $user->invitation_sent_at->addDays(7)->isPast()) {
+            return back()->withErrors([
+                'token' => 'Ce lien d\'invitation a expiré. Contactez un administrateur.',
+            ]);
+        }
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $user->update([
+            'name' => $validated['name'],
+            'password' => Hash::make($validated['password']),
+            'invitation_token' => null,
+            'invitation_accepted_at' => now(),
+        ]);
+
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        return redirect('/dashboard');
     }
 }

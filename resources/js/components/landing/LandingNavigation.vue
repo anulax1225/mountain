@@ -38,10 +38,7 @@ const isLoggedIn = computed(() => !!props.auth?.user)
             </template>
             <template v-else>
               <Link href="/login">
-                <Button variant="ghost" size="sm">Connexion</Button>
-              </Link>
-              <Link href="/register">
-                <Button size="sm" class="bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-zinc-900">Commencer</Button>
+                <Button size="sm" class="bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-zinc-900">Connexion</Button>
               </Link>
             </template>
           </div>
@@ -74,10 +71,7 @@ const isLoggedIn = computed(() => !!props.auth?.user)
           </template>
           <template v-else>
             <Link href="/login" class="block">
-              <Button variant="ghost" size="sm" class="w-full">Connexion</Button>
-            </Link>
-            <Link href="/register" class="block">
-              <Button size="sm" class="bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 w-full text-white dark:text-zinc-900">Commencer</Button>
+              <Button size="sm" class="bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 w-full text-white dark:text-zinc-900">Connexion</Button>
             </Link>
           </template>
         </div>

@@ -11,6 +11,7 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectUserController;
 use App\Http\Controllers\SceneController;
 use App\Http\Controllers\StickerController;
+use App\Http\Controllers\AdminUserController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
@@ -20,19 +21,17 @@ Route::get('/login', function () {
     return Inertia::render('auth/Login');
 })->name('login.form');
 
-Route::get('/register', function () {
-    return Inertia::render('auth/Register');
-})->name('register.form');
-
 Route::get('/pricing', function () {
     return Inertia::render('Pricing');
 })->name('pricing');
 
-Route::post('/register', [AuthController::class, 'webRegister']);
 Route::post('/login', [AuthController::class, 'webLogin']);
 
-Route::post('/api/register', [AuthController::class, 'register']);
 Route::post('/api/login', [AuthController::class, 'login']);
+
+// Invitation registration routes
+Route::get('/register/invitation/{token}', [AuthController::class, 'showInvitationForm'])->name('register.invitation');
+Route::post('/register/invitation/{token}', [AuthController::class, 'completeInvitation'])->name('register.invitation.complete');
 
 Route::get('/docs', function () {
     return view('scribe.index');
@@ -47,6 +46,7 @@ Route::get('/gallery/{project:slug}', [GalleryController::class, 'show'])
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/settings', [DashboardController::class, 'settings'])->name('dashboard.settings');
+    Route::get('/dashboard/admin/users', [DashboardController::class, 'adminUsers'])->name('dashboard.admin.users');
     Route::get('/dashboard/projects/{project:slug}', [DashboardController::class, 'showProject'])->name('dashboard.project');
     Route::get('/dashboard/scenes/{scene:slug}', [DashboardController::class, 'showScene'])->name('dashboard.scene');
     Route::get('/dashboard/editor/{scene:slug}', [DashboardController::class, 'showEditor'])->name('dashboard.editor');
@@ -66,6 +66,14 @@ Route::get('/images/{image:slug}/download', [ImageController::class, 'download']
 Route::get('/projects/{project:slug}/picture', [ProjectController::class, 'downloadPicture']);
 
 Route::middleware('auth')->group(function () {
+
+    // Admin routes (user management)
+    Route::get('/admin/users', [AdminUserController::class, 'index']);
+    Route::get('/admin/roles', [AdminUserController::class, 'roles']);
+    Route::post('/admin/users', [AdminUserController::class, 'store']);
+    Route::put('/admin/users/{user}/role', [AdminUserController::class, 'updateRole']);
+    Route::post('/admin/users/{user}/resend-invitation', [AdminUserController::class, 'resendInvitation']);
+    Route::delete('/admin/users/{user}', [AdminUserController::class, 'destroy']);
 
     // Projects routes
     Route::get('/projects', [ProjectController::class, 'index']);

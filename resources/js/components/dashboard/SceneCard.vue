@@ -11,7 +11,11 @@ import {
 import { MoreVertical, Pencil, Trash2, Image as ImageIcon } from 'lucide-vue-next'
 
 defineProps({
-  scene: Object
+  scene: Object,
+  canEdit: {
+    type: Boolean,
+    default: false
+  }
 })
 
 const emit = defineEmits(['edit', 'delete'])
@@ -25,7 +29,7 @@ const emit = defineEmits(['edit', 'delete'])
           <CardTitle class="text-lg">{{ scene.name || 'Sans nom' }}</CardTitle>
           <CardDescription>{{ scene.images?.length || 0 }} image(s)</CardDescription>
         </div>
-        <DropdownMenu>
+        <DropdownMenu v-if="canEdit">
           <DropdownMenuTrigger as-child>
             <Button variant="ghost" size="icon-sm">
               <MoreVertical class="w-4 h-4" />
@@ -36,7 +40,7 @@ const emit = defineEmits(['edit', 'delete'])
               <Pencil class="mr-2 w-4 h-4" />
               Modifier
             </DropdownMenuItem>
-            <DropdownMenuItem 
+            <DropdownMenuItem
               @click="emit('delete', scene.slug)"
               class="text-red-600 dark:text-red-400"
             >

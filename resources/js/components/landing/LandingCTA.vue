@@ -17,9 +17,9 @@ import { ArrowRight } from 'lucide-vue-next'
           <p class="mx-auto mb-8 max-w-2xl text-zinc-400 dark:text-zinc-300 text-lg">
             Rejoignez les professionnels qui créent la prochaine génération d'expériences virtuelles
           </p>
-          <Link href="/register">
+          <Link href="/login">
             <Button size="lg" variant="secondary" class="px-8 h-12 text-base">
-              Créer un compte gratuit
+              Se connecter
               <ArrowRight class="ml-2 w-5 h-5" />
             </Button>
           </Link>

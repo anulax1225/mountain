@@ -34,10 +34,10 @@ import { Zap, ArrowRight } from 'lucide-vue-next'
                 </p>
 
                 <div class="flex sm:flex-row flex-col justify-center items-center gap-4">
-                    <Link href="/register">
+                    <Link href="/login">
                         <Button size="lg"
                             class="bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 px-8 h-12 text-white dark:text-zinc-900 text-base">
-                            Commencer gratuitement
+                            Se connecter
                             <ArrowRight class="ml-2 w-5 h-5" />
                         </Button>
                     </Link>

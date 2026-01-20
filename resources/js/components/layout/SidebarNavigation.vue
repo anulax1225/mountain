@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { Link, usePage } from '@inertiajs/vue3'
-import { FolderOpen, ChevronLeft, LayoutGrid, GalleryVerticalEnd, Home } from 'lucide-vue-next'
+import { FolderOpen, ChevronLeft, LayoutGrid, GalleryVerticalEnd, Home, Users } from 'lucide-vue-next'
 
 const props = defineProps({
   isOpen: Boolean,
@@ -9,11 +9,20 @@ const props = defineProps({
 })
 
 const page = usePage()
+const isAdmin = computed(() => page.props.auth?.user?.is_admin)
 
-const baseNavigation = [
-  { name: 'Projets', icon: FolderOpen, href: '/dashboard' },
-  { name: 'Galerie', icon: GalleryVerticalEnd, href: '/gallery' },
-]
+const baseNavigation = computed(() => {
+  const items = [
+    { name: 'Projets', icon: FolderOpen, href: '/dashboard' },
+    { name: 'Galerie', icon: GalleryVerticalEnd, href: '/gallery' },
+  ]
+
+  if (isAdmin.value) {
+    items.push({ name: 'Administration', icon: Users, href: '/dashboard/admin/users' })
+  }
+
+  return items
+})
 
 const navigation = computed(() => {
   if (props.project) {
@@ -22,7 +31,7 @@ const navigation = computed(() => {
       { name: 'Scenes', icon: LayoutGrid, href: '/dashboard/projects/' + props.project?.slug },
     ]
   }
-  return baseNavigation
+  return baseNavigation.value
 })
 
 const isActive = (href) => {
@@ -45,7 +54,7 @@ const isActive = (href) => {
             :class="[
                 'flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors',
                 isActive(item.href) 
-                ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-medium' 
+                ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-normal' 
                 : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-zinc-100'
             ]"
           >

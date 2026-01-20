@@ -20,10 +20,10 @@ defineProps({
   ]">
     <!-- Brand -->
     <div :class="[
-      'flex items-center h-14 border-b border-zinc-200/80 dark:border-zinc-800/80 shrink-0',
+      'flex items-center h-14 border-zinc-200/80 dark:border-zinc-800/80 shrink-0',
       isOpen ? 'px-4 justify-start' : 'justify-center'
     ]">
-      <Link href="/dashboard" class="flex items-center gap-2.5 group">
+      <Link href="/" class="flex items-center gap-2.5 group">
         <AppLogo class="w-8 h-8 group-hover:scale-105 transition-transform" />
         <span v-if="isOpen" class="font-semibold text-zinc-900 dark:text-zinc-100 tracking-tight">Owlaround</span>
       </Link>

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import DashboardLayout from '@/layouts/DashboardLayout.vue'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, Settings, Users, Edit, Share2 } from 'lucide-vue-next'
@@ -29,6 +29,12 @@ const editDialogOpen = ref(false)
 const shareDialogOpen = ref(false)
 const editingScene = ref(null)
 const sceneForm = ref({ name: '' })
+
+// Permission helpers
+const canEdit = computed(() => project.value?.permissions?.can_edit ?? false)
+const canDelete = computed(() => project.value?.permissions?.can_delete ?? false)
+const canManageUsers = computed(() => project.value?.permissions?.can_manage_users ?? false)
+const isOwner = computed(() => project.value?.permissions?.is_owner ?? false)
 
 const loadProject = async () => {
   try {
@@ -124,6 +130,7 @@ onMounted(() => {
         </div>
         <div class="flex gap-2">
           <Button
+            v-if="canEdit"
             variant="outline"
             size="sm"
             @click="editDialogOpen = true"
@@ -133,6 +140,7 @@ onMounted(() => {
             Modifier
           </Button>
           <Button
+            v-if="canManageUsers"
             variant="outline"
             size="sm"
             @click="usersDialogOpen = true"
@@ -142,6 +150,7 @@ onMounted(() => {
             Utilisateurs
           </Button>
           <Button
+            v-if="isOwner"
             variant="outline"
             size="sm"
             @click="settingsDialogOpen = true"
@@ -174,11 +183,12 @@ onMounted(() => {
               v-for="scene in scenes"
               :key="scene.slug"
               :scene="scene"
+              :can-edit="canEdit"
               @edit="openEditScene"
               @delete="deleteScene"
             />
 
-            <CreateSceneCard @create="openCreateScene" />
+            <CreateSceneCard v-if="canEdit" @create="openCreateScene" />
           </div>
         </div>
       </div>
