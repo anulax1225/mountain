@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title inertia>{{ config('app.name', 'Laravel') }}</title>
+        <title inertia>{{ config('app.name', 'Owlaround') }}</title>
 
         <link rel="icon" href="/owl-logo.png" sizes="any">
         <!-- <link rel="icon" href="/favicon.svg" type="image/svg+xml"> -->
