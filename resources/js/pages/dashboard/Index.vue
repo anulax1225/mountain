@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import DashboardLayout from '@/layouts/DashboardLayout.vue'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Input } from '@/components/ui/input'
@@ -12,9 +12,11 @@ import CreateProjectCard from '@/components/dashboard/CreateProjectCard.vue'
 import { useConfirm } from '@/composables'
 import owl from '@/owl-sdk.js'
 
-defineProps({
+const props = defineProps({
   auth: Object,
 })
+
+const canCreateProjects = computed(() => props.auth?.user?.can_create_projects ?? false)
 
 const { confirmDelete } = useConfirm()
 
@@ -175,7 +177,7 @@ onMounted(() => {
           @delete="handleDeleteProject"
         />
 
-        <CreateProjectCard @create="openCreateSheet" />
+        <CreateProjectCard v-if="canCreateProjects" @create="openCreateSheet" />
       </div>
 
       <Sheet v-model:open="sheetOpen">

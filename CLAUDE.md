@@ -687,6 +687,50 @@ setTimeout(callback, TIMING.DIALOG_TRANSITION_DELAY_MS)
 const radius = SPHERE.RADIUS
 ```
 
+Known Issues: Sprite Interaction System (NEEDS REFACTORING)
+The current sprite interaction system in EditorCanvas.vue has fundamental architectural problems that cause bugs. These MUST be fixed before adding new features.
+
+**Current Problems:**
+
+1. **Scale-based hover feedback is fragile**
+   - Using `sprite.scale.multiplyScalar(1.2)` / `divideScalar(1.2)` accumulates errors
+   - If multiply is called twice without divide, scale becomes 1.44x permanently
+   - When sprites are recreated after `reloadImages()`, old sprite refs become stale
+   - The hover state (`hoveredSticker`) still points to destroyed sprites
+
+2. **State split between EditorCanvas and Editor.vue**
+   - Hover state (`hoveredSticker`, `hoveredHotspot`) lives in EditorCanvas
+   - Popover visibility (`stickerContextMenuVisible`, `hoveredHotspot` in Editor.vue) managed separately
+   - Camera movement closes popovers in Editor.vue but doesn't clear hover state in EditorCanvas
+   - This causes: popover doesn't reappear on second click because `hoveredHotspot` was never cleared
+
+3. **Screen position calculation is one-shot**
+   - Popover position calculated once when event is emitted
+   - If camera moves slightly, position becomes stale
+   - Popovers appear far from their sprites
+
+**Recommended Architecture Fix:**
+
+Create a new composable `useEditorInteraction.js` that:
+- Tracks interaction state by **slug** (string), not sprite reference
+- Stores base scales and computes display scale from state (idempotent)
+- Centralizes all interaction state (hover, selection, drag)
+- Provides real-time screen position calculation
+- Handles cleanup when sprites are recreated
+
+**Key Principles:**
+1. **Track by slug, not object reference**: `hoveredStickerSlug: string | null` instead of `hoveredSticker: Sprite | null`
+2. **Idempotent scale computation**: `displayScale = baseScale * (isHovered ? 1.1 : 1) * (isSelected ? 1.2 : 1)`
+3. **Apply scale on render, not on state change**: In animation loop or after sprite creation, read state and apply correct scale
+4. **Real-time position updates**: Compute screen position when needed, not cache it
+5. **Single source of truth**: All interaction state in one place, passed down via props
+
+**Files to modify:**
+- Create: `resources/js/composables/useEditorInteraction.js`
+- Modify: `resources/js/components/dashboard/editor/EditorCanvas.vue`
+- Modify: `resources/js/pages/dashboard/Editor.vue`
+- Modify: `resources/js/lib/spriteFactory.js` (add base scale storage)
+
 Development workflow
 Build commands:
 - npm run dev - Start Vite dev server with HMR

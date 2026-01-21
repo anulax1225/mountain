@@ -29,7 +29,7 @@ class DashboardController extends Controller
     public function showEditor($slug)
     {
         return Inertia::render('dashboard/Editor', [
-            'sceneSlug' => $slug,
+            'projectSlug' => $slug,
         ]);
     }
 
@@ -38,8 +38,12 @@ class DashboardController extends Controller
         return Inertia::render('dashboard/Settings');
     }
 
-    public function adminUsers()
+    public function adminUsers(Request $request)
     {
+        if (!$request->user()->isAdmin()) {
+            abort(403, 'Accès non autorisé');
+        }
+
         return Inertia::render('dashboard/AdminUsers');
     }
 }

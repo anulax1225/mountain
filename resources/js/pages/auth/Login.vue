@@ -77,10 +77,7 @@ const submit = () => {
     </form>
 
     <div class="mt-6 text-sm text-center">
-      <span class="text-zinc-600 dark:text-zinc-400">Vous n'avez pas de compte? </span>
-      <Link href="/register" class="font-medium text-purple-600 hover:text-purple-700 dark:hover:text-purple-300 dark:text-purple-400">
-        S'inscrire
-      </Link>
+      <span class="text-zinc-600 dark:text-zinc-400">Vous n'avez pas de compte? Contactez un administrateur pour obtenir un accès.</span>
     </div>
   </AuthLayout>
 </template>

@@ -28,7 +28,7 @@ const loadAssignedUsers = async () => {
   try {
     loading.value = true
     const response = await axios.get(`/projects/${props.project.slug}/users`)
-    assignedUsers.value = response || []
+    assignedUsers.value = response.data || []
   } catch (error) {
     console.error('Failed to load assigned users:', error)
   } finally {
@@ -42,8 +42,8 @@ const loadAvailableData = async () => {
       axios.get('/available-users'),
       axios.get('/available-roles')
     ])
-    availableUsers.value = usersRes || []
-    availableRoles.value = rolesRes || []
+    availableUsers.value = usersRes.data || []
+    availableRoles.value = rolesRes.data || []
   } catch (error) {
     console.error('Failed to load available data:', error)
   }
@@ -56,9 +56,9 @@ const getRoleName = (roleId) => {
 
 const getRoleVariant = (roleId) => {
   const roleName = getRoleName(roleId)
-  if (roleName === 'Admin') return 'destructive'
-  if (roleName === 'Client') return 'default'
-  return 'secondary'
+  if (roleName === 'Owner') return 'default'
+  if (roleName === 'Viewer') return 'secondary'
+  return 'outline'
 }
 
 const assignUser = async () => {
@@ -148,8 +148,7 @@ watch(() => props.open, (newValue) => {
           </div>
 
           <div class="text-xs text-zinc-500 dark:text-zinc-400 space-y-1">
-            <p><strong>Admin:</strong> Accès complet (lecture, écriture, suppression)</p>
-            <p><strong>Client:</strong> Peut modifier le projet (lecture, écriture)</p>
+            <p><strong>Owner:</strong> Peut modifier le projet et gérer les collaborateurs</p>
             <p><strong>Viewer:</strong> Lecture seule</p>
           </div>
 

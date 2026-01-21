@@ -12,3 +12,4 @@ export { usePagination } from './usePagination';
 export { useInfiniteScroll, useInfiniteScrollObserver } from './useInfiniteScroll';
 export { useDateTime } from './useDateTime';
 export { useFileSize, formatBytes, formatBytesShort, parseFileSize } from './useFileSize';
+export { useEditorInteraction } from './useEditorInteraction';

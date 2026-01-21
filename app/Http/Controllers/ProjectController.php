@@ -157,7 +157,15 @@ class ProjectController extends Controller
 
         $images = $project->scenes()->with('images')->get()
             ->flatMap(function ($scene) {
-                return $scene->images;
+                return $scene->images->map(function ($image) use ($scene) {
+                    // Add scene info to each image for grouping in frontend
+                    $imageArray = $image->toArray();
+                    $imageArray['scene'] = [
+                        'slug' => $scene->slug,
+                        'name' => $scene->name,
+                    ];
+                    return $imageArray;
+                });
             });
 
         return response()->json($images);

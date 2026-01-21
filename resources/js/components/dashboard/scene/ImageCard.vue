@@ -7,7 +7,11 @@
 
     const props = defineProps({
       image: Object,
-      sceneName: String
+      sceneName: String,
+      canEdit: {
+        type: Boolean,
+        default: false
+      }
     })
 
     const emit = defineEmits(['view', 'download', 'delete'])
@@ -48,6 +52,7 @@
                 <Download class="w-4 h-4" />
               </Button>
               <Button
+                v-if="canEdit"
                 variant="ghost"
                 size="icon-sm"
                 @click.stop="emit('delete', image.slug)"

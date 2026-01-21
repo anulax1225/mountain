@@ -1,4 +1,5 @@
 <script setup>
+import { computed } from 'vue'
 import { Link } from '@inertiajs/vue3'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -12,11 +13,15 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Globe, MoreVertical, Pencil, Trash2, ExternalLink } from 'lucide-vue-next'
 
-defineProps({
+const props = defineProps({
   project: Object
 })
 
 const emit = defineEmits(['edit', 'delete'])
+
+const canEdit = computed(() => props.project?.permissions?.can_edit ?? false)
+const canDelete = computed(() => props.project?.permissions?.can_delete ?? false)
+const showMenu = computed(() => canEdit.value || canDelete.value)
 </script>
 
 <template>
@@ -30,7 +35,7 @@ const emit = defineEmits(['edit', 'delete'])
           </div>
           <CardDescription class="line-clamp-2">{{ project.description || 'Aucune description' }}</CardDescription>
         </div>
-        <DropdownMenu>
+        <DropdownMenu v-if="showMenu">
           <DropdownMenuTrigger as-child>
             <Button
               variant="ghost"
@@ -42,12 +47,12 @@ const emit = defineEmits(['edit', 'delete'])
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem @click="emit('edit', project)" class="cursor-pointer">
+            <DropdownMenuItem v-if="canEdit" @click="emit('edit', project)" class="cursor-pointer">
               <Pencil class="h-4 w-4 mr-2" />
               Modifier
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem @click="emit('delete', project)" class="cursor-pointer text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400">
+            <DropdownMenuSeparator v-if="canEdit && canDelete" />
+            <DropdownMenuItem v-if="canDelete" @click="emit('delete', project)" class="cursor-pointer text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400">
               <Trash2 class="h-4 w-4 mr-2" />
               Supprimer
             </DropdownMenuItem>

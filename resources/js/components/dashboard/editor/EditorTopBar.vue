@@ -5,31 +5,34 @@
     import { ArrowLeft, Plus, Eye, Pencil, Sticker } from 'lucide-vue-next'
 
     defineProps({
-      sceneName: String,
-      sceneSlug: String,
+      projectName: String,
+      projectSlug: String,
+      currentSceneName: String,
       mode: String
     })
 
     const emit = defineEmits(['create-hotspot', 'create-sticker', 'toggle-mode'])
     </script>
-    
+
     <template>
       <div class="top-0 right-0 left-0 absolute bg-gradient-to-b from-black/50 to-transparent backdrop-blur-sm p-4">
         <div class="flex justify-between items-center">
           <div class="flex items-center gap-3">
-            <Link :href="`/dashboard/scenes/${sceneSlug}`">
+            <Link :href="`/dashboard/projects/${projectSlug}`">
               <Button variant="secondary" size="icon-sm">
                 <ArrowLeft class="w-4 h-4" />
               </Button>
             </Link>
             <div class="text-white">
               <div class="flex items-center gap-2">
-                <h1 class="font-semibold text-sm">{{ sceneName }}</h1>
+                <h1 class="font-semibold text-sm">{{ projectName }}</h1>
                 <Badge :variant="mode === 'edit' ? 'default' : 'secondary'" class="text-xs">
                   {{ mode === 'edit' ? 'Édition' : 'Aperçu' }}
                 </Badge>
               </div>
-              <p class="text-white/60 text-xs">Éditeur 360°</p>
+              <p class="text-white/60 text-xs">
+                {{ currentSceneName ? `Scène: ${currentSceneName}` : 'Éditeur 360°' }}
+              </p>
             </div>
           </div>
           <div class="flex items-center gap-2">

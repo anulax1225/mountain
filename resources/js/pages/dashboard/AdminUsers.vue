@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import { useConfirm, useDateTime } from '@/composables'
-import { UserPlus, Shield, Trash2, Edit } from 'lucide-vue-next'
+import { UserPlus, Shield, Trash2, Edit, RefreshCw, Clock, CheckCircle } from 'lucide-vue-next'
 import axios from 'axios'
 
 defineProps({
@@ -116,6 +116,22 @@ const deleteUser = async (user) => {
   }
 }
 
+const resendingInvitation = ref(null)
+
+const resendInvitation = async (user) => {
+  if (resendingInvitation.value) return
+
+  try {
+    resendingInvitation.value = user.id
+    await axios.post(`/admin/users/${user.id}/resend-invitation`)
+    await loadUsers()
+  } catch (error) {
+    console.error('Failed to resend invitation:', error)
+  } finally {
+    resendingInvitation.value = null
+  }
+}
+
 const getRoleBadgeVariant = (role) => {
   if (role.slug === 'admin') return 'default'
   if (role.slug === 'client') return 'secondary'
@@ -155,6 +171,7 @@ onMounted(() => {
               <TableHead>Utilisateur</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Rôle</TableHead>
+              <TableHead>Statut</TableHead>
               <TableHead>Créé le</TableHead>
               <TableHead class="text-right">Actions</TableHead>
             </TableRow>
@@ -173,9 +190,29 @@ onMounted(() => {
                 </Badge>
                 <span v-else class="text-zinc-500">Aucun rôle</span>
               </TableCell>
+              <TableCell>
+                <Badge v-if="user.invitation_pending" variant="outline" class="text-amber-600 border-amber-300">
+                  <Clock class="w-3 h-3 mr-1" />
+                  En attente
+                </Badge>
+                <Badge v-else variant="outline" class="text-green-600 border-green-300">
+                  <CheckCircle class="w-3 h-3 mr-1" />
+                  Actif
+                </Badge>
+              </TableCell>
               <TableCell>{{ formatSmartDate(user.created_at) }}</TableCell>
               <TableCell class="text-right">
                 <div class="flex justify-end gap-2">
+                  <Button
+                    v-if="user.invitation_pending"
+                    variant="ghost"
+                    size="sm"
+                    @click="resendInvitation(user)"
+                    :disabled="resendingInvitation === user.id"
+                    title="Renvoyer l'invitation"
+                  >
+                    <RefreshCw class="w-4 h-4" :class="{ 'animate-spin': resendingInvitation === user.id }" />
+                  </Button>
                   <Button variant="ghost" size="sm" @click="openEditSheet(user)">
                     <Edit class="w-4 h-4" />
                   </Button>
@@ -186,7 +223,7 @@ onMounted(() => {
               </TableCell>
             </TableRow>
             <TableRow v-if="users.length === 0">
-              <TableCell colspan="5" class="text-center text-zinc-500 py-8">
+              <TableCell colspan="6" class="text-center text-zinc-500 py-8">
                 Aucun utilisateur trouvé
               </TableCell>
             </TableRow>

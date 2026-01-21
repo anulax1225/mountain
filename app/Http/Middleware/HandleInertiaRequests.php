@@ -48,6 +48,7 @@ class HandleInertiaRequests extends Middleware
                     'name' => $request->user()->name,
                     'email' => $request->user()->email,
                     'is_admin' => $request->user()->isAdmin(),
+                    'can_create_projects' => $request->user()->isAdmin(),
                 ] : null,
             ],
         ];

@@ -437,6 +437,17 @@ class ProjectsAPI {
             method: 'DELETE',
         });
     }
+
+    /**
+     * Get all images for a project across all scenes
+     * @param {string} slug - Project slug
+     * @returns {Promise<Array>}
+     */
+    async getImages(slug) {
+        return await this.client.request(`/projects/${slug}/images`, {
+            method: 'GET',
+        });
+    }
 }
 
 /**

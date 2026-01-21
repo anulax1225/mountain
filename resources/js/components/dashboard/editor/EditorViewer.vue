@@ -12,8 +12,14 @@ const props = defineProps({
     project: Object,
 })
 
+// Flatten images from all scenes, adding scene info for grouping in ImageThumbnailsPanel
 const images = ref(props.project.scenes.reduce((acc, scene) => {
-    return acc.concat(scene.images)
+    const imagesWithScene = scene.images.map(image => ({
+        ...image,
+        sceneName: scene.name,
+        sceneSlug: scene.slug
+    }))
+    return acc.concat(imagesWithScene)
 }, []))
 const currentImageIndex = ref(images.value.findIndex(img => img.id === props.project.start_image.id) || 0)
 const mode = ref('view')
@@ -61,7 +67,7 @@ const handleHotspotClick = async (hotspot) => {
     }
 }
 
-const handleHotspotHover = ({ hotspot, position }) => {
+const handleHotspotHoverStart = ({ slug, hotspot, position }) => {
     hoveredHotspot.value = hotspot
     hotspotHoverPosition.value = position
 }
@@ -116,7 +122,7 @@ onUnmounted(() => {
     <div ref="viewerContainer" class="relative w-full h-full">
         <EditorCanvas ref="editorCanvasRef" :images="images" :current-index="currentImageIndex" :mode="mode"
             @hotspot-click="handleHotspotClick" @hotspot-position-selected="handleHotspotPositionSelected"
-            @hotspot-hover="handleHotspotHover" @hotspot-hover-end="handleHotspotHoverEnd" />
+            @hotspot-hover-start="handleHotspotHoverStart" @hotspot-hover-end="handleHotspotHoverEnd" />
 
         <!-- Control buttons on right side (middle height to avoid overlap) -->
         <div class="absolute top-1/2 -translate-y-1/2 right-6 z-40 flex flex-col gap-2">

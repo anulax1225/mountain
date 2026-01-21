@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { Link } from '@inertiajs/vue3'
 import DashboardLayout from '@/layouts/DashboardLayout.vue'
 import { Button } from '@/components/ui/button'
@@ -34,6 +34,9 @@ const uploadSheetOpen = ref(false)
 const detailsSheetOpen = ref(false)
 const fullscreenOpen = ref(false)
 const selectedImage = ref(null)
+
+// Permissions
+const canEdit = computed(() => project.value?.permissions?.can_edit ?? false)
 
 // Composables
 const { confirmDelete } = useConfirm()
@@ -129,7 +132,7 @@ onMounted(() => {
           <p class="mt-1 text-zinc-600 dark:text-zinc-400">{{ images.length }} image(s)</p>
         </div>
         <div class="flex items-center gap-2">
-          <Link :href="`/dashboard/editor/${sceneSlug}`">
+          <Link :href="`/dashboard/editor/${scene?.project?.slug}`">
             <Button variant="outline">
               <svg class="mr-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
@@ -138,7 +141,7 @@ onMounted(() => {
             </Button>
           </Link>
           <ViewModeToggle v-model="viewMode" @update:model-value="currentSlideIndex = 0" />
-          <Button @click="uploadSheetOpen = true">
+          <Button v-if="canEdit" @click="uploadSheetOpen = true">
             <Upload class="mr-2 w-4 h-4" />
             Ajouter des images
           </Button>
@@ -153,6 +156,7 @@ onMounted(() => {
             :images="images"
             v-model:current-index="currentSlideIndex"
             :scene-name="scene.name"
+            :can-edit="canEdit"
             @download="downloadImage"
             @delete="deleteImage"
             @fullscreen="fullscreenOpen = true"
@@ -171,6 +175,7 @@ onMounted(() => {
             :key="image.slug"
             :image="image"
             :scene-name="scene.name"
+            :can-edit="canEdit"
             @view="viewImage"
             @download="downloadImage"
             @delete="deleteImage"
@@ -183,6 +188,7 @@ onMounted(() => {
             :key="image.slug"
             :image="image"
             :scene-name="scene.name"
+            :can-edit="canEdit"
             @view="viewImage"
             @download="downloadImage"
             @delete="deleteImage"
@@ -193,9 +199,9 @@ onMounted(() => {
           v-if="images.length === 0"
           :icon="Upload"
           title="Aucune image"
-          description="Commencez par ajouter des images panoramiques à cette scène"
+          :description="canEdit ? 'Commencez par ajouter des images panoramiques à cette scène' : 'Cette scène ne contient pas encore d\'images'"
         >
-          <Button @click="uploadSheetOpen = true">
+          <Button v-if="canEdit" @click="uploadSheetOpen = true">
             <Upload class="mr-2 w-4 h-4" />
             Ajouter des images
           </Button>
@@ -212,6 +218,7 @@ onMounted(() => {
         v-model:open="detailsSheetOpen"
         :image="selectedImage"
         :scene-name="scene?.name"
+        :can-edit="canEdit"
         @download="downloadImage"
         @delete="deleteImage"
         @image-replaced="handleImageReplaced"

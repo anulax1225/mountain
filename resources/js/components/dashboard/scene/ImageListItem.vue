@@ -8,7 +8,11 @@
 
     defineProps({
       image: Object,
-      sceneName: String
+      sceneName: String,
+      canEdit: {
+        type: Boolean,
+        default: false
+      }
     })
 
     const emit = defineEmits(['view', 'download', 'delete'])
@@ -52,6 +56,7 @@
               Télécharger
             </Button>
             <Button
+              v-if="canEdit"
               variant="ghost"
               size="icon"
               @click="emit('delete', image.slug)"

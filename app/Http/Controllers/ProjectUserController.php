@@ -83,21 +83,31 @@ class ProjectUserController extends Controller
     }
 
     /**
-     * Get all users (for assignment dropdown)
+     * Get non-admin users (for assignment dropdown)
+     * Admins are excluded since they already have access to all projects
      */
     public function availableUsers(): JsonResponse
     {
-        $users = User::select('id', 'name', 'email')->get();
+        $adminRoleId = \App\Models\Role::where('slug', 'admin')->value('id');
+
+        $users = User::select('users.id', 'users.name', 'users.email')
+            ->whereDoesntHave('roles', function ($query) use ($adminRoleId) {
+                $query->where('roles.id', $adminRoleId);
+            })
+            ->get();
 
         return response()->json($users);
     }
 
     /**
-     * Get all roles (for assignment dropdown)
+     * Get project-level roles (for assignment dropdown)
      */
     public function availableRoles(): JsonResponse
     {
-        $roles = \App\Models\Role::select('id', 'name', 'description')->get();
+        // Only return project-level roles (owner, viewer), not global roles (admin, client)
+        $roles = \App\Models\Role::select('id', 'name', 'description')
+            ->whereIn('slug', ['owner', 'viewer'])
+            ->get();
 
         return response()->json($roles);
     }

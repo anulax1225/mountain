@@ -153,6 +153,9 @@ export const SpriteFactory = {
         const sprite = new THREE.Sprite(material)
         sprite.scale.set(...scale)
 
+        // Store base scale for idempotent scale manipulation
+        sprite.userData.baseScale = sprite.scale.clone()
+
         return sprite
     },
 
@@ -204,6 +207,9 @@ export const SpriteFactory = {
         const sprite = new THREE.Sprite(material)
         const scale = sticker.scale || 1.0
         sprite.scale.set(SPRITE.STICKER_BASE_SCALE * scale, SPRITE.STICKER_BASE_SCALE * scale, 1)
+
+        // Store base scale for idempotent scale manipulation
+        sprite.userData.baseScale = sprite.scale.clone()
 
         return sprite
     },

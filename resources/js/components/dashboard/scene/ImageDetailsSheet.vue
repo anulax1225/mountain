@@ -16,7 +16,11 @@
     const props = defineProps({
       open: Boolean,
       image: Object,
-      sceneName: String
+      sceneName: String,
+      canEdit: {
+        type: Boolean,
+        default: false
+      }
     })
 
     const emit = defineEmits(['update:open', 'download', 'delete', 'image-replaced'])
@@ -141,7 +145,7 @@
               />
             </div>
 
-            <form @submit.prevent="saveName" class="space-y-4">
+            <form v-if="canEdit" @submit.prevent="saveName" class="space-y-4">
               <div class="space-y-2">
                 <Label for="image-name">Nom de l'image</Label>
                 <Input
@@ -179,7 +183,7 @@
               </div>
             </div>
 
-            <div class="space-y-4 border-t border-zinc-200 dark:border-zinc-800 pt-4">
+            <div v-if="canEdit" class="space-y-4 border-t border-zinc-200 dark:border-zinc-800 pt-4">
               <div>
                 <p class="font-medium text-sm text-zinc-700 dark:text-zinc-300 mb-2">
                   Remplacer l'image
@@ -246,6 +250,7 @@
                 Télécharger l'image
               </Button>
               <Button
+                v-if="canEdit"
                 variant="outline"
                 @click="emit('delete', image.slug)"
                 class="w-full text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"

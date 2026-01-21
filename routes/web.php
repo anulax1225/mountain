@@ -49,7 +49,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard/admin/users', [DashboardController::class, 'adminUsers'])->name('dashboard.admin.users');
     Route::get('/dashboard/projects/{project:slug}', [DashboardController::class, 'showProject'])->name('dashboard.project');
     Route::get('/dashboard/scenes/{scene:slug}', [DashboardController::class, 'showScene'])->name('dashboard.scene');
-    Route::get('/dashboard/editor/{scene:slug}', [DashboardController::class, 'showEditor'])->name('dashboard.editor');
+    Route::get('/dashboard/editor/{project:slug}', [DashboardController::class, 'showEditor'])->name('dashboard.editor');
 });
 
 

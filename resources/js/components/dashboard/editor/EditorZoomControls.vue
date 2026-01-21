@@ -1,6 +1,6 @@
 <script setup>
 import { Button } from '@/components/ui/button'
-import { ZoomIn, ZoomOut, Maximize2 } from 'lucide-vue-next'
+import { ZoomIn, ZoomOut, Maximize2, RotateCcw } from 'lucide-vue-next'
 import { CAMERA, CONTROLS } from '@/lib/editorConstants.js'
 
 const props = defineProps({
@@ -63,7 +63,7 @@ const resetZoom = () => {
         <Button @click="resetZoom" size="icon" variant="secondary"
             class="w-10 h-10 bg-white/90 dark:bg-zinc-800/90 backdrop-blur shadow-lg hover:bg-white dark:hover:bg-zinc-800"
             title="Réinitialiser le zoom">
-            <Maximize2 class="w-5 h-5" />
+            <RotateCcw class="w-5 h-5" />
         </Button>
     </div>
 </template>

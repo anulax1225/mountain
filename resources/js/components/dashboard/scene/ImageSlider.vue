@@ -9,7 +9,11 @@ import { useImagePath } from '@/composables/useImagePath'
 const props = defineProps({
   images: Array,
   currentIndex: Number,
-  sceneName: String
+  sceneName: String,
+  canEdit: {
+    type: Boolean,
+    default: false
+  }
 })
 
 const emit = defineEmits(['update:currentIndex', 'download', 'delete', 'fullscreen'])
@@ -90,6 +94,7 @@ const prevSlide = () => {
             Télécharger
           </Button>
           <Button
+            v-if="canEdit"
             variant="ghost"
             size="icon"
             @click="emit('delete', currentImage.slug)"

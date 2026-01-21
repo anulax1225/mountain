@@ -14,17 +14,46 @@ const props = defineProps({
         default: 'view'
     },
     isCreatingHotspot: Boolean,
-    isCreatingSticker: Boolean
+    isCreatingSticker: Boolean,
+    // Interaction state (controlled by parent via useEditorInteraction)
+    hoveredHotspotSlug: {
+        type: String,
+        default: null
+    },
+    hoveredStickerSlug: {
+        type: String,
+        default: null
+    },
+    selectedStickerSlug: {
+        type: String,
+        default: null
+    }
 })
 
-const emit = defineEmits(['ready', 'hotspot-click', 'hotspot-click-edit', 'sticker-click', 'hotspot-position-selected', 'sticker-position-selected', 'hotspot-hover', 'hotspot-hover-end', 'sprite-drag-end'])
+const emit = defineEmits([
+    'ready',
+    'hotspot-click',
+    'hotspot-click-edit',
+    'sticker-click',
+    'hotspot-position-selected',
+    'sticker-position-selected',
+    'hotspot-hover-start',
+    'hotspot-hover-end',
+    'sticker-hover-start',
+    'sticker-hover-end',
+    'sticker-select',
+    'sprite-drag-end',
+    'camera-move'
+])
 
 const renderView = ref(null)
-const hoveredHotspot = ref(null)
 const hideHoverTimeout = ref(null)
 const skipNextWatch = ref(false)
-const hoveredSticker = ref(null)
-const selectedSticker = ref(null)
+const isLoadingPanorama = ref(false)
+
+// Scale multipliers - must match useEditorInteraction
+const HOVER_SCALE = 1.15
+const SELECTED_SCALE = 1.25
 
 // Drag state
 const isDragging = ref(false)
@@ -32,6 +61,8 @@ const draggedSprite = ref(null)
 const draggedData = ref(null) // { type: 'hotspot' | 'sticker', data: original object, originalPosition }
 const dragStartMouse = ref(null)
 const hasDraggedBeyondThreshold = ref(false)
+const justFinishedDrag = ref(false) // Prevents hover scaling right after drop
+const draggedStickerSlug = ref(null) // Track which sticker was just dragged
 
 const DRAG_THRESHOLD_PX = 5
 
@@ -40,6 +71,63 @@ let hotspotManager = null
 let stickerManager = null
 
 const currentImage = computed(() => props.images[props.currentIndex])
+
+/**
+ * Apply interaction scales to all sprites based on current interaction props
+ * This is idempotent - safe to call multiple times
+ */
+const applyInteractionScales = () => {
+    // Apply hotspot scales
+    if (hotspotManager) {
+        hotspotManager.getAll().forEach(sprite => {
+            const slug = sprite.userData.hotspot?.slug
+            const baseScale = sprite.userData.baseScale
+            if (!slug || !baseScale) return
+
+            const isHovered = slug === props.hoveredHotspotSlug
+            const multiplier = isHovered ? HOVER_SCALE : 1.0
+
+            sprite.scale.set(
+                baseScale.x * multiplier,
+                baseScale.y * multiplier,
+                baseScale.z * multiplier
+            )
+        })
+    }
+
+    // Apply sticker scales
+    if (stickerManager) {
+        stickerManager.getAll().forEach(sprite => {
+            const slug = sprite.userData.sticker?.slug
+            const baseScale = sprite.userData.baseScale
+            if (!slug || !baseScale) return
+
+            const isSelected = slug === props.selectedStickerSlug
+            const isHovered = slug === props.hoveredStickerSlug
+            let multiplier = 1.0
+
+            if (isSelected) {
+                multiplier = SELECTED_SCALE
+            } else if (isHovered) {
+                multiplier = HOVER_SCALE
+            }
+
+            sprite.scale.set(
+                baseScale.x * multiplier,
+                baseScale.y * multiplier,
+                baseScale.z * multiplier
+            )
+        })
+    }
+}
+
+// Watch for interaction prop changes to apply scales
+watch(
+    [() => props.hoveredHotspotSlug, () => props.hoveredStickerSlug, () => props.selectedStickerSlug],
+    () => {
+        applyInteractionScales()
+    }
+)
 const currentHotspots = computed(() => currentImage.value?.hotspots_from || [])
 const currentStickers = computed(() => currentImage.value?.stickers || [])
 
@@ -92,6 +180,11 @@ const onMouseDown = (event) => {
             isDragging.value = true
             hasDraggedBeyondThreshold.value = false
 
+            // Disable camera rotation during drag
+            if (controls.value) {
+                controls.value.enabled = false
+            }
+
             // Visual feedback
             if (draggedSprite.value.material) {
                 draggedSprite.value.material.opacity = 0.5
@@ -115,6 +208,11 @@ const onMouseDown = (event) => {
             dragStartMouse.value = { x: mouseX, y: mouseY }
             isDragging.value = true
             hasDraggedBeyondThreshold.value = false
+
+            // Disable camera rotation during drag
+            if (controls.value) {
+                controls.value.enabled = false
+            }
 
             // Visual feedback
             if (draggedSprite.value.material) {
@@ -198,15 +296,9 @@ const onCanvasClick = (event) => {
             const sprite = intersects[0].object
             const sticker = sprite.userData.sticker
 
-            // Clear previous selection
-            if (selectedSticker.value && selectedSticker.value !== sprite) {
-                selectedSticker.value.scale.divideScalar(1.2)
-            }
-
-            // Set new selection and keep it scaled
-            selectedSticker.value = sprite
-            if (!sprite.scale._x || sprite.scale._x < 1.15) { // Check if not already scaled
-                sprite.scale.multiplyScalar(1.2)
+            // Emit selection event - parent handles state
+            if (sticker?.slug !== props.selectedStickerSlug) {
+                emit('sticker-select', { slug: sticker?.slug })
             }
 
             // Calculate screen position for context menu
@@ -268,16 +360,16 @@ const onMouseMove = (event) => {
             const sprite = intersects[0].object
             const hotspot = sprite.userData.hotspot
 
-            if (!hoveredHotspot.value || hoveredHotspot.value.id !== hotspot.id) {
-                hoveredHotspot.value = hotspot
-
+            // Emit hover-start if different hotspot (compare by slug)
+            if (hotspot?.slug !== props.hoveredHotspotSlug) {
                 const screenPosition = sprite.position.clone()
                 screenPosition.project(camera.value)
 
                 const x = (screenPosition.x * 0.5 + 0.5) * renderView.value.clientWidth
                 const y = (screenPosition.y * -0.5 + 0.5) * renderView.value.clientHeight
 
-                emit('hotspot-hover', {
+                emit('hotspot-hover-start', {
+                    slug: hotspot?.slug,
                     hotspot,
                     position: { x, y }
                 })
@@ -288,37 +380,38 @@ const onMouseMove = (event) => {
                 hideHoverTimeout.value = null
             }
         } else {
-            if (hoveredHotspot.value) {
+            // Emit hover-end with delay
+            if (props.hoveredHotspotSlug) {
+                if (hideHoverTimeout.value) {
+                    clearTimeout(hideHoverTimeout.value)
+                }
                 hideHoverTimeout.value = setTimeout(() => {
-                    hoveredHotspot.value = null
                     emit('hotspot-hover-end')
                 }, TIMING.HOVER_HIDE_DELAY_MS)
             }
         }
     }
 
-    // Edit mode - sticker hover
-    if (props.mode === 'edit' && stickerManager && !props.isCreatingHotspot && !props.isCreatingSticker) {
+    // Edit mode - sticker hover (skip if we just finished dragging)
+    if (props.mode === 'edit' && stickerManager && !props.isCreatingHotspot && !props.isCreatingSticker && !justFinishedDrag.value) {
         const intersects = raycaster.value.intersectObjects(stickerManager.getAll())
-
-        // Clear previous hover effect
-        if (hoveredSticker.value && hoveredSticker.value !== selectedSticker.value) {
-            hoveredSticker.value.scale.divideScalar(1.2)
-        }
 
         if (intersects.length > 0) {
             const sprite = intersects[0].object
-            hoveredSticker.value = sprite
+            const sticker = sprite.userData.sticker
 
-            // Scale up hovered sprite (unless it's selected)
-            if (sprite !== selectedSticker.value) {
-                sprite.scale.multiplyScalar(1.2)
+            // Emit hover-start if different sticker (compare by slug)
+            if (sticker?.slug !== props.hoveredStickerSlug) {
+                emit('sticker-hover-start', { slug: sticker?.slug })
             }
 
             // Change cursor
             renderView.value.style.cursor = 'pointer'
         } else {
-            hoveredSticker.value = null
+            // Mouse left all stickers - emit hover-end
+            if (props.hoveredStickerSlug) {
+                emit('sticker-hover-end')
+            }
             renderView.value.style.cursor = props.isCreatingHotspot || props.isCreatingSticker ? 'crosshair' : 'default'
         }
     }
@@ -327,6 +420,11 @@ const onMouseMove = (event) => {
 // Mouse up handler for drag end
 const onMouseUp = async (event) => {
     if (!isDragging.value || !draggedSprite.value) return
+
+    // Re-enable camera rotation
+    if (controls.value) {
+        controls.value.enabled = true
+    }
 
     // Restore visual feedback
     if (draggedSprite.value.material) {
@@ -340,6 +438,17 @@ const onMouseUp = async (event) => {
         draggedData.value = null
         dragStartMouse.value = null
         return
+    }
+
+    // Store the dragged sticker slug to prevent hover scaling after drop
+    if (draggedData.value.type === 'sticker') {
+        draggedStickerSlug.value = draggedData.value.data.slug
+        justFinishedDrag.value = true
+        // Clear the flag after a short delay
+        setTimeout(() => {
+            justFinishedDrag.value = false
+            draggedStickerSlug.value = null
+        }, 500)
     }
 
     // Calculate final position
@@ -388,6 +497,12 @@ const onWheel = (event) => {
     controls.value.update()
 }
 
+// Clear all sprites (hotspots and stickers)
+const clearSprites = () => {
+    if (hotspotManager) hotspotManager.clear()
+    if (stickerManager) stickerManager.clear()
+}
+
 // Load panorama wrapper with hotspot/sticker display
 const loadPanorama = async (index, transition = true, rotation = null, skipWatch = false) => {
     if (!props.images[index] || !threeScene.value) return
@@ -396,7 +511,13 @@ const loadPanorama = async (index, transition = true, rotation = null, skipWatch
         skipNextWatch.value = true
     }
 
-    // Load panorama
+    // Set loading flag to prevent watchers from displaying sprites prematurely
+    isLoadingPanorama.value = true
+
+    // Clear sprites BEFORE transition starts
+    clearSprites()
+
+    // Load panorama (includes fade out/in transition)
     await loadPanoramaBase(
         `/images/${props.images[index].slug}/download`,
         transition,
@@ -404,9 +525,12 @@ const loadPanorama = async (index, transition = true, rotation = null, skipWatch
         controls.value
     )
 
-    // Display sprites
+    // Display sprites AFTER transition completes
     displayHotspots()
     displayStickers()
+
+    // Clear loading flag
+    isLoadingPanorama.value = false
 }
 
 // Display hotspot sprites
@@ -431,6 +555,9 @@ const displayHotspots = () => {
     })
 
     console.log('Hotspot sprites created:', hotspotManager.getAll().length)
+
+    // Apply interaction scales after creating sprites
+    applyInteractionScales()
 }
 
 // Display sticker sprites
@@ -455,6 +582,9 @@ const displayStickers = () => {
     })
 
     console.log('Sticker sprites created:', stickerManager.getAll().length)
+
+    // Apply interaction scales after creating sprites
+    applyInteractionScales()
 }
 
 // Watch for image index changes
@@ -466,35 +596,29 @@ watch(() => props.currentIndex, (newIndex) => {
     loadPanorama(newIndex)
 })
 
-// Watch for hotspot changes
+// Watch for hotspot changes (but not during panorama loading)
 watch(currentHotspots, () => {
     console.log('Hotspots changed, re-displaying:', currentHotspots.value)
-    if (threeScene.value) {
+    if (threeScene.value && !isLoadingPanorama.value) {
         displayHotspots()
     }
 }, { deep: true })
 
-// Watch for sticker changes
+// Watch for sticker changes (but not during panorama loading)
 watch(currentStickers, () => {
     console.log('Stickers changed, re-displaying:', currentStickers.value)
-    if (threeScene.value) {
+    if (threeScene.value && !isLoadingPanorama.value) {
         displayStickers()
-        // Clear selection when stickers change
-        selectedSticker.value = null
-        hoveredSticker.value = null
+        applyInteractionScales()
     }
 }, { deep: true })
 
-// Watch for mode changes to reset selection
+// Watch for mode changes to reset cursor
 watch(() => props.mode, () => {
-    if (selectedSticker.value) {
-        selectedSticker.value.scale.divideScalar(1.2)
-        selectedSticker.value = null
-    }
-    hoveredSticker.value = null
     if (renderView.value) {
         renderView.value.style.cursor = 'default'
     }
+    // Parent will clear interaction state via clearAllStates
 })
 
 // Watch for creation mode changes to update cursor
@@ -526,6 +650,13 @@ onMounted(() => {
         renderView.value.addEventListener('mousemove', onMouseMove)
         renderView.value.addEventListener('wheel', onWheel, { passive: false })
 
+        // Listen for camera movement to close panels
+        if (controls.value) {
+            controls.value.addEventListener('change', () => {
+                emit('camera-move')
+            })
+        }
+
         // Load initial panorama
         if (props.images.length > 0) {
             loadPanorama(props.currentIndex)
@@ -551,12 +682,17 @@ const cleanup = () => {
     if (stickerManager) stickerManager.clear()
 }
 
-// Expose methods for parent component
+// Expose methods and refs for parent component
 defineExpose({
     loadPanorama,
     displayHotspots,
     displayStickers,
+    clearSprites,
     controls,
+    camera,
+    renderView,
+    hotspotManager: () => hotspotManager,
+    stickerManager: () => stickerManager,
     cleanup
 })
 </script>
