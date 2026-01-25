@@ -64,16 +64,16 @@ class ImageController extends Controller
     {
         $this->authorize('view', $scene->project);
         $this->authorize('view', $scene);
-        
+
         $file = $request->file('image');
-        $path = $file->store('images', 'public');
-        
+        $path = $file->store('images', 's3');
+
         $image = $scene->images()->create([
             'name' => $request->input('name'),
             'path' => $path,
             'size' => $file->getSize(),
         ]);
-        
+
         return new ImageResource($image);
     }
 
@@ -118,8 +118,16 @@ class ImageController extends Controller
     public function download(Image $image): StreamedResponse
     {
         //$this->authorize('view', $image);
-        
-        return Storage::disk('public')->download($image->path);
+
+        $stream = Storage::disk('s3')->readStream($image->path);
+
+        return response()->stream(function () use ($stream) {
+            fpassthru($stream);
+            fclose($stream);
+        }, 200, [
+            'Content-Type' => 'image/jpeg',
+            'Content-Disposition' => 'inline; filename="' . basename($image->path) . '"',
+        ]);
     }
 
     /**
@@ -150,11 +158,11 @@ class ImageController extends Controller
         }
         
         if ($request->hasFile('image')) {
-            Storage::disk('public')->delete($image->path);
-            
+            Storage::disk('s3')->delete($image->path);
+
             $file = $request->file('image');
-            $path = $file->store('images', 'public');
-            
+            $path = $file->store('images', 's3');
+
             $updateData['path'] = $path;
             $updateData['size'] = $file->getSize();
         }
@@ -184,10 +192,10 @@ class ImageController extends Controller
         $this->authorize('view', $image->scene->project);
         $this->authorize('view', $image->scene);
         $this->authorize('delete', $image);
-        
-        Storage::disk('public')->delete($image->path);
+
+        Storage::disk('s3')->delete($image->path);
         $image->delete();
-        
+
         return response()->noContent();
     }
 }

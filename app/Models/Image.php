@@ -33,14 +33,14 @@ class Image extends Model
 
         static::deleting(function ($image) {
             // Delete the image file when the model is deleted
-            if ($image->path && Storage::exists($image->path)) {
-                Storage::delete($image->path);
+            if ($image->path && Storage::disk('s3')->exists($image->path)) {
+                Storage::disk('s3')->delete($image->path);
             }
 
             // Delete related hotspots
             $image->hotspotsFrom()->delete();
             $image->hotspotsTo()->delete();
-            
+
             // Delete related stickers
             $image->stickers()->delete();
         });

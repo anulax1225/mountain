@@ -68,7 +68,7 @@ class ProjectController extends Controller
 
         // Handle photo upload if present
         if ($request->hasFile('photo')) {
-            $path = $request->file('photo')->store('project-photos', 'public');
+            $path = $request->file('photo')->store('project-photos', 's3');
             $data['picture_path'] = $path;
             unset($data['photo']);
         }
@@ -110,11 +110,11 @@ class ProjectController extends Controller
         // Handle photo upload if present
         if ($request->hasFile('photo')) {
             // Delete old photo if exists
-            if ($project->picture_path && Storage::disk('public')->exists($project->picture_path)) {
-                Storage::disk('public')->delete($project->picture_path);
+            if ($project->picture_path && Storage::disk('s3')->exists($project->picture_path)) {
+                Storage::disk('s3')->delete($project->picture_path);
             }
 
-            $path = $request->file('photo')->store('project-photos', 'public');
+            $path = $request->file('photo')->store('project-photos', 's3');
             $data['picture_path'] = $path;
             unset($data['photo']);
         }
@@ -205,12 +205,14 @@ class ProjectController extends Controller
             abort(404, 'No picture available for this project');
         }
 
-        $path = storage_path('app/public/' . $project->picture_path);
+        $stream = Storage::disk('s3')->readStream($project->picture_path);
 
-        if (!file_exists($path)) {
-            abort(404, 'Picture file not found');
-        }
-
-        return response()->file($path);
+        return response()->stream(function () use ($stream) {
+            fpassthru($stream);
+            fclose($stream);
+        }, 200, [
+            'Content-Type' => 'image/jpeg',
+            'Content-Disposition' => 'inline; filename="' . basename($project->picture_path) . '"',
+        ]);
     }
 }

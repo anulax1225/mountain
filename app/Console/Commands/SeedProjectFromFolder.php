@@ -205,8 +205,8 @@ class SeedProjectFromFolder extends Command
         // Generate unique filename
         $storedFilename = uniqid('panorama_') . '.' . $extension;
 
-        // Store file on public disk
-        $storedPath = Storage::disk('public')->putFileAs('images', new File($filePath), $storedFilename);
+        // Store file on s3
+        $storedPath = Storage::disk('s3')->putFileAs('images', new File($filePath), $storedFilename);
 
         // Get file size
         $fileSize = filesize($filePath);
