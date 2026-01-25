@@ -19,25 +19,15 @@ class SceneController extends Controller
 {
     /**
      * List project scenes
-     * 
+     *
      * Get a paginated list of all scenes for a specific project.
-     * 
+     *
      * @authenticated
-     * 
+     *
      * @urlParam project string required The slug of the project. Example: 550e8400-e29b-41d4-a716-446655440000
-     * 
-     * @response 200 {
-     *   "data": [
-     *     {
-     *       "slug": "660e8400-e29b-41d4-a716-446655440000",
-     *       "name": "Living Room",
-     *       "created_at": "2024-01-01T00:00:00.000000Z",
-     *       "updated_at": "2024-01-01T00:00:00.000000Z"
-     *     }
-     *   ],
-     *   "links": {...},
-     *   "meta": {...}
-     * }
+     *
+     * @apiResourceCollection App\Http\Resources\SceneResource
+     * @apiResourceModel App\Models\Scene
      */
     public function index(Project $project): AnonymousResourceCollection
     {
@@ -50,22 +40,16 @@ class SceneController extends Controller
 
     /**
      * Create a scene
-     * 
+     *
      * Create a new scene within a project.
-     * 
+     *
      * @authenticated
-     * 
+     *
      * @urlParam project string required The slug of the project. Example: 550e8400-e29b-41d4-a716-446655440000
      * @bodyParam name string The name of the scene. Example: Living Room
-     * 
-     * @response 201 {
-     *   "data": {
-     *     "slug": "660e8400-e29b-41d4-a716-446655440000",
-     *     "name": "Living Room",
-     *     "created_at": "2024-01-01T00:00:00.000000Z",
-     *     "updated_at": "2024-01-01T00:00:00.000000Z"
-     *   }
-     * }
+     *
+     * @apiResource 201 App\Http\Resources\SceneResource
+     * @apiResourceModel App\Models\Scene
      */
     public function store(StoreSceneRequest $request, Project $project): SceneResource
     {
@@ -78,23 +62,16 @@ class SceneController extends Controller
 
     /**
      * Get a scene
-     * 
+     *
      * Get a single scene with its details.
-     * 
+     *
      * @authenticated
-     * 
+     *
      * @urlParam project string required The slug of the project. Example: 550e8400-e29b-41d4-a716-446655440000
      * @urlParam scene string required The slug of the scene. Example: 660e8400-e29b-41d4-a716-446655440000
-     * 
-     * @response 200 {
-     *   "data": {
-     *     "slug": "660e8400-e29b-41d4-a716-446655440000",
-     *     "name": "Living Room",
-     *     "created_at": "2024-01-01T00:00:00.000000Z",
-     *     "updated_at": "2024-01-01T00:00:00.000000Z",
-     *     "project": {...}
-     *   }
-     * }
+     *
+     * @apiResource App\Http\Resources\SceneResource
+     * @apiResourceModel App\Models\Scene with=project,images
      */
     public function show(Scene $scene): SceneResource
     {
@@ -111,23 +88,17 @@ class SceneController extends Controller
 
     /**
      * Update a scene
-     * 
+     *
      * Update an existing scene.
-     * 
+     *
      * @authenticated
-     * 
+     *
      * @urlParam project string required The slug of the project. Example: 550e8400-e29b-41d4-a716-446655440000
      * @urlParam scene string required The slug of the scene. Example: 660e8400-e29b-41d4-a716-446655440000
      * @bodyParam name string The name of the scene. Example: Updated Scene Name
-     * 
-     * @response 200 {
-     *   "data": {
-     *     "slug": "660e8400-e29b-41d4-a716-446655440000",
-     *     "name": "Updated Scene Name",
-     *     "created_at": "2024-01-01T00:00:00.000000Z",
-     *     "updated_at": "2024-01-01T00:00:00.000000Z"
-     *   }
-     * }
+     *
+     * @apiResource App\Http\Resources\SceneResource
+     * @apiResourceModel App\Models\Scene
      */
     public function update(UpdateSceneRequest $request, Scene $scene): SceneResource
     {

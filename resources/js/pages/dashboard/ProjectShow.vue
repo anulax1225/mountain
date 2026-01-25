@@ -2,7 +2,7 @@
 import { ref, onMounted, computed } from 'vue'
 import DashboardLayout from '@/layouts/DashboardLayout.vue'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Settings, Users, Edit, Share2, Globe } from 'lucide-vue-next'
+import { ArrowLeft, Settings, Users, Edit, Share2, Globe, BarChart3 } from 'lucide-vue-next'
 import { Link } from '@inertiajs/vue3'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import SceneCard from '@/components/dashboard/SceneCard.vue'
@@ -34,6 +34,7 @@ const sceneForm = ref({ name: '' })
 const canEdit = computed(() => project.value?.permissions?.can_edit ?? false)
 const canDelete = computed(() => project.value?.permissions?.can_delete ?? false)
 const canManageUsers = computed(() => project.value?.permissions?.can_manage_users ?? false)
+const canManageSettings = computed(() => project.value?.permissions?.can_manage_settings ?? false)
 const isOwner = computed(() => project.value?.permissions?.is_owner ?? false)
 
 const loadProject = async () => {
@@ -129,12 +130,6 @@ onMounted(() => {
           <p class="mt-1 text-zinc-600 dark:text-zinc-400">{{ project?.description || 'No description' }}</p>
         </div>
         <div class="flex gap-2">
-          <Link :href="`/dashboard/editor/${projectSlug}`">
-            <Button variant="outline" size="sm" class="gap-2">
-              <Globe class="w-4 h-4" />
-              Éditeur 360°
-            </Button>
-          </Link>
           <Button
             v-if="canEdit"
             variant="outline"
@@ -156,7 +151,7 @@ onMounted(() => {
             Utilisateurs
           </Button>
           <Button
-            v-if="isOwner"
+            v-if="canManageSettings"
             variant="outline"
             size="sm"
             @click="settingsDialogOpen = true"

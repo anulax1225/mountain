@@ -19,10 +19,13 @@ class StickerController extends Controller
 {
     /**
      * List image stickers
-     * 
+     *
      * Get a paginated list of all stickers for a specific image.
-     * 
+     *
      * @authenticated
+     *
+     * @apiResourceCollection App\Http\Resources\StickerResource
+     * @apiResourceModel App\Models\Sticker
      */
     public function index(Image $image): AnonymousResourceCollection
     {
@@ -36,10 +39,13 @@ class StickerController extends Controller
 
     /**
      * Create a sticker
-     * 
+     *
      * Create a new sticker within an image.
-     * 
+     *
      * @authenticated
+     *
+     * @apiResource 201 App\Http\Resources\StickerResource
+     * @apiResourceModel App\Models\Sticker
      */
     public function store(StoreStickerRequest $request, Image $image): StickerResource
     {
@@ -53,10 +59,13 @@ class StickerController extends Controller
 
     /**
      * Get a sticker
-     * 
+     *
      * Get a single sticker by its slug.
-     * 
+     *
      * @authenticated
+     *
+     * @apiResource App\Http\Resources\StickerResource
+     * @apiResourceModel App\Models\Sticker
      */
     public function show(Sticker $sticker): StickerResource
     {
@@ -68,10 +77,13 @@ class StickerController extends Controller
 
     /**
      * Update a sticker
-     * 
+     *
      * Update an existing sticker.
-     * 
+     *
      * @authenticated
+     *
+     * @apiResource App\Http\Resources\StickerResource
+     * @apiResourceModel App\Models\Sticker
      */
     public function update(UpdateStickerRequest $request, Sticker $sticker): StickerResource
     {

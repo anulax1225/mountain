@@ -12,6 +12,7 @@ use App\Http\Controllers\ProjectUserController;
 use App\Http\Controllers\SceneController;
 use App\Http\Controllers\StickerController;
 use App\Http\Controllers\AdminUserController;
+use App\Http\Controllers\AnalyticsController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
@@ -43,11 +44,15 @@ Route::get('/gallery/{project:slug}', [GalleryController::class, 'show'])
     ->middleware('allow-iframe')
     ->name('gallery.show');
 
+// Public analytics tracking (no auth required)
+Route::post('/analytics/track', [AnalyticsController::class, 'track']);
+
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/settings', [DashboardController::class, 'settings'])->name('dashboard.settings');
     Route::get('/dashboard/admin/users', [DashboardController::class, 'adminUsers'])->name('dashboard.admin.users');
     Route::get('/dashboard/projects/{project:slug}', [DashboardController::class, 'showProject'])->name('dashboard.project');
+    Route::get('/dashboard/projects/{project:slug}/analytics', [DashboardController::class, 'showProjectAnalytics'])->name('dashboard.project.analytics');
     Route::get('/dashboard/scenes/{scene:slug}', [DashboardController::class, 'showScene'])->name('dashboard.scene');
     Route::get('/dashboard/editor/{project:slug}', [DashboardController::class, 'showEditor'])->name('dashboard.editor');
 });
@@ -84,6 +89,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/projects/{project:slug}', [ProjectController::class, 'destroy']);
     Route::post('/projects/{project:slug}/make-public', [ProjectController::class, 'makePublic']);
     Route::get('/projects/{project:slug}/images', [ProjectController::class, 'getImages']);
+    Route::get('/projects/{slug}/analytics', [AnalyticsController::class, 'getProjectAnalytics']);
 
     // Project user assignment routes
     Route::get('/projects/{project:slug}/users', [ProjectUserController::class, 'index']);

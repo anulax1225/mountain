@@ -40,6 +40,7 @@ class OwlAPIClient {
         this.hotspots = new HotspotsAPI(this);
         this.images = new ImagesAPI(this);
         this.stickers = new StickersAPI(this);
+        this.analytics = new AnalyticsAPI(this);
 
         // Active requests tracking for cancellation
         this.activeRequests = new Map();
@@ -121,10 +122,16 @@ class OwlAPIClient {
     async _executeRequest(path, options, requestId) {
         const url = `${this.baseURL}${path}`;
         const controller = new AbortController();
-        
+
         this.activeRequests.set(requestId, controller);
 
-        const headers = { ...options.headers, "X-CSRF-Token": document.querySelector("input[name=_token]").value };
+        const headers = { ...options.headers };
+
+        // Add CSRF token from meta tag
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        if (csrfToken) {
+            headers['X-CSRF-TOKEN'] = csrfToken;
+        }
 
         // Set Content-Type for JSON requests
         if (!options.isFormData && options.body) {
@@ -822,6 +829,45 @@ class StickersAPI {
     }
 }
 
+/**
+ * Analytics API endpoints
+ */
+class AnalyticsAPI {
+    constructor(client) {
+        this.client = client;
+    }
+
+    /**
+     * Track an analytics event (public, no auth)
+     * @param {Object} data
+     * @param {string} data.project_slug - Project slug
+     * @param {string} data.event_type - Event type: project_view, image_view, hotspot_click, session_end
+     * @param {string} [data.image_slug] - Image slug (for image_view events)
+     * @param {string} [data.hotspot_slug] - Hotspot slug (for hotspot_click events)
+     * @param {number} [data.duration_seconds] - Session duration (for session_end events)
+     * @returns {Promise<Object>}
+     */
+    async track(data) {
+        return await this.client.request('/analytics/track', {
+            method: 'POST',
+            body: data,
+            skipAuth: true, // Public endpoint, no auth required
+        });
+    }
+
+    /**
+     * Get analytics for a project
+     * @param {string} projectSlug - Project slug
+     * @param {number} [days=30] - Number of days to analyze
+     * @returns {Promise<Object>}
+     */
+    async getProjectAnalytics(projectSlug, days = 30) {
+        return await this.client.request(`/projects/${projectSlug}/analytics?days=${days}`, {
+            method: 'GET',
+        });
+    }
+}
+
 // NOTE: Add this class to your existing owl-sdk.js file, replacing the existing ImagesAPI class
 
 // =============================================================================
@@ -874,3 +920,4 @@ export const scenes = client.scenes;
 export const hotspots = client.hotspots;
 export const images = client.images;
 export const stickers = client.stickers;
+export const analytics = client.analytics;

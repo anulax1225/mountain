@@ -13,3 +13,5 @@ export { useInfiniteScroll, useInfiniteScrollObserver } from './useInfiniteScrol
 export { useDateTime } from './useDateTime';
 export { useFileSize, formatBytes, formatBytesShort, parseFileSize } from './useFileSize';
 export { useEditorInteraction } from './useEditorInteraction';
+export { useAnalyticsTracking } from './useAnalyticsTracking';
+export { useHeaderVisibility } from './useHeaderVisibility';

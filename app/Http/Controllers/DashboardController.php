@@ -46,4 +46,11 @@ class DashboardController extends Controller
 
         return Inertia::render('dashboard/AdminUsers');
     }
+
+    public function showProjectAnalytics($slug)
+    {
+        return Inertia::render('dashboard/ProjectAnalytics', [
+            'projectSlug' => $slug,
+        ]);
+    }
 }

@@ -31,6 +31,7 @@ class ProjectResource extends JsonResource
                     'can_edit' => $user->canAccessProject($this->resource, 'update'),
                     'can_delete' => $user->isAdmin() || $this->user_id === $user->id,
                     'can_manage_users' => $user->isProjectOwner($this->resource),
+                    'can_manage_settings' => $user->isAdmin() || $this->user_id === $user->id,
                     'is_owner' => $this->user_id === $user->id,
                 ];
             }),

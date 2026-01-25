@@ -49,6 +49,18 @@ services:
                 - '-p${DB_PASSWORD}'
             retries: 3
             timeout: 5s
+    rustfs:
+        image: 'registry.pistack.com/pistack/rustfs:latest'
+        ports:
+            - '${FORWARD_RUSTFS_PORT:-9000}:9000'
+            - '${FORWARD_RUSTFS_CONSOLE_PORT:-9001}:9001'
+        environment:
+            RUSTFS_ROOT_USER: sail
+            RUSTFS_ROOT_PASSWORD: password
+        volumes:
+            - 'sail-rustfs:/var/rustfs'
+        networks:
+            - sail
     mailpit:
         image: 'axllent/mailpit:latest'
         ports:
@@ -75,4 +87,6 @@ networks:
         driver: bridge
 volumes:
     sail-mysql:
+        driver: local
+    sail-rustfs:
         driver: local

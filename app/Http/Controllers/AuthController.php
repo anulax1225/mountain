@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 
 class AuthController extends Controller
 {
@@ -16,6 +17,21 @@ class AuthController extends Controller
      * Login and create API token
      *
      * @group Authentication
+     *
+     * @bodyParam email string required User's email address. Example: user@example.com
+     * @bodyParam password string required User's password. Example: password123
+     *
+     * @response 200 {
+     *   "token": "1|abc123def456...",
+     *   "user": {
+     *     "id": 1,
+     *     "name": "John Doe",
+     *     "email": "user@example.com",
+     *     "created_at": "2024-01-01T00:00:00.000000Z",
+     *     "updated_at": "2024-01-01T00:00:00.000000Z"
+     *   }
+     * }
+     * @response 422 {"message": "The provided credentials are incorrect.", "errors": {"email": ["The provided credentials are incorrect."]}}
      */
     public function login(Request $request)
     {
@@ -45,6 +61,8 @@ class AuthController extends Controller
      *
      * @group Authentication
      * @authenticated
+     *
+     * @response 200 {"message": "Logged out successfully"}
      */
     public function logout(Request $request)
     {
@@ -58,6 +76,15 @@ class AuthController extends Controller
      *
      * @group Authentication
      * @authenticated
+     *
+     * @response 200 {
+     *   "id": 1,
+     *   "name": "John Doe",
+     *   "email": "user@example.com",
+     *   "role": "admin",
+     *   "created_at": "2024-01-01T00:00:00.000000Z",
+     *   "updated_at": "2024-01-01T00:00:00.000000Z"
+     * }
      */
     public function user(Request $request)
     {
@@ -68,6 +95,23 @@ class AuthController extends Controller
      * Register a new user
      *
      * @group Authentication
+     *
+     * @bodyParam name string required User's full name. Example: John Doe
+     * @bodyParam email string required User's email address. Example: user@example.com
+     * @bodyParam password string required User's password (min 8 characters). Example: password123
+     * @bodyParam password_confirmation string required Password confirmation. Example: password123
+     *
+     * @response 201 {
+     *   "token": "1|abc123def456...",
+     *   "user": {
+     *     "id": 1,
+     *     "name": "John Doe",
+     *     "email": "user@example.com",
+     *     "created_at": "2024-01-01T00:00:00.000000Z",
+     *     "updated_at": "2024-01-01T00:00:00.000000Z"
+     *   }
+     * }
+     * @response 422 {"message": "The given data was invalid.", "errors": {"email": ["The email has already been taken."]}}
      */
     public function register(Request $request)
     {
@@ -103,7 +147,10 @@ class AuthController extends Controller
 
         if (Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
             $request->session()->regenerate();
-            return redirect()->intended('/dashboard');
+
+            // Force a full page reload (not Inertia client-side navigation)
+            // to refresh CSRF token in meta tag after session regeneration
+            return Inertia::location('/dashboard');
         }
 
         return back()->withErrors([
@@ -220,6 +267,7 @@ class AuthController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
-        return redirect('/dashboard');
+        // Force a full page reload to refresh CSRF token in meta tag
+        return Inertia::location('/dashboard');
     }
 }

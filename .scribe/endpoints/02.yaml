@@ -1,124 +1,39 @@
-name: Scenes
+name: Analytics
 description: |-
 
-  APIs for managing scenes within projects
+  APIs for tracking and viewing project analytics
 endpoints:
   -
     custom: []
     httpMethods:
-      - GET
-    uri: 'api/projects/{project_slug}/scenes'
-    metadata:
-      custom: []
-      groupName: Scenes
-      groupDescription: |-
-
-        APIs for managing scenes within projects
-      subgroup: ''
-      subgroupDescription: ''
-      title: 'List project scenes'
-      description: 'Get a paginated list of all scenes for a specific project.'
-      authenticated: true
-      deprecated: false
-    headers:
-      Authorization: 'Bearer {YOUR_AUTH_KEY}'
-      Content-Type: application/json
-      Accept: application/json
-    urlParameters:
-      project_slug:
-        custom: []
-        name: project_slug
-        description: 'The slug of the project.'
-        required: true
-        example: architecto
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      project:
-        custom: []
-        name: project
-        description: 'The slug of the project.'
-        required: true
-        example: 550e8400-e29b-41d4-a716-446655440000
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-    cleanUrlParameters:
-      project_slug: architecto
-      project: 550e8400-e29b-41d4-a716-446655440000
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters: []
-    cleanBodyParameters: []
-    fileParameters: []
-    responses:
-      -
-        custom: []
-        status: 200
-        content: |-
-          {
-            "data": [
-              {
-                "slug": "660e8400-e29b-41d4-a716-446655440000",
-                "name": "Living Room",
-                "created_at": "2024-01-01T00:00:00.000000Z",
-                "updated_at": "2024-01-01T00:00:00.000000Z"
-              }
-            ],
-            "links": {...},
-            "meta": {...}
-          }
-        headers: []
-        description: ''
-    responseFields: []
-    auth:
-      - headers
-      - Authorization
-      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
       - POST
-    uri: 'api/projects/{project_slug}/scenes'
+    uri: analytics/track
     metadata:
       custom: []
-      groupName: Scenes
+      groupName: Analytics
       groupDescription: |-
 
-        APIs for managing scenes within projects
+        APIs for tracking and viewing project analytics
       subgroup: ''
       subgroupDescription: ''
-      title: 'Create a scene'
-      description: 'Create a new scene within a project.'
-      authenticated: true
+      title: 'Track an analytics event'
+      description: |-
+        Public endpoint for tracking visitor behavior on public projects.
+        No authentication required.
+      authenticated: false
       deprecated: false
     headers:
-      Authorization: 'Bearer {YOUR_AUTH_KEY}'
       Content-Type: application/json
       Accept: application/json
-    urlParameters:
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
       project_slug:
         custom: []
         name: project_slug
-        description: 'The slug of the project.'
-        required: true
-        example: architecto
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      project:
-        custom: []
-        name: project
-        description: 'The slug of the project.'
+        description: 'The project slug.'
         required: true
         example: 550e8400-e29b-41d4-a716-446655440000
         type: string
@@ -126,46 +41,72 @@ endpoints:
         exampleWasSpecified: true
         nullable: false
         deprecated: false
-    cleanUrlParameters:
-      project_slug: architecto
-      project: 550e8400-e29b-41d4-a716-446655440000
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters:
-      name:
+      event_type:
         custom: []
-        name: name
-        description: 'The name of the scene.'
+        name: event_type
+        description: 'Type of event: project_view, image_view, hotspot_click, session_end.'
+        required: true
+        example: project_view
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      image_slug:
+        custom: []
+        name: image_slug
+        description: 'The image slug (required for image_view events).'
         required: false
-        example: 'Living Room'
+        example: 660e8400-e29b-41d4-a716-446655440000
         type: string
         enumValues: []
         exampleWasSpecified: true
         nullable: true
         deprecated: false
+      hotspot_slug:
+        custom: []
+        name: hotspot_slug
+        description: 'The hotspot slug (required for hotspot_click events).'
+        required: false
+        example: 770e8400-e29b-41d4-a716-446655440000
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+      duration_seconds:
+        custom: []
+        name: duration_seconds
+        description: 'Session duration in seconds (required for session_end events).'
+        required: false
+        example: 120
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
     cleanBodyParameters:
-      name: 'Living Room'
+      project_slug: 550e8400-e29b-41d4-a716-446655440000
+      event_type: project_view
+      image_slug: 660e8400-e29b-41d4-a716-446655440000
+      hotspot_slug: 770e8400-e29b-41d4-a716-446655440000
+      duration_seconds: 120
     fileParameters: []
     responses:
       -
         custom: []
-        status: 201
-        content: |-
-          {
-            "data": {
-              "slug": "660e8400-e29b-41d4-a716-446655440000",
-              "name": "Living Room",
-              "created_at": "2024-01-01T00:00:00.000000Z",
-              "updated_at": "2024-01-01T00:00:00.000000Z"
-            }
-          }
+        status: 200
+        content: '{"success": true}'
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: '{"error": "Project not found or not public"}'
         headers: []
         description: ''
     responseFields: []
-    auth:
-      - headers
-      - Authorization
-      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    auth: []
     controller: null
     method: null
     route: null
@@ -173,17 +114,17 @@ endpoints:
     custom: []
     httpMethods:
       - GET
-    uri: 'api/scenes/{scene_slug}'
+    uri: 'projects/{slug}/analytics'
     metadata:
       custom: []
-      groupName: Scenes
+      groupName: Analytics
       groupDescription: |-
 
-        APIs for managing scenes within projects
+        APIs for tracking and viewing project analytics
       subgroup: ''
       subgroupDescription: ''
-      title: 'Get a scene'
-      description: 'Get a single scene with its details.'
+      title: 'Get project analytics'
+      description: 'Get analytics data for a project. Only accessible by project owner or admins.'
       authenticated: true
       deprecated: false
     headers:
@@ -191,21 +132,10 @@ endpoints:
       Content-Type: application/json
       Accept: application/json
     urlParameters:
-      scene_slug:
+      slug:
         custom: []
-        name: scene_slug
-        description: 'The slug of the scene.'
-        required: true
-        example: architecto
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      project:
-        custom: []
-        name: project
-        description: 'The slug of the project.'
+        name: slug
+        description: 'The project slug.'
         required: true
         example: 550e8400-e29b-41d4-a716-446655440000
         type: string
@@ -213,23 +143,22 @@ endpoints:
         exampleWasSpecified: true
         nullable: false
         deprecated: false
-      scene:
+    cleanUrlParameters:
+      slug: 550e8400-e29b-41d4-a716-446655440000
+    queryParameters:
+      days:
         custom: []
-        name: scene
-        description: 'The slug of the scene.'
-        required: true
-        example: 660e8400-e29b-41d4-a716-446655440000
-        type: string
+        name: days
+        description: 'Number of days to include in the analysis. Defaults to 30.'
+        required: false
+        example: 7
+        type: integer
         enumValues: []
         exampleWasSpecified: true
         nullable: false
         deprecated: false
-    cleanUrlParameters:
-      scene_slug: architecto
-      project: 550e8400-e29b-41d4-a716-446655440000
-      scene: 660e8400-e29b-41d4-a716-446655440000
-    queryParameters: []
-    cleanQueryParameters: []
+    cleanQueryParameters:
+      days: 7
     bodyParameters: []
     cleanBodyParameters: []
     fileParameters: []
@@ -239,291 +168,31 @@ endpoints:
         status: 200
         content: |-
           {
-            "data": {
-              "slug": "660e8400-e29b-41d4-a716-446655440000",
-              "name": "Living Room",
-              "created_at": "2024-01-01T00:00:00.000000Z",
-              "updated_at": "2024-01-01T00:00:00.000000Z",
-              "project": {...}
-            }
+            "overview": {
+              "total_views": 150,
+              "unique_sessions": 45,
+              "total_hotspot_clicks": 320,
+              "avg_session_duration": 180
+            },
+            "views_over_time": [
+              {"date": "2024-01-01", "views": 12, "sessions": 8},
+              {"date": "2024-01-02", "views": 15, "sessions": 10}
+            ],
+            "most_viewed_images": [
+              {"image_id": 1, "image_slug": "abc123", "image_name": "Living Room", "views": 45},
+              {"image_id": 2, "image_slug": "def456", "image_name": "Kitchen", "views": 38}
+            ],
+            "most_clicked_hotspots": [
+              {"hotspot_id": 1, "hotspot_slug": "xyz789", "from_image_name": "Living Room", "to_image_name": "Kitchen", "clicks": 25},
+              {"hotspot_id": 2, "hotspot_slug": "uvw012", "from_image_name": "Kitchen", "to_image_name": "Bedroom", "clicks": 18}
+            ]
           }
         headers: []
         description: ''
-    responseFields: []
-    auth:
-      - headers
-      - Authorization
-      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
-      - PUT
-    uri: 'api/scenes/{scene_slug}'
-    metadata:
-      custom: []
-      groupName: Scenes
-      groupDescription: |-
-
-        APIs for managing scenes within projects
-      subgroup: ''
-      subgroupDescription: ''
-      title: 'Update a scene'
-      description: 'Update an existing scene.'
-      authenticated: true
-      deprecated: false
-    headers:
-      Authorization: 'Bearer {YOUR_AUTH_KEY}'
-      Content-Type: application/json
-      Accept: application/json
-    urlParameters:
-      scene_slug:
-        custom: []
-        name: scene_slug
-        description: 'The slug of the scene.'
-        required: true
-        example: architecto
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      project:
-        custom: []
-        name: project
-        description: 'The slug of the project.'
-        required: true
-        example: 550e8400-e29b-41d4-a716-446655440000
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-      scene:
-        custom: []
-        name: scene
-        description: 'The slug of the scene.'
-        required: true
-        example: 660e8400-e29b-41d4-a716-446655440000
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-    cleanUrlParameters:
-      scene_slug: architecto
-      project: 550e8400-e29b-41d4-a716-446655440000
-      scene: 660e8400-e29b-41d4-a716-446655440000
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters:
-      name:
-        custom: []
-        name: name
-        description: 'The name of the scene.'
-        required: false
-        example: 'Updated Scene Name'
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: true
-        deprecated: false
-    cleanBodyParameters:
-      name: 'Updated Scene Name'
-    fileParameters: []
-    responses:
       -
         custom: []
-        status: 200
-        content: |-
-          {
-            "data": {
-              "slug": "660e8400-e29b-41d4-a716-446655440000",
-              "name": "Updated Scene Name",
-              "created_at": "2024-01-01T00:00:00.000000Z",
-              "updated_at": "2024-01-01T00:00:00.000000Z"
-            }
-          }
-        headers: []
-        description: ''
-    responseFields: []
-    auth:
-      - headers
-      - Authorization
-      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
-      - PATCH
-    uri: 'api/scenes/{scene_slug}'
-    metadata:
-      custom: []
-      groupName: Scenes
-      groupDescription: |-
-
-        APIs for managing scenes within projects
-      subgroup: ''
-      subgroupDescription: ''
-      title: 'Update a scene'
-      description: 'Update an existing scene.'
-      authenticated: true
-      deprecated: false
-    headers:
-      Authorization: 'Bearer {YOUR_AUTH_KEY}'
-      Content-Type: application/json
-      Accept: application/json
-    urlParameters:
-      scene_slug:
-        custom: []
-        name: scene_slug
-        description: 'The slug of the scene.'
-        required: true
-        example: architecto
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      project:
-        custom: []
-        name: project
-        description: 'The slug of the project.'
-        required: true
-        example: 550e8400-e29b-41d4-a716-446655440000
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-      scene:
-        custom: []
-        name: scene
-        description: 'The slug of the scene.'
-        required: true
-        example: 660e8400-e29b-41d4-a716-446655440000
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-    cleanUrlParameters:
-      scene_slug: architecto
-      project: 550e8400-e29b-41d4-a716-446655440000
-      scene: 660e8400-e29b-41d4-a716-446655440000
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters:
-      name:
-        custom: []
-        name: name
-        description: 'The name of the scene.'
-        required: false
-        example: 'Updated Scene Name'
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: true
-        deprecated: false
-    cleanBodyParameters:
-      name: 'Updated Scene Name'
-    fileParameters: []
-    responses:
-      -
-        custom: []
-        status: 200
-        content: |-
-          {
-            "data": {
-              "slug": "660e8400-e29b-41d4-a716-446655440000",
-              "name": "Updated Scene Name",
-              "created_at": "2024-01-01T00:00:00.000000Z",
-              "updated_at": "2024-01-01T00:00:00.000000Z"
-            }
-          }
-        headers: []
-        description: ''
-    responseFields: []
-    auth:
-      - headers
-      - Authorization
-      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
-      - DELETE
-    uri: 'api/scenes/{scene_slug}'
-    metadata:
-      custom: []
-      groupName: Scenes
-      groupDescription: |-
-
-        APIs for managing scenes within projects
-      subgroup: ''
-      subgroupDescription: ''
-      title: 'Delete a scene'
-      description: 'Delete a scene and all its associated data.'
-      authenticated: true
-      deprecated: false
-    headers:
-      Authorization: 'Bearer {YOUR_AUTH_KEY}'
-      Content-Type: application/json
-      Accept: application/json
-    urlParameters:
-      scene_slug:
-        custom: []
-        name: scene_slug
-        description: 'The slug of the scene.'
-        required: true
-        example: architecto
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      project:
-        custom: []
-        name: project
-        description: 'The slug of the project.'
-        required: true
-        example: 550e8400-e29b-41d4-a716-446655440000
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-      scene:
-        custom: []
-        name: scene
-        description: 'The slug of the scene.'
-        required: true
-        example: 660e8400-e29b-41d4-a716-446655440000
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-    cleanUrlParameters:
-      scene_slug: architecto
-      project: 550e8400-e29b-41d4-a716-446655440000
-      scene: 660e8400-e29b-41d4-a716-446655440000
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters: []
-    cleanBodyParameters: []
-    fileParameters: []
-    responses:
-      -
-        custom: []
-        status: 204
-        content: '{}'
+        status: 403
+        content: '{"error": "Analytics are only available for public projects"}'
         headers: []
         description: ''
     responseFields: []

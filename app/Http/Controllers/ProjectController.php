@@ -24,6 +24,10 @@ class ProjectController extends Controller
      * List projects
      *
      * Admin sees all projects, others see only their own + assigned projects.
+     *
+     * @authenticated
+     * @apiResourceCollection App\Http\Resources\ProjectResource
+     * @apiResourceModel App\Models\Project
      */
     public function index(Request $request): AnonymousResourceCollection
     {
@@ -50,6 +54,10 @@ class ProjectController extends Controller
      * Create a project
      *
      * Only Admin users can create projects.
+     *
+     * @authenticated
+     * @apiResource 201 App\Http\Resources\ProjectResource
+     * @apiResourceModel App\Models\Project
      */
     public function store(StoreProjectRequest $request): ProjectResource
     {
@@ -72,6 +80,10 @@ class ProjectController extends Controller
 
     /**
      * Get a project
+     *
+     * @authenticated
+     * @apiResource App\Http\Resources\ProjectResource
+     * @apiResourceModel App\Models\Project with=scenes,startImage
      */
     public function show(Project $project): ProjectResource
     {
@@ -84,6 +96,10 @@ class ProjectController extends Controller
 
     /**
      * Update a project
+     *
+     * @authenticated
+     * @apiResource App\Http\Resources\ProjectResource
+     * @apiResourceModel App\Models\Project
      */
     public function update(UpdateProjectRequest $request, Project $project): ProjectResource
     {
@@ -122,6 +138,10 @@ class ProjectController extends Controller
 
     /**
      * Make a project public or private
+     *
+     * @authenticated
+     * @apiResource App\Http\Resources\ProjectResource
+     * @apiResourceModel App\Models\Project
      */
     public function makePublic(MakeProjectPublicRequest $request, Project $project): ProjectResource
     {

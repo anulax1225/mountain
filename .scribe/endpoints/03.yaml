@@ -7,301 +7,7 @@ endpoints:
     custom: []
     httpMethods:
       - GET
-    uri: 'api/scenes/{scene_slug}/images'
-    metadata:
-      custom: []
-      groupName: Images
-      groupDescription: |-
-
-        APIs for managing panoramic images within scenes
-      subgroup: ''
-      subgroupDescription: ''
-      title: 'List scene images'
-      description: 'Get a paginated list of all images for a specific scene.'
-      authenticated: true
-      deprecated: false
-    headers:
-      Authorization: 'Bearer {YOUR_AUTH_KEY}'
-      Content-Type: application/json
-      Accept: application/json
-    urlParameters:
-      scene_slug:
-        custom: []
-        name: scene_slug
-        description: 'The slug of the scene.'
-        required: true
-        example: architecto
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      project:
-        custom: []
-        name: project
-        description: 'The slug of the project.'
-        required: true
-        example: 550e8400-e29b-41d4-a716-446655440000
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-      scene:
-        custom: []
-        name: scene
-        description: 'The slug of the scene.'
-        required: true
-        example: 660e8400-e29b-41d4-a716-446655440000
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-    cleanUrlParameters:
-      scene_slug: architecto
-      project: 550e8400-e29b-41d4-a716-446655440000
-      scene: 660e8400-e29b-41d4-a716-446655440000
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters: []
-    cleanBodyParameters: []
-    fileParameters: []
-    responses:
-      -
-        custom: []
-        status: 200
-        content: |-
-          {
-            "data": [
-              {
-                "slug": "770e8400-e29b-41d4-a716-446655440000",
-                "path": "images/panorama.jpg",
-                "size": 2048576,
-                "created_at": "2024-01-01T00:00:00.000000Z",
-                "updated_at": "2024-01-01T00:00:00.000000Z"
-              }
-            ],
-            "links": {...},
-            "meta": {...}
-          }
-        headers: []
-        description: ''
-    responseFields: []
-    auth:
-      - headers
-      - Authorization
-      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
-      - POST
-    uri: 'api/scenes/{scene_slug}/images'
-    metadata:
-      custom: []
-      groupName: Images
-      groupDescription: |-
-
-        APIs for managing panoramic images within scenes
-      subgroup: ''
-      subgroupDescription: ''
-      title: 'Upload an image'
-      description: 'Upload a new panoramic image to a scene.'
-      authenticated: true
-      deprecated: false
-    headers:
-      Authorization: 'Bearer {YOUR_AUTH_KEY}'
-      Content-Type: multipart/form-data
-      Accept: application/json
-    urlParameters:
-      scene_slug:
-        custom: []
-        name: scene_slug
-        description: 'The slug of the scene.'
-        required: true
-        example: architecto
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      project:
-        custom: []
-        name: project
-        description: 'The slug of the project.'
-        required: true
-        example: 550e8400-e29b-41d4-a716-446655440000
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-      scene:
-        custom: []
-        name: scene
-        description: 'The slug of the scene.'
-        required: true
-        example: 660e8400-e29b-41d4-a716-446655440000
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-    cleanUrlParameters:
-      scene_slug: architecto
-      project: 550e8400-e29b-41d4-a716-446655440000
-      scene: 660e8400-e29b-41d4-a716-446655440000
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters:
-      image:
-        custom: []
-        name: image
-        description: 'The panoramic image file (max 20MB).'
-        required: true
-        example: null
-        type: file
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-    cleanBodyParameters: []
-    fileParameters:
-      image: null
-    responses:
-      -
-        custom: []
-        status: 201
-        content: |-
-          {
-            "data": {
-              "slug": "770e8400-e29b-41d4-a716-446655440000",
-              "path": "images/panorama.jpg",
-              "size": 2048576,
-              "created_at": "2024-01-01T00:00:00.000000Z",
-              "updated_at": "2024-01-01T00:00:00.000000Z"
-            }
-          }
-        headers: []
-        description: ''
-    responseFields: []
-    auth:
-      - headers
-      - Authorization
-      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
-      - GET
-    uri: 'api/images/{image_slug}'
-    metadata:
-      custom: []
-      groupName: Images
-      groupDescription: |-
-
-        APIs for managing panoramic images within scenes
-      subgroup: ''
-      subgroupDescription: ''
-      title: 'Get an image'
-      description: 'Get a single image with its details and hotspots.'
-      authenticated: true
-      deprecated: false
-    headers:
-      Authorization: 'Bearer {YOUR_AUTH_KEY}'
-      Content-Type: application/json
-      Accept: application/json
-    urlParameters:
-      image_slug:
-        custom: []
-        name: image_slug
-        description: 'The slug of the image.'
-        required: true
-        example: architecto
-        type: string
-        enumValues: []
-        exampleWasSpecified: false
-        nullable: false
-        deprecated: false
-      project:
-        custom: []
-        name: project
-        description: 'The slug of the project.'
-        required: true
-        example: 550e8400-e29b-41d4-a716-446655440000
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-      scene:
-        custom: []
-        name: scene
-        description: 'The slug of the scene.'
-        required: true
-        example: 660e8400-e29b-41d4-a716-446655440000
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-      image:
-        custom: []
-        name: image
-        description: 'The slug of the image.'
-        required: true
-        example: 770e8400-e29b-41d4-a716-446655440000
-        type: string
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
-    cleanUrlParameters:
-      image_slug: architecto
-      project: 550e8400-e29b-41d4-a716-446655440000
-      scene: 660e8400-e29b-41d4-a716-446655440000
-      image: 770e8400-e29b-41d4-a716-446655440000
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters: []
-    cleanBodyParameters: []
-    fileParameters: []
-    responses:
-      -
-        custom: []
-        status: 200
-        content: |-
-          {
-            "data": {
-              "slug": "770e8400-e29b-41d4-a716-446655440000",
-              "path": "images/panorama.jpg",
-              "size": 2048576,
-              "created_at": "2024-01-01T00:00:00.000000Z",
-              "updated_at": "2024-01-01T00:00:00.000000Z",
-              "hotspots_from": [...],
-              "hotspots_to": [...]
-            }
-          }
-        headers: []
-        description: ''
-    responseFields: []
-    auth:
-      - headers
-      - Authorization
-      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
-      - GET
-    uri: 'api/images/{image_slug}/download'
+    uri: 'images/{image_slug}/download'
     metadata:
       custom: []
       groupName: Images
@@ -324,7 +30,7 @@ endpoints:
         name: image_slug
         description: 'The slug of the image.'
         required: true
-        example: architecto
+        example: c91f2595-b2a4-4a5e-9c80-c0e9d6111288
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -364,7 +70,7 @@ endpoints:
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      image_slug: architecto
+      image_slug: c91f2595-b2a4-4a5e-9c80-c0e9d6111288
       project: 550e8400-e29b-41d4-a716-446655440000
       scene: 660e8400-e29b-41d4-a716-446655440000
       image: 770e8400-e29b-41d4-a716-446655440000
@@ -391,8 +97,8 @@ endpoints:
   -
     custom: []
     httpMethods:
-      - POST
-    uri: 'api/images/{image_slug}'
+      - GET
+    uri: 'scenes/{scene_slug}/images'
     metadata:
       custom: []
       groupName: Images
@@ -401,13 +107,92 @@ endpoints:
         APIs for managing panoramic images within scenes
       subgroup: ''
       subgroupDescription: ''
-      title: 'Update an image'
-      description: 'Replace an existing image with a new file.'
+      title: 'List scene images'
+      description: 'Get a paginated list of all images for a specific scene.'
       authenticated: true
       deprecated: false
     headers:
       Authorization: 'Bearer {YOUR_AUTH_KEY}'
-      Content-Type: multipart/form-data
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      scene_slug:
+        custom: []
+        name: scene_slug
+        description: 'The slug of the scene.'
+        required: true
+        example: ad525b54-1dfc-491b-bbe6-187f37259c04
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      project:
+        custom: []
+        name: project
+        description: 'The slug of the project.'
+        required: true
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      scene:
+        custom: []
+        name: scene
+        description: 'The slug of the scene.'
+        required: true
+        example: 660e8400-e29b-41d4-a716-446655440000
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      scene_slug: ad525b54-1dfc-491b-bbe6-187f37259c04
+      project: 550e8400-e29b-41d4-a716-446655440000
+      scene: 660e8400-e29b-41d4-a716-446655440000
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: '[{"id":null,"slug":null,"name":null,"path":null,"size":null,"created_at":null,"updated_at":null},{"id":null,"slug":null,"name":null,"path":null,"size":null,"created_at":null,"updated_at":null}]'
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'images/{image_slug}'
+    metadata:
+      custom: []
+      groupName: Images
+      groupDescription: |-
+
+        APIs for managing panoramic images within scenes
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Get an image'
+      description: 'Get a single image with its details and hotspots.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
       Accept: application/json
     urlParameters:
       image_slug:
@@ -415,7 +200,7 @@ endpoints:
         name: image_slug
         description: 'The slug of the image.'
         required: true
-        example: architecto
+        example: c91f2595-b2a4-4a5e-9c80-c0e9d6111288
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -455,41 +240,20 @@ endpoints:
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      image_slug: architecto
+      image_slug: c91f2595-b2a4-4a5e-9c80-c0e9d6111288
       project: 550e8400-e29b-41d4-a716-446655440000
       scene: 660e8400-e29b-41d4-a716-446655440000
       image: 770e8400-e29b-41d4-a716-446655440000
     queryParameters: []
     cleanQueryParameters: []
-    bodyParameters:
-      image:
-        custom: []
-        name: image
-        description: 'The new image file (max 20MB).'
-        required: false
-        example: null
-        type: file
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: false
-        deprecated: false
+    bodyParameters: []
     cleanBodyParameters: []
-    fileParameters:
-      image: null
+    fileParameters: []
     responses:
       -
         custom: []
         status: 200
-        content: |-
-          {
-            "data": {
-              "slug": "770e8400-e29b-41d4-a716-446655440000",
-              "path": "images/new-panorama.jpg",
-              "size": 2148576,
-              "created_at": "2024-01-01T00:00:00.000000Z",
-              "updated_at": "2024-01-01T01:00:00.000000Z"
-            }
-          }
+        content: '{"id":null,"slug":null,"name":null,"path":null,"size":null,"created_at":null,"updated_at":null}'
         headers: []
         description: ''
     responseFields: []
@@ -504,7 +268,7 @@ endpoints:
     custom: []
     httpMethods:
       - DELETE
-    uri: 'api/images/{image_slug}'
+    uri: 'images/{image_slug}'
     metadata:
       custom: []
       groupName: Images
@@ -527,7 +291,7 @@ endpoints:
         name: image_slug
         description: 'The slug of the image.'
         required: true
-        example: architecto
+        example: c91f2595-b2a4-4a5e-9c80-c0e9d6111288
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -567,7 +331,7 @@ endpoints:
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      image_slug: architecto
+      image_slug: c91f2595-b2a4-4a5e-9c80-c0e9d6111288
       project: 550e8400-e29b-41d4-a716-446655440000
       scene: 660e8400-e29b-41d4-a716-446655440000
       image: 770e8400-e29b-41d4-a716-446655440000

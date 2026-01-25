@@ -1,0 +1,592 @@
+name: Stickers
+description: |-
+
+  APIs for managing stickers (emojis, images, text) within images
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'images/{image_slug}/stickers'
+    metadata:
+      custom: []
+      groupName: Stickers
+      groupDescription: |-
+
+        APIs for managing stickers (emojis, images, text) within images
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'List image stickers'
+      description: 'Get a paginated list of all stickers for a specific image.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      image_slug:
+        custom: []
+        name: image_slug
+        description: 'The slug of the image.'
+        required: true
+        example: c91f2595-b2a4-4a5e-9c80-c0e9d6111288
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      image_slug: c91f2595-b2a4-4a5e-9c80-c0e9d6111288
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: '[{"id":null,"slug":null,"image_id":null,"type":null,"content":null,"position_x":null,"position_y":null,"position_z":null,"scale":null,"rotation_x":null,"rotation_y":null,"rotation_z":null,"font_family":null,"font_size":null,"color":null,"background_color":null,"created_at":null,"updated_at":null},{"id":null,"slug":null,"image_id":null,"type":null,"content":null,"position_x":null,"position_y":null,"position_z":null,"scale":null,"rotation_x":null,"rotation_y":null,"rotation_z":null,"font_family":null,"font_size":null,"color":null,"background_color":null,"created_at":null,"updated_at":null}]'
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'stickers/{sticker_slug}'
+    metadata:
+      custom: []
+      groupName: Stickers
+      groupDescription: |-
+
+        APIs for managing stickers (emojis, images, text) within images
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Get a sticker'
+      description: 'Get a single sticker by its slug.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      sticker_slug:
+        custom: []
+        name: sticker_slug
+        description: 'The slug of the sticker.'
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      sticker_slug: architecto
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: '{"id":null,"slug":null,"image_id":null,"type":null,"content":null,"position_x":null,"position_y":null,"position_z":null,"scale":null,"rotation_x":null,"rotation_y":null,"rotation_z":null,"font_family":null,"font_size":null,"color":null,"background_color":null,"created_at":null,"updated_at":null}'
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+    uri: 'stickers/{sticker_slug}'
+    metadata:
+      custom: []
+      groupName: Stickers
+      groupDescription: |-
+
+        APIs for managing stickers (emojis, images, text) within images
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Update a sticker'
+      description: 'Update an existing sticker.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      sticker_slug:
+        custom: []
+        name: sticker_slug
+        description: 'The slug of the sticker.'
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      sticker_slug: architecto
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      type:
+        custom: []
+        name: type
+        description: ''
+        required: false
+        example: emoji
+        type: string
+        enumValues:
+          - emoji
+          - image
+          - text
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      content:
+        custom: []
+        name: content
+        description: ''
+        required: false
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      position_x:
+        custom: []
+        name: position_x
+        description: ''
+        required: false
+        example: 4326.41688
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      position_y:
+        custom: []
+        name: position_y
+        description: ''
+        required: false
+        example: 4326.41688
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      position_z:
+        custom: []
+        name: position_z
+        description: ''
+        required: false
+        example: 4326.41688
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      scale:
+        custom: []
+        name: scale
+        description: 'Must be at least 0.1. Must not be greater than 10.'
+        required: false
+        example: 7
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      rotation_x:
+        custom: []
+        name: rotation_x
+        description: ''
+        required: false
+        example: 4326.41688
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      rotation_y:
+        custom: []
+        name: rotation_y
+        description: ''
+        required: false
+        example: 4326.41688
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      rotation_z:
+        custom: []
+        name: rotation_z
+        description: ''
+        required: false
+        example: 4326.41688
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      font_family:
+        custom: []
+        name: font_family
+        description: 'Must not be greater than 255 characters.'
+        required: false
+        example: m
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      font_size:
+        custom: []
+        name: font_size
+        description: 'Must be at least 8. Must not be greater than 200.'
+        required: false
+        example: 15
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      color:
+        custom: []
+        name: color
+        description: 'Must not be greater than 50 characters.'
+        required: false
+        example: 'y'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      background_color:
+        custom: []
+        name: background_color
+        description: 'Must not be greater than 50 characters.'
+        required: false
+        example: v
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      type: emoji
+      content: architecto
+      position_x: 4326.41688
+      position_y: 4326.41688
+      position_z: 4326.41688
+      scale: 7
+      rotation_x: 4326.41688
+      rotation_y: 4326.41688
+      rotation_z: 4326.41688
+      font_family: m
+      font_size: 15
+      color: 'y'
+      background_color: v
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: '{"id":null,"slug":null,"image_id":null,"type":null,"content":null,"position_x":null,"position_y":null,"position_z":null,"scale":null,"rotation_x":null,"rotation_y":null,"rotation_z":null,"font_family":null,"font_size":null,"color":null,"background_color":null,"created_at":null,"updated_at":null}'
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PATCH
+    uri: 'stickers/{sticker_slug}'
+    metadata:
+      custom: []
+      groupName: Stickers
+      groupDescription: |-
+
+        APIs for managing stickers (emojis, images, text) within images
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Update a sticker'
+      description: 'Update an existing sticker.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      sticker_slug:
+        custom: []
+        name: sticker_slug
+        description: 'The slug of the sticker.'
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      sticker_slug: architecto
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      type:
+        custom: []
+        name: type
+        description: ''
+        required: false
+        example: text
+        type: string
+        enumValues:
+          - emoji
+          - image
+          - text
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      content:
+        custom: []
+        name: content
+        description: ''
+        required: false
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      position_x:
+        custom: []
+        name: position_x
+        description: ''
+        required: false
+        example: 4326.41688
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      position_y:
+        custom: []
+        name: position_y
+        description: ''
+        required: false
+        example: 4326.41688
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      position_z:
+        custom: []
+        name: position_z
+        description: ''
+        required: false
+        example: 4326.41688
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      scale:
+        custom: []
+        name: scale
+        description: 'Must be at least 0.1. Must not be greater than 10.'
+        required: false
+        example: 7
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      rotation_x:
+        custom: []
+        name: rotation_x
+        description: ''
+        required: false
+        example: 4326.41688
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      rotation_y:
+        custom: []
+        name: rotation_y
+        description: ''
+        required: false
+        example: 4326.41688
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      rotation_z:
+        custom: []
+        name: rotation_z
+        description: ''
+        required: false
+        example: 4326.41688
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      font_family:
+        custom: []
+        name: font_family
+        description: 'Must not be greater than 255 characters.'
+        required: false
+        example: m
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      font_size:
+        custom: []
+        name: font_size
+        description: 'Must be at least 8. Must not be greater than 200.'
+        required: false
+        example: 15
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      color:
+        custom: []
+        name: color
+        description: 'Must not be greater than 50 characters.'
+        required: false
+        example: 'y'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      background_color:
+        custom: []
+        name: background_color
+        description: 'Must not be greater than 50 characters.'
+        required: false
+        example: v
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      type: text
+      content: architecto
+      position_x: 4326.41688
+      position_y: 4326.41688
+      position_z: 4326.41688
+      scale: 7
+      rotation_x: 4326.41688
+      rotation_y: 4326.41688
+      rotation_z: 4326.41688
+      font_family: m
+      font_size: 15
+      color: 'y'
+      background_color: v
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: '{"id":null,"slug":null,"image_id":null,"type":null,"content":null,"position_x":null,"position_y":null,"position_z":null,"scale":null,"rotation_x":null,"rotation_y":null,"rotation_z":null,"font_family":null,"font_size":null,"color":null,"background_color":null,"created_at":null,"updated_at":null}'
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - DELETE
+    uri: 'stickers/{sticker_slug}'
+    metadata:
+      custom: []
+      groupName: Stickers
+      groupDescription: |-
+
+        APIs for managing stickers (emojis, images, text) within images
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Delete a sticker'
+      description: 'Delete a sticker.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      sticker_slug:
+        custom: []
+        name: sticker_slug
+        description: 'The slug of the sticker.'
+        required: true
+        example: architecto
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      sticker_slug: architecto
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null

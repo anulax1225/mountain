@@ -24,6 +24,7 @@ import { TIMING } from '@/lib/editorConstants.js'
 import { useConfirm } from '@/composables/useConfirm'
 import { useApiError } from '@/composables/useApiError'
 import { useEditorInteraction } from '@/composables/useEditorInteraction'
+import { useHeaderVisibility } from '@/composables'
 
 const props = defineProps({
     auth: Object,
@@ -70,7 +71,7 @@ const interaction = useEditorInteraction()
 
 // Hotspot hover position (calculated on demand)
 const hotspotHoverPosition = ref(null)
-
+const { isVisible: headerVisible } = useHeaderVisibility('dashboardHeaderVisible', true)
 // Computed: get the currently hovered hotspot data from images
 const hoveredHotspot = computed(() => {
     if (!interaction.hoveredHotspotSlug.value) return null
@@ -545,15 +546,15 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <DashboardLayout :auth="auth" :project="project">
+    <DashboardLayout :auth="auth" :project="project" :collapsible-header="true">
         <div ref="editorContainer" :class="[
             'relative -m-6 w-[calc(100%+3rem)]',
-            isFullscreen ? 'h-screen' : 'h-[calc(100vh-4rem)]'
+            isFullscreen || !headerVisible ? 'h-screen' : 'h-[calc(100vh-4rem)]'
         ]">
-            <LoadingSpinner v-if="loading" class="absolute inset-0 bg-zinc-900" />
+            <LoadingSpinner v-if="loading" class="absolute inset-0 bg-zinc-950" />
 
             <EmptyState v-else-if="images.length === 0" title="Aucune image dans ce projet"
-                class="absolute inset-0 bg-zinc-900 text-white">
+                class="absolute inset-0 bg-zinc-950 text-white">
                 <Link :href="`/dashboard/projects/${projectSlug}`">
                     <Button>Ajouter des images</Button>
                 </Link>
@@ -574,7 +575,7 @@ onUnmounted(() => {
                     @hotspot-hover-start="handleHotspotHoverStart" @hotspot-hover-end="handleHotspotHoverEnd" />
 
                 <!-- Control buttons on right side (middle height to avoid overlap) -->
-                <div class="absolute top-1/2 -translate-y-1/2 right-6 z-10 flex flex-col gap-2">
+                <div class="top-1/2 right-6 z-10 absolute flex flex-col gap-2 -translate-y-1/2">
                     <!-- Fullscreen button (always visible when not in immersion mode) -->
                     <Transition name="fade">
                         <Button
@@ -582,7 +583,7 @@ onUnmounted(() => {
                             @click="toggleFullscreen"
                             size="icon"
                             variant="secondary"
-                            class="w-10 h-10 bg-white/90 dark:bg-zinc-800/90 backdrop-blur shadow-lg hover:bg-white dark:hover:bg-zinc-800"
+                            class="bg-white/90 hover:bg-white dark:bg-zinc-800/90 dark:hover:bg-zinc-800 shadow-lg backdrop-blur w-10 h-10"
                             :title="isFullscreen ? 'Quitter le plein écran' : 'Plein écran'"
                         >
                             <Maximize v-if="!isFullscreen" class="w-5 h-5" />
@@ -597,7 +598,7 @@ onUnmounted(() => {
                             @click="toggleImmersion"
                             size="icon"
                             variant="secondary"
-                            class="w-10 h-10 bg-white/90 dark:bg-zinc-800/90 backdrop-blur shadow-lg hover:bg-white dark:hover:bg-zinc-800"
+                            class="bg-white/90 hover:bg-white dark:bg-zinc-800/90 dark:hover:bg-zinc-800 shadow-lg backdrop-blur w-10 h-10"
                             title="Mode immersion"
                         >
                             <VenetianMask class="w-5 h-5" />
@@ -611,7 +612,7 @@ onUnmounted(() => {
                             @click="toggleImmersion"
                             size="icon"
                             variant="secondary"
-                            class="w-10 h-10 bg-white/10 dark:bg-zinc-800/10 backdrop-blur shadow-lg hover:bg-white/20 dark:hover:bg-zinc-800/20"
+                            class="bg-white/10 hover:bg-white/20 dark:bg-zinc-800/10 dark:hover:bg-zinc-800/20 shadow-lg backdrop-blur w-10 h-10"
                             title="Quitter le mode immersion"
                         >
                             <VenetianMask class="w-5 h-5" />

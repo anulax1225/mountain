@@ -1,0 +1,412 @@
+name: Scenes
+description: |-
+
+  APIs for managing scenes within projects
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'projects/{project_slug}/scenes'
+    metadata:
+      custom: []
+      groupName: Scenes
+      groupDescription: |-
+
+        APIs for managing scenes within projects
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'List project scenes'
+      description: 'Get a paginated list of all scenes for a specific project.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      project_slug:
+        custom: []
+        name: project_slug
+        description: 'The slug of the project.'
+        required: true
+        example: 2c274ade-4dda-418a-800b-01de708a4ba2
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      project:
+        custom: []
+        name: project
+        description: 'The slug of the project.'
+        required: true
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      project_slug: 2c274ade-4dda-418a-800b-01de708a4ba2
+      project: 550e8400-e29b-41d4-a716-446655440000
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: '[{"slug":null,"name":null,"created_at":null,"updated_at":null},{"slug":null,"name":null,"created_at":null,"updated_at":null}]'
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'scenes/{scene_slug}'
+    metadata:
+      custom: []
+      groupName: Scenes
+      groupDescription: |-
+
+        APIs for managing scenes within projects
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Get a scene'
+      description: 'Get a single scene with its details.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      scene_slug:
+        custom: []
+        name: scene_slug
+        description: 'The slug of the scene.'
+        required: true
+        example: ad525b54-1dfc-491b-bbe6-187f37259c04
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      project:
+        custom: []
+        name: project
+        description: 'The slug of the project.'
+        required: true
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      scene:
+        custom: []
+        name: scene
+        description: 'The slug of the scene.'
+        required: true
+        example: 660e8400-e29b-41d4-a716-446655440000
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      scene_slug: ad525b54-1dfc-491b-bbe6-187f37259c04
+      project: 550e8400-e29b-41d4-a716-446655440000
+      scene: 660e8400-e29b-41d4-a716-446655440000
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: '{"slug":"ad525b54-1dfc-491b-bbe6-187f37259c04","name":"Ext","images":[{"id":1,"slug":"c91f2595-b2a4-4a5e-9c80-c0e9d6111288","name":"Entr\u00e9e du CPNE","path":"images\/pyC2jH7mQAaaskWNPAhTYhFD7Eeu3uvfgejPv3qi.jpg","size":250006,"created_at":"2026-01-25T18:33:21.000000Z","updated_at":"2026-01-25T19:15:20.000000Z"}],"project":{"id":1,"slug":"2c274ade-4dda-418a-800b-01de708a4ba2","name":"Mon proj","description":null,"picture_path":null,"photo":null,"is_public":true,"start_image_id":1,"created_at":"2026-01-25T18:18:30.000000Z","updated_at":"2026-01-25T19:15:03.000000Z"},"created_at":"2026-01-25T18:32:56.000000Z","updated_at":"2026-01-25T18:32:56.000000Z"}'
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+    uri: 'scenes/{scene_slug}'
+    metadata:
+      custom: []
+      groupName: Scenes
+      groupDescription: |-
+
+        APIs for managing scenes within projects
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Update a scene'
+      description: 'Update an existing scene.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      scene_slug:
+        custom: []
+        name: scene_slug
+        description: 'The slug of the scene.'
+        required: true
+        example: ad525b54-1dfc-491b-bbe6-187f37259c04
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      project:
+        custom: []
+        name: project
+        description: 'The slug of the project.'
+        required: true
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      scene:
+        custom: []
+        name: scene
+        description: 'The slug of the scene.'
+        required: true
+        example: 660e8400-e29b-41d4-a716-446655440000
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      scene_slug: ad525b54-1dfc-491b-bbe6-187f37259c04
+      project: 550e8400-e29b-41d4-a716-446655440000
+      scene: 660e8400-e29b-41d4-a716-446655440000
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      name:
+        custom: []
+        name: name
+        description: 'The name of the scene.'
+        required: false
+        example: 'Updated Scene Name'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      name: 'Updated Scene Name'
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: '{"slug":null,"name":null,"created_at":null,"updated_at":null}'
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PATCH
+    uri: 'scenes/{scene_slug}'
+    metadata:
+      custom: []
+      groupName: Scenes
+      groupDescription: |-
+
+        APIs for managing scenes within projects
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Update a scene'
+      description: 'Update an existing scene.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      scene_slug:
+        custom: []
+        name: scene_slug
+        description: 'The slug of the scene.'
+        required: true
+        example: ad525b54-1dfc-491b-bbe6-187f37259c04
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      project:
+        custom: []
+        name: project
+        description: 'The slug of the project.'
+        required: true
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      scene:
+        custom: []
+        name: scene
+        description: 'The slug of the scene.'
+        required: true
+        example: 660e8400-e29b-41d4-a716-446655440000
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      scene_slug: ad525b54-1dfc-491b-bbe6-187f37259c04
+      project: 550e8400-e29b-41d4-a716-446655440000
+      scene: 660e8400-e29b-41d4-a716-446655440000
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      name:
+        custom: []
+        name: name
+        description: 'The name of the scene.'
+        required: false
+        example: 'Updated Scene Name'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      name: 'Updated Scene Name'
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: '{"slug":null,"name":null,"created_at":null,"updated_at":null}'
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - DELETE
+    uri: 'scenes/{scene_slug}'
+    metadata:
+      custom: []
+      groupName: Scenes
+      groupDescription: |-
+
+        APIs for managing scenes within projects
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Delete a scene'
+      description: 'Delete a scene and all its associated data.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      scene_slug:
+        custom: []
+        name: scene_slug
+        description: 'The slug of the scene.'
+        required: true
+        example: ad525b54-1dfc-491b-bbe6-187f37259c04
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      project:
+        custom: []
+        name: project
+        description: 'The slug of the project.'
+        required: true
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      scene:
+        custom: []
+        name: scene
+        description: 'The slug of the scene.'
+        required: true
+        example: 660e8400-e29b-41d4-a716-446655440000
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      scene_slug: ad525b54-1dfc-491b-bbe6-187f37259c04
+      project: 550e8400-e29b-41d4-a716-446655440000
+      scene: 660e8400-e29b-41d4-a716-446655440000
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 204
+        content: '{}'
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null

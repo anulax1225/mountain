@@ -22,28 +22,16 @@ class ImageController extends Controller
 {
     /**
      * List scene images
-     * 
+     *
      * Get a paginated list of all images for a specific scene.
-     * 
+     *
      * @authenticated
-     * 
+     *
      * @urlParam project string required The slug of the project. Example: 550e8400-e29b-41d4-a716-446655440000
      * @urlParam scene string required The slug of the scene. Example: 660e8400-e29b-41d4-a716-446655440000
-     * 
-     * @response 200 {
-     *   "data": [
-     *     {
-     *       "slug": "770e8400-e29b-41d4-a716-446655440000",
-     *       "name": "Living Room View",
-     *       "path": "images/panorama.jpg",
-     *       "size": 2048576,
-     *       "created_at": "2024-01-01T00:00:00.000000Z",
-     *       "updated_at": "2024-01-01T00:00:00.000000Z"
-     *     }
-     *   ],
-     *   "links": {...},
-     *   "meta": {...}
-     * }
+     *
+     * @apiResourceCollection App\Http\Resources\ImageResource
+     * @apiResourceModel App\Models\Image with=hotspotsFrom.toImage,hotspotsTo.fromImage
      */
     public function index(Scene $scene): AnonymousResourceCollection
     {
@@ -59,26 +47,18 @@ class ImageController extends Controller
 
     /**
      * Upload an image
-     * 
+     *
      * Upload a new panoramic image to a scene.
-     * 
+     *
      * @authenticated
-     * 
+     *
      * @urlParam project string required The slug of the project. Example: 550e8400-e29b-41d4-a716-446655440000
      * @urlParam scene string required The slug of the scene. Example: 660e8400-e29b-41d4-a716-446655440000
      * @bodyParam image file required The panoramic image file (max 20MB). Example: public/pano/pano1.jpeg
      * @bodyParam name string The name of the image. Example: Living Room View
-     * 
-     * @response 201 {
-     *   "data": {
-     *     "slug": "770e8400-e29b-41d4-a716-446655440000",
-     *     "name": "Living Room View",
-     *     "path": "images/panorama.jpg",
-     *     "size": 2048576,
-     *     "created_at": "2024-01-01T00:00:00.000000Z",
-     *     "updated_at": "2024-01-01T00:00:00.000000Z"
-     *   }
-     * }
+     *
+     * @apiResource 201 App\Http\Resources\ImageResource
+     * @apiResourceModel App\Models\Image
      */
     public function store(StoreImageRequest $request, Scene $scene): ImageResource
     {
@@ -99,27 +79,17 @@ class ImageController extends Controller
 
     /**
      * Get an image
-     * 
+     *
      * Get a single image with its details and hotspots.
-     * 
+     *
      * @authenticated
-     * 
+     *
      * @urlParam project string required The slug of the project. Example: 550e8400-e29b-41d4-a716-446655440000
      * @urlParam scene string required The slug of the scene. Example: 660e8400-e29b-41d4-a716-446655440000
      * @urlParam image string required The slug of the image. Example: 770e8400-e29b-41d4-a716-446655440000
-     * 
-     * @response 200 {
-     *   "data": {
-     *     "slug": "770e8400-e29b-41d4-a716-446655440000",
-     *     "name": "Living Room View",
-     *     "path": "images/panorama.jpg",
-     *     "size": 2048576,
-     *     "created_at": "2024-01-01T00:00:00.000000Z",
-     *     "updated_at": "2024-01-01T00:00:00.000000Z",
-     *     "hotspots_from": [...],
-     *     "hotspots_to": [...]
-     *   }
-     * }
+     *
+     * @apiResource App\Http\Resources\ImageResource
+     * @apiResourceModel App\Models\Image with=hotspotsFrom,hotspotsTo
      */
     public function show(Image $image): ImageResource
     {
@@ -154,27 +124,19 @@ class ImageController extends Controller
 
     /**
      * Update an image
-     * 
+     *
      * Replace an existing image with a new file or update its name.
-     * 
+     *
      * @authenticated
-     * 
+     *
      * @urlParam project string required The slug of the project. Example: 550e8400-e29b-41d4-a716-446655440000
      * @urlParam scene string required The slug of the scene. Example: 660e8400-e29b-41d4-a716-446655440000
      * @urlParam image string required The slug of the image. Example: 770e8400-e29b-41d4-a716-446655440000
      * @bodyParam image file The new image file (max 20MB). Example: public/pano/pano2.jpeg
      * @bodyParam name string The name of the image. Example: Updated Living Room View
-     * 
-     * @response 200 {
-     *   "data": {
-     *     "slug": "770e8400-e29b-41d4-a716-446655440000",
-     *     "name": "Updated Living Room View",
-     *     "path": "images/new-panorama.jpg",
-     *     "size": 2148576,
-     *     "created_at": "2024-01-01T00:00:00.000000Z",
-     *     "updated_at": "2024-01-01T01:00:00.000000Z"
-     *   }
-     * }
+     *
+     * @apiResource App\Http\Resources\ImageResource
+     * @apiResourceModel App\Models\Image
      */
     public function update(UpdateImageRequest $request, Image $image): ImageResource
     {

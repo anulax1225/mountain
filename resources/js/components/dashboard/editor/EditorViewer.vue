@@ -10,6 +10,8 @@ import EditorZoomControls from './EditorZoomControls.vue'
 
 const props = defineProps({
     project: Object,
+    onTrackImageView: Function, // Optional tracking callback for image views
+    onTrackHotspotClick: Function, // Optional tracking callback for hotspot clicks
 })
 
 // Flatten images from all scenes, adding scene info for grouping in ImageThumbnailsPanel
@@ -45,6 +47,11 @@ const handleHotspotPositionSelected = (position) => {
 const handleHotspotClick = async (hotspot) => {
     if (mode.value === 'edit') return
 
+    // Track hotspot click for analytics
+    if (props.onTrackHotspotClick && hotspot.slug) {
+        props.onTrackHotspotClick(hotspot.slug)
+    }
+
     const targetIndex = images.value.findIndex(img => img.id === hotspot.to_image_id)
     if (targetIndex !== -1) {
         const hasRotation = hotspot.target_rotation_x !== null && hotspot.target_rotation_y !== null
@@ -64,6 +71,12 @@ const handleHotspotClick = async (hotspot) => {
 
         // Update index after panorama loads
         currentImageIndex.value = targetIndex
+
+        // Track image view for analytics
+        const targetImage = images.value[targetIndex]
+        if (props.onTrackImageView && targetImage?.slug) {
+            props.onTrackImageView(targetImage.slug)
+        }
     }
 }
 
@@ -81,6 +94,12 @@ const handleHotspotHoverEnd = () => {
 
 const handleImageSelect = (index) => {
     currentImageIndex.value = index
+
+    // Track image view for analytics
+    const selectedImage = images.value[index]
+    if (props.onTrackImageView && selectedImage?.slug) {
+        props.onTrackImageView(selectedImage.slug)
+    }
 }
 
 const toggleImmersion = () => {
