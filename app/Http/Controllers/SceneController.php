@@ -53,8 +53,8 @@ class SceneController extends Controller
      */
     public function store(StoreSceneRequest $request, Project $project): SceneResource
     {
-        $this->authorize('view', $project);
-        
+        $this->authorize('update', $project);
+
         $scene = $project->scenes()->create($request->validated());
         
         return new SceneResource($scene);
@@ -102,8 +102,8 @@ class SceneController extends Controller
      */
     public function update(UpdateSceneRequest $request, Scene $scene): SceneResource
     {
-        $this->authorize('view', $scene->project);
-        
+        $this->authorize('update', $scene->project);
+
         $scene->update($request->validated());
         
         return new SceneResource($scene);
@@ -123,9 +123,9 @@ class SceneController extends Controller
      */
     public function destroy(Scene $scene): Response
     {
-        $this->authorize('view', $scene->project);
+        $this->authorize('update', $scene->project);
         $this->authorize('delete', $scene);
-        
+
         $scene->delete();
         
         return response()->noContent();

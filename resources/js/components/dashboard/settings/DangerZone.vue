@@ -1,9 +1,13 @@
 <script setup>
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { useConfirm } from '@/composables'
 
-const deleteAccount = () => {
-  if (confirm('Êtes-vous sûr de vouloir supprimer votre compte? Cette action est irréversible.')) {
+const { confirmDelete } = useConfirm()
+
+const deleteAccount = async () => {
+  const confirmed = await confirmDelete('votre compte')
+  if (confirmed) {
     // Handle account deletion
   }
 }

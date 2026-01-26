@@ -22,12 +22,9 @@ class AdminContactRequestController extends Controller
      *
      * @authenticated
      */
-    public function index(Request $request): InertiaResponse
+    public function index(): InertiaResponse
     {
-        // Only admins can access this page
-        if (!$request->user()->isAdmin()) {
-            abort(403, 'Unauthorized');
-        }
+        $this->authorize('viewAny', ContactRequest::class);
 
         return Inertia::render('dashboard/admin/ContactRequests');
     }
@@ -48,10 +45,7 @@ class AdminContactRequestController extends Controller
      */
     public function list(Request $request): AnonymousResourceCollection
     {
-        // Only admins can access
-        if (!$request->user()->isAdmin()) {
-            abort(403, 'Unauthorized');
-        }
+        $this->authorize('viewAny', ContactRequest::class);
 
         $query = ContactRequest::query()->orderBy('created_at', 'desc');
 
@@ -86,12 +80,9 @@ class AdminContactRequestController extends Controller
      * @apiResource App\Http\Resources\ContactRequestResource
      * @apiResourceModel App\Models\ContactRequest
      */
-    public function show(ContactRequest $contactRequest, Request $request)
+    public function show(ContactRequest $contactRequest)
     {
-        // Only admins can access
-        if (!$request->user()->isAdmin()) {
-            abort(403, 'Unauthorized');
-        }
+        $this->authorize('view', $contactRequest);
 
         return new ContactRequestResource($contactRequest);
     }
@@ -110,10 +101,7 @@ class AdminContactRequestController extends Controller
      */
     public function update(Request $request, ContactRequest $contactRequest)
     {
-        // Only admins can access
-        if (!$request->user()->isAdmin()) {
-            abort(403, 'Unauthorized');
-        }
+        $this->authorize('update', $contactRequest);
 
         $validated = $request->validate([
             'status' => 'required|in:received,in_process,refused,validated',
@@ -134,12 +122,9 @@ class AdminContactRequestController extends Controller
      *
      * @response 204
      */
-    public function destroy(Request $request, ContactRequest $contactRequest): Response
+    public function destroy(ContactRequest $contactRequest): Response
     {
-        // Only admins can access
-        if (!$request->user()->isAdmin()) {
-            abort(403, 'Unauthorized');
-        }
+        $this->authorize('delete', $contactRequest);
 
         $contactRequest->delete();
 

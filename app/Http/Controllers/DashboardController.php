@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Project;
+use App\Models\Scene;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -14,6 +17,9 @@ class DashboardController extends Controller
 
     public function showProject($slug)
     {
+        $project = Project::where('slug', $slug)->firstOrFail();
+        $this->authorize('view', $project);
+
         return Inertia::render('dashboard/ProjectShow', [
             'projectSlug' => $slug,
         ]);
@@ -21,6 +27,9 @@ class DashboardController extends Controller
 
     public function showScene($slug)
     {
+        $scene = Scene::where('slug', $slug)->firstOrFail();
+        $this->authorize('view', $scene->project);
+
         return Inertia::render('dashboard/SceneShow', [
             'sceneSlug' => $slug,
         ]);
@@ -28,6 +37,9 @@ class DashboardController extends Controller
 
     public function showEditor($slug)
     {
+        $project = Project::where('slug', $slug)->firstOrFail();
+        $this->authorize('update', $project);
+
         return Inertia::render('dashboard/Editor', [
             'projectSlug' => $slug,
         ]);
@@ -38,17 +50,18 @@ class DashboardController extends Controller
         return Inertia::render('dashboard/Settings');
     }
 
-    public function adminUsers(Request $request)
+    public function adminUsers()
     {
-        if (!$request->user()->isAdmin()) {
-            abort(403, 'Accès non autorisé');
-        }
+        $this->authorize('viewAny', User::class);
 
         return Inertia::render('dashboard/AdminUsers');
     }
 
     public function showProjectAnalytics($slug)
     {
+        $project = Project::where('slug', $slug)->firstOrFail();
+        $this->authorize('view', $project);
+
         return Inertia::render('dashboard/ProjectAnalytics', [
             'projectSlug' => $slug,
         ]);

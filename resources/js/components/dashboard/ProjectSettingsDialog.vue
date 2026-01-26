@@ -6,7 +6,8 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Badge } from '@/components/ui/badge'
-import axios from 'axios'
+import { useApiError } from '@/composables'
+import { projects } from '@/owl-sdk'
 
 const props = defineProps({
     open: Boolean,
@@ -15,8 +16,10 @@ const props = defineProps({
 
 const emit = defineEmits(['update:open', 'saved'])
 
+const { handleError } = useApiError()
+
 const isPublic = ref(props.project?.is_public || false);
-const startImageId = ref(props.project?.start_image.slug || null);
+const startImageId = ref(props.project?.start_image?.slug || null);
 const images = ref([])
 const loading = ref(false)
 const saving = ref(false)
@@ -37,7 +40,6 @@ const groupedImages = computed(() => {
 
 const selectImage = (image) => {
     startImageId.value = image.slug;
-    // Note: Dialog will remain open as we'll show orientation dialog next
 }
 
 const loadImages = async () => {
@@ -45,11 +47,10 @@ const loadImages = async () => {
 
     try {
         loading.value = true
-        const response = await axios.get(`/projects/${props.project.slug}/images`)
-        images.value = response.data || []
-        console.log('Loaded images:', images.value, groupedImages.value);
+        const response = await projects.getImages(props.project.slug)
+        images.value = response || []
     } catch (error) {
-        console.error('Failed to load images:', error)
+        handleError(error, { context: 'Loading images', showToast: true })
     } finally {
         loading.value = false
     }
@@ -58,16 +59,14 @@ const loadImages = async () => {
 const saveSettings = async () => {
     try {
         saving.value = true
-        await axios.post(`/projects/${props.project.slug}/make-public`, {
+        await projects.patch(props.project.slug, {
             is_public: isPublic.value,
             start_image_id: startImageId.value
         })
         emit('saved')
         emit('update:open', false)
     } catch (error) {
-        console.error('Failed to save settings:', error)
-        const message = error.response?.data?.message || 'Erreur lors de la sauvegarde des paramètres'
-        alert(message)
+        handleError(error, { context: 'Saving settings', showToast: true })
     } finally {
         saving.value = false
     }

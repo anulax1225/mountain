@@ -25,9 +25,7 @@ class RoleController extends Controller
 
     public function assignToUser(Request $request, User $user)
     {
-        if (!$request->user()->isAdmin()) {
-            abort(403);
-        }
+        $this->authorize('manageRoles', User::class);
 
         $validated = $request->validate([
             'role_id' => 'required|exists:roles,id',
@@ -40,9 +38,7 @@ class RoleController extends Controller
 
     public function removeFromUser(Request $request, User $user)
     {
-        if (!$request->user()->isAdmin()) {
-            abort(403);
-        }
+        $this->authorize('manageRoles', User::class);
 
         $validated = $request->validate([
             'role_id' => 'required|exists:roles,id',

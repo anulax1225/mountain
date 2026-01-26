@@ -21,9 +21,9 @@ class AdminUserController extends Controller
     /**
      * List all users with their roles
      */
-    public function index(Request $request)
+    public function index()
     {
-        $this->authorizeAdmin($request);
+        $this->authorize('viewAny', User::class);
 
         $users = User::with('roles')->get()->map(function ($user) {
             return [
@@ -49,9 +49,9 @@ class AdminUserController extends Controller
     /**
      * Get all available global roles
      */
-    public function roles(Request $request)
+    public function roles()
     {
-        $this->authorizeAdmin($request);
+        $this->authorize('viewAny', User::class);
 
         $roles = Role::whereIn('slug', ['admin', 'client'])->get();
 
@@ -65,7 +65,7 @@ class AdminUserController extends Controller
      */
     public function store(Request $request)
     {
-        $this->authorizeAdmin($request);
+        $this->authorize('create', User::class);
 
         $validated = $request->validate([
             'email' => 'required|email|unique:users,email',
@@ -112,9 +112,9 @@ class AdminUserController extends Controller
     /**
      * Resend invitation email
      */
-    public function resendInvitation(Request $request, User $user)
+    public function resendInvitation(User $user)
     {
-        $this->authorizeAdmin($request);
+        $this->authorize('update', $user);
 
         if (!$user->hasPendingInvitation()) {
             return response()->json([
@@ -143,7 +143,7 @@ class AdminUserController extends Controller
      */
     public function updateRole(Request $request, User $user)
     {
-        $this->authorizeAdmin($request);
+        $this->authorize('manageRoles', User::class);
 
         $validated = $request->validate([
             'role_id' => 'required|exists:roles,id',
@@ -180,29 +180,12 @@ class AdminUserController extends Controller
     /**
      * Delete a user
      */
-    public function destroy(Request $request, User $user)
+    public function destroy(User $user)
     {
-        $this->authorizeAdmin($request);
-
-        // Prevent self-deletion
-        if ($user->id === $request->user()->id) {
-            return response()->json([
-                'message' => 'Vous ne pouvez pas supprimer votre propre compte',
-            ], 422);
-        }
+        $this->authorize('delete', $user);
 
         $user->delete();
 
         return response()->noContent();
-    }
-
-    /**
-     * Check if the current user is an admin
-     */
-    private function authorizeAdmin(Request $request): void
-    {
-        if (!$request->user()->isAdmin()) {
-            abort(403, 'Accès non autorisé');
-        }
     }
 }

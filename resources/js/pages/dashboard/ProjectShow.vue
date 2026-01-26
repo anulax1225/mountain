@@ -13,11 +13,15 @@ import ProjectUsersDialog from '@/components/dashboard/ProjectUsersDialog.vue'
 import ProjectEditDialog from '@/components/dashboard/ProjectEditDialog.vue'
 import ProjectShareDialog from '@/components/dashboard/ProjectShareDialog.vue'
 import owl from '@/owl-sdk.js'
+import { useConfirm, useApiError } from '@/composables'
 
 const props = defineProps({
   auth: Object,
   projectSlug: String,
 })
+
+const { confirmDelete } = useConfirm()
+const { handleError } = useApiError()
 
 const project = ref(null)
 const scenes = ref([])
@@ -44,7 +48,7 @@ const loadProject = async () => {
     project.value = response
     await loadScenes()
   } catch (error) {
-    console.error('Failed to load project:', error)
+    handleError(error, { context: 'Chargement du projet', showToast: true })
   } finally {
     loading.value = false
   }
@@ -60,7 +64,7 @@ const loadScenes = async () => {
       scene.images = imagesResponse.data || []
     }
   } catch (error) {
-    console.error('Failed to load scenes:', error)
+    handleError(error, { context: 'Chargement des scènes', showToast: true })
   }
 }
 
@@ -88,18 +92,19 @@ const saveScene = async () => {
     editingScene.value = null
     await loadScenes()
   } catch (error) {
-    console.error('Failed to save scene:', error)
+    handleError(error, { context: 'Enregistrement de la scène', showToast: true })
   }
 }
 
 const deleteScene = async (sceneSlug) => {
-  if (!confirm('Êtes-vous sûr de vouloir supprimer cette scène et toutes ses images?')) return
+  const confirmed = await confirmDelete('cette scène et toutes ses images')
+  if (!confirmed) return
 
   try {
     await owl.scenes.delete(sceneSlug)
     await loadScenes()
   } catch (error) {
-    console.error('Failed to delete scene:', error)
+    handleError(error, { context: 'Suppression de la scène', showToast: true })
   }
 }
 

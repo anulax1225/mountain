@@ -4,7 +4,7 @@ import * as THREE from 'three'
 import { useThreeScene } from '@/composables/useThreeScene.js'
 import { usePanoramaLoader } from '@/composables/usePanoramaLoader.js'
 import { SpriteFactory, SpriteManager } from '@/lib/spriteFactory.js'
-import { SPRITE, TIMING, CONTROLS } from '@/lib/editorConstants.js'
+import { SPRITE, TIMING, CONTROLS, INTERACTION, ZOOM } from '@/lib/editorConstants.js'
 
 const props = defineProps({
     images: Array,
@@ -52,9 +52,9 @@ const skipNextWatch = ref(false)
 const isLoadingPanorama = ref(false)
 const lastHoverStartTime = ref(0) // Track when we last started hovering to prevent rapid toggling
 
-// Scale multipliers - must match useEditorInteraction
-const HOVER_SCALE = 1.15
-const SELECTED_SCALE = 1.25
+// Scale multipliers - from editorConstants (must match useEditorInteraction)
+const HOVER_SCALE = INTERACTION.HOVER_SCALE
+const SELECTED_SCALE = INTERACTION.SELECTED_SCALE
 
 // Drag state
 const isDragging = ref(false)
@@ -64,8 +64,6 @@ const dragStartMouse = ref(null)
 const hasDraggedBeyondThreshold = ref(false)
 const justFinishedDrag = ref(false) // Prevents hover scaling right after drop
 const draggedStickerSlug = ref(null) // Track which sticker was just dragged
-
-const DRAG_THRESHOLD_PX = 5
 
 // Sprite managers
 let hotspotManager = null
@@ -355,7 +353,7 @@ const onMouseMove = (event) => {
             const dy = mouseY - dragStartMouse.value.y
             const distance = Math.sqrt(dx * dx + dy * dy)
 
-            if (distance < DRAG_THRESHOLD_PX) {
+            if (distance < INTERACTION.DRAG_THRESHOLD_PX) {
                 return // Not yet dragging
             }
             hasDraggedBeyondThreshold.value = true
@@ -408,14 +406,13 @@ const onMouseMove = (event) => {
             // This prevents rapid toggling when the popover blocks the raycaster
             if (props.hoveredHotspotSlug) {
                 const timeSinceHoverStart = Date.now() - lastHoverStartTime.value
-                const minHoverTime = 300 // Minimum time (ms) hotspot must be hovered before allowing hide
 
                 if (hideHoverTimeout.value) {
                     clearTimeout(hideHoverTimeout.value)
                 }
 
                 // Only schedule hide if we've been hovering long enough
-                if (timeSinceHoverStart >= minHoverTime) {
+                if (timeSinceHoverStart >= TIMING.MIN_HOVER_TIME_MS) {
                     hideHoverTimeout.value = setTimeout(() => {
                         emit('hotspot-hover-end')
                     }, TIMING.HOVER_HIDE_DELAY_MS)
@@ -480,7 +477,7 @@ const onMouseUp = async (event) => {
         setTimeout(() => {
             justFinishedDrag.value = false
             draggedStickerSlug.value = null
-        }, 500)
+        }, TIMING.DRAG_FINISH_DELAY_MS)
     }
 
     // Calculate final position
@@ -517,13 +514,12 @@ const onWheel = (event) => {
 
     event.preventDefault()
 
-    const zoomSpeed = 0.1
     const delta = event.deltaY > 0 ? 1 : -1
 
     const currentDistance = camera.value.position.length()
     const newDistance = delta > 0
-        ? Math.min(currentDistance * (1 + zoomSpeed), CONTROLS.MAX_DISTANCE)
-        : Math.max(currentDistance * (1 - zoomSpeed), CONTROLS.MIN_DISTANCE)
+        ? Math.min(currentDistance * (1 + ZOOM.SPEED), CONTROLS.MAX_DISTANCE)
+        : Math.max(currentDistance * (1 - ZOOM.SPEED), CONTROLS.MIN_DISTANCE)
 
     camera.value.position.normalize().multiplyScalar(newDistance)
     controls.value.update()

@@ -77,6 +77,22 @@ export const COLORS = {
 export const TIMING = {
     HOVER_HIDE_DELAY_MS: 100, // Delay before hiding hotspot hover popover
     DIALOG_TRANSITION_DELAY_MS: 100, // Delay between closing/opening sequential dialogs
+    MIN_HOVER_TIME_MS: 300, // Minimum time before allowing hover hide
+    DRAG_FINISH_DELAY_MS: 500, // Delay after drag before re-enabling hover
+}
+
+// Interaction
+export const INTERACTION = {
+    HOVER_SCALE: 1.15, // Scale multiplier when hovering over sprite
+    SELECTED_SCALE: 1.25, // Scale multiplier when sprite is selected
+    DRAG_THRESHOLD_PX: 5, // Minimum pixels to move before drag starts
+}
+
+// Zoom
+export const ZOOM = {
+    SPEED: 0.1, // Zoom speed for wheel events
+    IN_FACTOR: 0.7, // Multiplier for zoom in (smaller = closer)
+    OUT_FACTOR: 1.35, // Multiplier for zoom out (larger = farther)
 }
 
 // Export a convenience object with all constants
@@ -90,4 +106,6 @@ export default {
     CANVAS,
     COLORS,
     TIMING,
+    INTERACTION,
+    ZOOM,
 }

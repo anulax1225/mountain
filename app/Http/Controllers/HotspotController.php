@@ -58,9 +58,8 @@ class HotspotController extends Controller
      */
     public function store(StoreHotspotRequest $request, Scene $scene): HotspotResource
     {
-        $this->authorize('view', $scene->project);
-        $this->authorize('view', $scene);
-        
+        $this->authorize('update', $scene->project);
+
         $hotspot = $scene->hotspots()->create($request->validated());
         
         return new HotspotResource($hotspot);
@@ -109,9 +108,9 @@ class HotspotController extends Controller
      */
     public function update(UpdateHotspotRequest $request, Hotspot $hotspot): HotspotResource
     {
-        $this->authorize('view', $hotspot->scene->project);
-        $this->authorize('view', $hotspot->scene);
-        
+        $this->authorize('update', $hotspot->scene->project);
+        $this->authorize('update', $hotspot);
+
         $hotspot->update($request->validated());
         
         return new HotspotResource($hotspot);
@@ -132,10 +131,9 @@ class HotspotController extends Controller
      */
     public function destroy(Hotspot $hotspot): Response
     {
-        $this->authorize('view', $hotspot->scene->project);
-        $this->authorize('view', $hotspot->scene);
+        $this->authorize('update', $hotspot->scene->project);
         $this->authorize('delete', $hotspot);
-        
+
         $hotspot->delete();
         
         return response()->noContent();

@@ -1,6 +1,5 @@
 <script setup>
 import { ref } from 'vue'
-import { router } from '@inertiajs/vue3'
 import LandingLayout from '@/layouts/LandingLayout.vue'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -8,8 +7,11 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Mail, Phone, Building2, Send, CheckCircle } from 'lucide-vue-next'
 import { useToast } from '@/components/ui/toast/use-toast'
+import { useApiError } from '@/composables'
+import { contact } from '@/owl-sdk'
 
 const { toast } = useToast()
+const { isValidationError, getValidationErrors, handleError } = useApiError()
 
 const form = ref({
     name: '',
@@ -30,50 +32,30 @@ const submitForm = async () => {
     errors.value = {}
 
     try {
-        const response = await fetch('/api/contact', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
-                'Accept': 'application/json',
-            },
-            body: JSON.stringify(form.value),
-        })
-
-        const data = await response.json()
-
-        if (!response.ok) {
-            if (response.status === 422 && data.errors) {
-                errors.value = data.errors
-                toast({
-                    title: 'Erreur de validation',
-                    description: 'Veuillez vérifier les champs du formulaire.',
-                    variant: 'destructive',
-                })
-            } else {
-                throw new Error(data.message || 'Une erreur est survenue')
-            }
-        } else {
-            submitted.value = true
-            form.value = {
-                name: '',
-                email: '',
-                phone: '',
-                company: '',
-                message: '',
-            }
-            toast({
-                title: 'Message envoyé !',
-                description: data.message,
-            })
+        const response = await contact.submit(form.value)
+        submitted.value = true
+        form.value = {
+            name: '',
+            email: '',
+            phone: '',
+            company: '',
+            message: '',
         }
-    } catch (error) {
-        console.error('Error submitting form:', error)
         toast({
-            title: 'Erreur',
-            description: 'Une erreur est survenue lors de l\'envoi du formulaire.',
-            variant: 'destructive',
+            title: 'Message envoyé !',
+            description: response.message,
         })
+    } catch (error) {
+        if (isValidationError(error)) {
+            errors.value = getValidationErrors(error)
+            toast({
+                title: 'Erreur de validation',
+                description: 'Veuillez vérifier les champs du formulaire.',
+                variant: 'destructive',
+            })
+        } else {
+            handleError(error, { context: 'Submitting contact form', showToast: true })
+        }
     } finally {
         isSubmitting.value = false
     }

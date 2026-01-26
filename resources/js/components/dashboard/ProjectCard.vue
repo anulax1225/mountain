@@ -12,6 +12,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Globe, MoreVertical, Pencil, Trash2, ExternalLink } from 'lucide-vue-next'
+import { useDateTime } from '@/composables'
+
+const { formatNumericDate } = useDateTime()
 
 const props = defineProps({
   project: Object
@@ -73,7 +76,7 @@ const showMenu = computed(() => canEdit.value || canDelete.value)
         </div>
       </Link>
       <div class="flex justify-between items-center text-sm">
-        <span class="text-zinc-500 dark:text-zinc-400">Créé {{ new Date(project.created_at).toLocaleDateString('fr-FR') }}</span>
+        <span class="text-zinc-500 dark:text-zinc-400">Créé {{ formatNumericDate(project.created_at) }}</span>
       </div>
     </CardContent>
   </Card>

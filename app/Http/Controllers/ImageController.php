@@ -62,8 +62,7 @@ class ImageController extends Controller
      */
     public function store(StoreImageRequest $request, Scene $scene): ImageResource
     {
-        $this->authorize('view', $scene->project);
-        $this->authorize('view', $scene);
+        $this->authorize('update', $scene->project);
 
         $file = $request->file('image');
         $path = $file->store('images', 's3');
@@ -117,7 +116,10 @@ class ImageController extends Controller
      */
     public function download(Image $image): StreamedResponse
     {
-        //$this->authorize('view', $image);
+        // Allow public project images, otherwise require authorization
+        if (!$image->scene->project->is_public) {
+            $this->authorize('view', $image);
+        }
 
         $stream = Storage::disk('s3')->readStream($image->path);
 
@@ -148,9 +150,9 @@ class ImageController extends Controller
      */
     public function update(UpdateImageRequest $request, Image $image): ImageResource
     {
-        $this->authorize('view', $image->scene->project);
-        $this->authorize('view', $image->scene);
-        
+        $this->authorize('update', $image->scene->project);
+        $this->authorize('update', $image);
+
         $updateData = [];
         
         if ($request->has('name')) {
@@ -189,8 +191,7 @@ class ImageController extends Controller
      */
     public function destroy(Image $image): Response
     {
-        $this->authorize('view', $image->scene->project);
-        $this->authorize('view', $image->scene);
+        $this->authorize('update', $image->scene->project);
         $this->authorize('delete', $image);
 
         Storage::disk('s3')->delete($image->path);

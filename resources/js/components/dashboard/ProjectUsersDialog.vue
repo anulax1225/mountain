@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Trash2, UserPlus } from 'lucide-vue-next'
-import axios from 'axios'
+import { useApiError, useConfirm } from '@/composables'
+import { projectUsers } from '@/owl-sdk'
 
 const props = defineProps({
   open: Boolean,
@@ -13,6 +14,9 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['update:open'])
+
+const { handleError } = useApiError()
+const { confirmDelete } = useConfirm()
 
 const assignedUsers = ref([])
 const availableUsers = ref([])
@@ -27,10 +31,10 @@ const loadAssignedUsers = async () => {
 
   try {
     loading.value = true
-    const response = await axios.get(`/projects/${props.project.slug}/users`)
-    assignedUsers.value = response.data || []
+    const response = await projectUsers.list(props.project.slug)
+    assignedUsers.value = response || []
   } catch (error) {
-    console.error('Failed to load assigned users:', error)
+    handleError(error, { context: 'Loading assigned users', showToast: true })
   } finally {
     loading.value = false
   }
@@ -39,13 +43,13 @@ const loadAssignedUsers = async () => {
 const loadAvailableData = async () => {
   try {
     const [usersRes, rolesRes] = await Promise.all([
-      axios.get('/available-users'),
-      axios.get('/available-roles')
+      projectUsers.availableUsers(),
+      projectUsers.availableRoles()
     ])
-    availableUsers.value = usersRes.data || []
-    availableRoles.value = rolesRes.data || []
+    availableUsers.value = usersRes || []
+    availableRoles.value = rolesRes || []
   } catch (error) {
-    console.error('Failed to load available data:', error)
+    handleError(error, { context: 'Loading available data', showToast: true })
   }
 }
 
@@ -66,7 +70,7 @@ const assignUser = async () => {
 
   try {
     adding.value = true
-    await axios.post(`/projects/${props.project.slug}/users`, {
+    await projectUsers.assign(props.project.slug, {
       user_id: selectedUserId.value,
       role_id: selectedRoleId.value
     })
@@ -74,22 +78,22 @@ const assignUser = async () => {
     selectedRoleId.value = null
     await loadAssignedUsers()
   } catch (error) {
-    console.error('Failed to assign user:', error)
-    alert('Erreur lors de l\'assignation de l\'utilisateur')
+    handleError(error, { context: 'Assigning user', showToast: true })
   } finally {
     adding.value = false
   }
 }
 
 const removeUser = async (userId) => {
-  if (!confirm('Êtes-vous sûr de vouloir retirer cet utilisateur du projet?')) return
+  const user = assignedUsers.value.find(u => u.id === userId)
+  const confirmed = await confirmDelete(user?.name || user?.email || 'cet utilisateur')
+  if (!confirmed) return
 
   try {
-    await axios.delete(`/projects/${props.project.slug}/users/${userId}`)
+    await projectUsers.remove(props.project.slug, userId)
     await loadAssignedUsers()
   } catch (error) {
-    console.error('Failed to remove user:', error)
-    alert('Erreur lors de la suppression de l\'utilisateur')
+    handleError(error, { context: 'Removing user', showToast: true })
   }
 }
 

@@ -22,11 +22,18 @@ class Scene extends Model
     protected static function boot()
     {
         parent::boot();
-        
+
         static::creating(function ($scene) {
             if (empty($scene->slug)) {
                 $scene->slug = (string) Str::uuid();
             }
+        });
+
+        static::deleting(function ($scene) {
+            // Cascade delete images (which will cascade delete hotspots and stickers)
+            $scene->images()->each(fn ($image) => $image->delete());
+            // Delete scene-level hotspots
+            $scene->hotspots()->delete();
         });
     }
 

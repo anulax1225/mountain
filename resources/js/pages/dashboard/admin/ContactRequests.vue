@@ -23,7 +23,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Search, Mail, Phone, Building2, Calendar, Trash2, Eye } from 'lucide-vue-next'
 import { useToast } from '@/components/ui/toast/use-toast'
-import { useDateTime } from '@/composables'
+import { useDateTime, useConfirm, useApiError } from '@/composables'
 import owl from '@/owl-sdk.js'
 
 defineProps({
@@ -32,6 +32,8 @@ defineProps({
 
 const { toast } = useToast()
 const { formatSmartDate } = useDateTime('fr-FR')
+const { confirmDelete } = useConfirm()
+const { handleError } = useApiError()
 
 const contactRequests = ref([])
 const isLoading = ref(true)
@@ -106,12 +108,7 @@ const loadContactRequests = async () => {
         const response = await owl.contactRequests.list()
         contactRequests.value = response.data
     } catch (error) {
-        console.error('Failed to load contact requests:', error)
-        toast({
-            title: 'Erreur',
-            description: 'Impossible de charger les demandes de contact.',
-            variant: 'destructive',
-        })
+        handleError(error, { context: 'Chargement des demandes de contact', showToast: true })
     } finally {
         isLoading.value = false
     }
@@ -184,20 +181,14 @@ const updateRequest = async () => {
             description: 'Le statut de la demande a été mis à jour avec succès.',
         })
     } catch (error) {
-        console.error('Failed to update request:', error)
-        toast({
-            title: 'Erreur',
-            description: 'Impossible de mettre à jour la demande.',
-            variant: 'destructive',
-        })
+        handleError(error, { context: 'Mise à jour de la demande', showToast: true })
         isUpdating.value = false
     }
 }
 
 const deleteRequest = async (request) => {
-    if (!confirm(`Êtes-vous sûr de vouloir supprimer la demande de ${request.name} ?`)) {
-        return
-    }
+    const confirmed = await confirmDelete(request.name)
+    if (!confirmed) return
 
     try {
         await owl.contactRequests.delete(request.slug)
@@ -208,12 +199,7 @@ const deleteRequest = async (request) => {
             description: 'La demande a été supprimée avec succès.',
         })
     } catch (error) {
-        console.error('Failed to delete request:', error)
-        toast({
-            title: 'Erreur',
-            description: 'Impossible de supprimer la demande.',
-            variant: 'destructive',
-        })
+        handleError(error, { context: 'Suppression de la demande', showToast: true })
     }
 }
 

@@ -9,11 +9,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import { ArrowLeft, TrendingUp, Users, Clock, Eye, MousePointer } from 'lucide-vue-next'
 import owl from '@/owl-sdk.js'
+import { useDateTime, useApiError } from '@/composables'
 
 const props = defineProps({
   auth: Object,
   projectSlug: String,
 })
+
+const { formatDate } = useDateTime()
+const { handleError } = useApiError()
 
 const project = ref(null)
 const analytics = ref(null)
@@ -31,7 +35,7 @@ const loadProject = async () => {
     const response = await owl.projects.get(props.projectSlug)
     project.value = response
   } catch (error) {
-    console.error('Failed to load project:', error)
+    handleError(error, { context: 'Chargement du projet', showToast: true })
   }
 }
 
@@ -41,7 +45,7 @@ const loadAnalytics = async () => {
     const response = await owl.analytics.getProjectAnalytics(props.projectSlug, selectedPeriod.value)
     analytics.value = response
   } catch (error) {
-    console.error('Failed to load analytics:', error)
+    handleError(error, { context: 'Chargement des statistiques', showToast: true })
   } finally {
     loading.value = false
   }
@@ -54,11 +58,8 @@ const formatDuration = (seconds) => {
   return `${minutes}m ${remainingSeconds}s`
 }
 
-const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleDateString('fr-FR', {
-    day: 'numeric',
-    month: 'short'
-  })
+const formatChartDate = (dateString) => {
+  return formatDate(dateString, { day: 'numeric', month: 'short' })
 }
 
 // Compute max value for chart scaling
@@ -197,7 +198,7 @@ onMounted(async () => {
 
                   <!-- Tooltip -->
                   <div class="opacity-0 group-hover:opacity-100 absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-zinc-900 dark:bg-zinc-100 text-zinc-100 dark:text-zinc-900 text-xs rounded shadow-lg whitespace-nowrap pointer-events-none transition-opacity z-10">
-                    <div class="font-semibold">{{ formatDate(day.date) }}</div>
+                    <div class="font-semibold">{{ formatChartDate(day.date) }}</div>
                     <div>{{ day.views }} vues</div>
                     <div>{{ day.unique_visitors }} visiteurs</div>
                   </div>
@@ -207,7 +208,7 @@ onMounted(async () => {
               <!-- X-axis labels (show every 7th day) -->
               <div class="ml-12 mt-2 flex justify-between text-xs text-zinc-500">
                 <span v-for="(day, index) in analytics.views_over_time" :key="index">
-                  <span v-if="index % 7 === 0">{{ formatDate(day.date) }}</span>
+                  <span v-if="index % 7 === 0">{{ formatChartDate(day.date) }}</span>
                 </span>
               </div>
             </div>

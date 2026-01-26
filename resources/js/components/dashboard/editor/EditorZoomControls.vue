@@ -1,7 +1,7 @@
 <script setup>
 import { Button } from '@/components/ui/button'
 import { ZoomIn, ZoomOut, Maximize2, RotateCcw } from 'lucide-vue-next'
-import { CAMERA, CONTROLS } from '@/lib/editorConstants.js'
+import { CAMERA, CONTROLS, ZOOM } from '@/lib/editorConstants.js'
 
 const props = defineProps({
     controls: {
@@ -17,7 +17,7 @@ const zoomIn = () => {
 
     const camera = props.controls.object
     const currentDistance = camera.position.length()
-    const newDistance = Math.max(currentDistance * 0.7, CONTROLS.MIN_DISTANCE)
+    const newDistance = Math.max(currentDistance * ZOOM.IN_FACTOR, CONTROLS.MIN_DISTANCE)
 
     camera.position.normalize().multiplyScalar(newDistance)
     props.controls.update()
@@ -29,7 +29,7 @@ const zoomOut = () => {
 
     const camera = props.controls.object
     const currentDistance = camera.position.length()
-    const newDistance = Math.min(currentDistance * 1.35, CONTROLS.MAX_DISTANCE)
+    const newDistance = Math.min(currentDistance * ZOOM.OUT_FACTOR, CONTROLS.MAX_DISTANCE)
 
     camera.position.normalize().multiplyScalar(newDistance)
     props.controls.update()

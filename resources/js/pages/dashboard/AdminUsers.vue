@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import DashboardLayout from '@/layouts/DashboardLayout.vue'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Input } from '@/components/ui/input'
@@ -9,9 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
-import { useConfirm, useDateTime } from '@/composables'
+import { useConfirm, useDateTime, useApiError } from '@/composables'
 import { UserPlus, Shield, Trash2, Edit, RefreshCw, Clock, CheckCircle } from 'lucide-vue-next'
-import axios from 'axios'
+import { admin } from '@/owl-sdk'
 
 defineProps({
   auth: Object,
@@ -19,6 +19,7 @@ defineProps({
 
 const { confirmDelete } = useConfirm()
 const { formatSmartDate } = useDateTime('fr-FR')
+const { handleError } = useApiError()
 
 const users = ref([])
 const roles = ref([])
@@ -41,10 +42,10 @@ const editForm = ref({
 const loadUsers = async () => {
   try {
     loading.value = true
-    const response = await axios.get('/admin/users')
-    users.value = response.data.data || []
+    const response = await admin.listUsers()
+    users.value = response.data || []
   } catch (error) {
-    console.error('Failed to load users:', error)
+    handleError(error, { context: 'Loading users', showToast: true })
   } finally {
     loading.value = false
   }
@@ -52,10 +53,10 @@ const loadUsers = async () => {
 
 const loadRoles = async () => {
   try {
-    const response = await axios.get('/admin/roles')
-    roles.value = response.data.data || []
+    const response = await admin.getRoles()
+    roles.value = response.data || []
   } catch (error) {
-    console.error('Failed to load roles:', error)
+    handleError(error, { context: 'Loading roles', showToast: true })
   }
 }
 
@@ -64,7 +65,7 @@ const createUser = async () => {
 
   try {
     submitting.value = true
-    await axios.post('/admin/users', {
+    await admin.createUser({
       email: form.value.email,
       name: form.value.name || undefined,
       role_id: parseInt(form.value.role_id),
@@ -73,7 +74,7 @@ const createUser = async () => {
     form.value = { email: '', name: '', role_id: '' }
     await loadUsers()
   } catch (error) {
-    console.error('Failed to create user:', error)
+    handleError(error, { context: 'Creating user', showToast: true })
   } finally {
     submitting.value = false
   }
@@ -91,14 +92,12 @@ const updateUserRole = async () => {
 
   try {
     submitting.value = true
-    await axios.put(`/admin/users/${editingUser.value.id}/role`, {
-      role_id: parseInt(editForm.value.role_id),
-    })
+    await admin.updateUserRole(editingUser.value.id, parseInt(editForm.value.role_id))
     editSheetOpen.value = false
     editingUser.value = null
     await loadUsers()
   } catch (error) {
-    console.error('Failed to update user role:', error)
+    handleError(error, { context: 'Updating user role', showToast: true })
   } finally {
     submitting.value = false
   }
@@ -109,10 +108,10 @@ const deleteUser = async (user) => {
   if (!confirmed) return
 
   try {
-    await axios.delete(`/admin/users/${user.id}`)
+    await admin.deleteUser(user.id)
     await loadUsers()
   } catch (error) {
-    console.error('Failed to delete user:', error)
+    handleError(error, { context: 'Deleting user', showToast: true })
   }
 }
 
@@ -123,10 +122,10 @@ const resendInvitation = async (user) => {
 
   try {
     resendingInvitation.value = user.id
-    await axios.post(`/admin/users/${user.id}/resend-invitation`)
+    await admin.resendInvitation(user.id)
     await loadUsers()
   } catch (error) {
-    console.error('Failed to resend invitation:', error)
+    handleError(error, { context: 'Resending invitation', showToast: true })
   } finally {
     resendingInvitation.value = null
   }

@@ -49,9 +49,8 @@ class StickerController extends Controller
      */
     public function store(StoreStickerRequest $request, Image $image): StickerResource
     {
-        $this->authorize('view', $image->scene->project);
-        $this->authorize('view', $image->scene);
-        
+        $this->authorize('update', $image->scene->project);
+
         $sticker = $image->stickers()->create($request->validated());
         
         return new StickerResource($sticker);
@@ -87,9 +86,9 @@ class StickerController extends Controller
      */
     public function update(UpdateStickerRequest $request, Sticker $sticker): StickerResource
     {
-        $this->authorize('view', $sticker->image->scene->project);
-        $this->authorize('view', $sticker->image->scene);
-        
+        $this->authorize('update', $sticker->image->scene->project);
+        $this->authorize('update', $sticker);
+
         $sticker->update($request->validated());
         
         return new StickerResource($sticker);
@@ -104,9 +103,9 @@ class StickerController extends Controller
      */
     public function destroy(Sticker $sticker): Response
     {
-        $this->authorize('view', $sticker->image->scene->project);
-        $this->authorize('view', $sticker->image->scene);
-        
+        $this->authorize('update', $sticker->image->scene->project);
+        $this->authorize('delete', $sticker);
+
         $sticker->delete();
         
         return response()->noContent();

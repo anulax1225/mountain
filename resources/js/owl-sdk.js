@@ -42,6 +42,9 @@ class OwlAPIClient {
         this.stickers = new StickersAPI(this);
         this.analytics = new AnalyticsAPI(this);
         this.contactRequests = new ContactRequestsAPI(this);
+        this.admin = new AdminAPI(this);
+        this.contact = new ContactAPI(this);
+        this.projectUsers = new ProjectUsersAPI(this);
 
         // Active requests tracking for cancellation
         this.activeRequests = new Map();
@@ -937,7 +940,178 @@ class AnalyticsAPI {
     }
 }
 
-// NOTE: Add this class to your existing owl-sdk.js file, replacing the existing ImagesAPI class
+/**
+ * Admin API endpoints (Admin only)
+ */
+class AdminAPI {
+    constructor(client) {
+        this.client = client;
+    }
+
+    /**
+     * List all users with their roles (admin only)
+     * @returns {Promise<Object>}
+     */
+    async listUsers() {
+        return await this.client.request('/admin/users', {
+            method: 'GET',
+        });
+    }
+
+    /**
+     * Get available global roles (admin only)
+     * @returns {Promise<Object>}
+     */
+    async getRoles() {
+        return await this.client.request('/admin/roles', {
+            method: 'GET',
+        });
+    }
+
+    /**
+     * Create a new user and send invitation (admin only)
+     * @param {Object} data
+     * @param {string} data.email - User email
+     * @param {number} data.role_id - Role ID
+     * @param {string} [data.name] - User name
+     * @returns {Promise<Object>}
+     */
+    async createUser(data) {
+        return await this.client.request('/admin/users', {
+            method: 'POST',
+            body: data,
+        });
+    }
+
+    /**
+     * Resend invitation email (admin only)
+     * @param {number} userId - User ID
+     * @returns {Promise<Object>}
+     */
+    async resendInvitation(userId) {
+        return await this.client.request(`/admin/users/${userId}/resend-invitation`, {
+            method: 'POST',
+        });
+    }
+
+    /**
+     * Update user's role (admin only)
+     * @param {number} userId - User ID
+     * @param {number} roleId - New role ID
+     * @returns {Promise<Object>}
+     */
+    async updateUserRole(userId, roleId) {
+        return await this.client.request(`/admin/users/${userId}/role`, {
+            method: 'PUT',
+            body: { role_id: roleId },
+        });
+    }
+
+    /**
+     * Delete a user (admin only)
+     * @param {number} userId - User ID
+     * @returns {Promise<void>}
+     */
+    async deleteUser(userId) {
+        return await this.client.request(`/admin/users/${userId}`, {
+            method: 'DELETE',
+        });
+    }
+}
+
+/**
+ * Contact form API (public)
+ */
+class ContactAPI {
+    constructor(client) {
+        this.client = client;
+    }
+
+    /**
+     * Submit a contact request (public)
+     * @param {Object} data
+     * @param {string} data.name - Name
+     * @param {string} data.email - Email
+     * @param {string} [data.phone] - Phone
+     * @param {string} [data.company] - Company
+     * @param {string} data.message - Message
+     * @returns {Promise<Object>}
+     */
+    async submit(data) {
+        return await this.client.request('/api/contact', {
+            method: 'POST',
+            body: data,
+            skipAuth: true,
+        });
+    }
+}
+
+/**
+ * Project Users API endpoints
+ */
+class ProjectUsersAPI {
+    constructor(client) {
+        this.client = client;
+    }
+
+    /**
+     * Get users assigned to a project
+     * @param {string} projectSlug - Project slug
+     * @returns {Promise<Object>}
+     */
+    async list(projectSlug) {
+        return await this.client.request(`/projects/${projectSlug}/users`, {
+            method: 'GET',
+        });
+    }
+
+    /**
+     * Assign a user to a project
+     * @param {string} projectSlug - Project slug
+     * @param {Object} data
+     * @param {number} data.user_id - User ID
+     * @param {number} data.role_id - Role ID
+     * @returns {Promise<Object>}
+     */
+    async assign(projectSlug, data) {
+        return await this.client.request(`/projects/${projectSlug}/users`, {
+            method: 'POST',
+            body: data,
+        });
+    }
+
+    /**
+     * Remove a user from a project
+     * @param {string} projectSlug - Project slug
+     * @param {number} userId - User ID
+     * @returns {Promise<void>}
+     */
+    async remove(projectSlug, userId) {
+        return await this.client.request(`/projects/${projectSlug}/users/${userId}`, {
+            method: 'DELETE',
+        });
+    }
+
+    /**
+     * Get available users that can be assigned
+     * @returns {Promise<Object>}
+     */
+    async availableUsers() {
+        return await this.client.request('/available-users', {
+            method: 'GET',
+        });
+    }
+
+    /**
+     * Get available project roles
+     * @returns {Promise<Object>}
+     */
+    async availableRoles() {
+        return await this.client.request('/available-roles', {
+            method: 'GET',
+        });
+    }
+}
 
 // =============================================================================
 // GLOBAL CLIENT SINGLETON
@@ -991,3 +1165,6 @@ export const images = client.images;
 export const stickers = client.stickers;
 export const analytics = client.analytics;
 export const contactRequests = client.contactRequests;
+export const admin = client.admin;
+export const contact = client.contact;
+export const projectUsers = client.projectUsers;
