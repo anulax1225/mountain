@@ -41,6 +41,7 @@ class OwlAPIClient {
         this.images = new ImagesAPI(this);
         this.stickers = new StickersAPI(this);
         this.analytics = new AnalyticsAPI(this);
+        this.contactRequests = new ContactRequestsAPI(this);
 
         // Active requests tracking for cancellation
         this.activeRequests = new Map();
@@ -830,6 +831,74 @@ class StickersAPI {
 }
 
 /**
+ * Contact Requests API endpoints (Admin only)
+ */
+class ContactRequestsAPI {
+    constructor(client) {
+        this.client = client;
+    }
+
+    /**
+     * List all contact requests (admin only)
+     * @param {Object} [params] - Query parameters
+     * @param {string} [params.status] - Filter by status (received, in_process, refused, validated)
+     * @param {string} [params.search] - Search by name, email, or company
+     * @param {number} [params.per_page] - Items per page
+     * @returns {Promise<Object>}
+     */
+    async list(params = {}) {
+        const queryParams = new URLSearchParams();
+        if (params.status) queryParams.append('status', params.status);
+        if (params.search) queryParams.append('search', params.search);
+        if (params.per_page) queryParams.append('per_page', params.per_page);
+
+        const queryString = queryParams.toString();
+        const path = `/admin/contact-requests${queryString ? `?${queryString}` : ''}`;
+
+        return await this.client.request(path, {
+            method: 'GET',
+        });
+    }
+
+    /**
+     * Get a specific contact request by slug (admin only)
+     * @param {string} slug - Contact request slug
+     * @returns {Promise<Object>}
+     */
+    async get(slug) {
+        return await this.client.request(`/admin/contact-requests/${slug}`, {
+            method: 'GET',
+        });
+    }
+
+    /**
+     * Update a contact request status (admin only)
+     * @param {string} slug - Contact request slug
+     * @param {Object} data
+     * @param {string} data.status - New status (received, in_process, refused, validated)
+     * @param {string} [data.admin_notes] - Admin notes
+     * @returns {Promise<Object>}
+     */
+    async update(slug, data) {
+        return await this.client.request(`/admin/contact-requests/${slug}`, {
+            method: 'PUT',
+            body: data,
+        });
+    }
+
+    /**
+     * Delete a contact request (admin only)
+     * @param {string} slug - Contact request slug
+     * @returns {Promise<void>}
+     */
+    async delete(slug) {
+        return await this.client.request(`/admin/contact-requests/${slug}`, {
+            method: 'DELETE',
+        });
+    }
+}
+
+/**
  * Analytics API endpoints
  */
 class AnalyticsAPI {
@@ -921,3 +990,4 @@ export const hotspots = client.hotspots;
 export const images = client.images;
 export const stickers = client.stickers;
 export const analytics = client.analytics;
+export const contactRequests = client.contactRequests;

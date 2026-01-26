@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import DashboardLayout from '@/layouts/DashboardLayout.vue'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -40,18 +40,31 @@ const statusFilter = ref('all')
 const selectedRequest = ref(null)
 const viewDialogOpen = ref(false)
 const updateDialogOpen = ref(false)
+const isUpdating = ref(false)
 
 const updateForm = ref({
     status: '',
     admin_notes: '',
 })
 
-// Status configuration
+// Status configuration with custom badge classes
 const statusConfig = {
-    received: { label: 'Reçu', variant: 'secondary', color: 'text-blue-600 dark:text-blue-400' },
-    in_process: { label: 'En cours', variant: 'default', color: 'text-yellow-600 dark:text-yellow-400' },
-    refused: { label: 'Refusé', variant: 'destructive', color: 'text-red-600 dark:text-red-400' },
-    validated: { label: 'Validé', variant: 'success', color: 'text-green-600 dark:text-green-400' },
+    received: {
+        label: 'Reçu',
+        badgeClass: 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800'
+    },
+    in_process: {
+        label: 'En cours',
+        badgeClass: 'bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800'
+    },
+    refused: {
+        label: 'Refusé',
+        badgeClass: 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800'
+    },
+    validated: {
+        label: 'Validé',
+        badgeClass: 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800'
+    },
 }
 
 // Filtered requests
@@ -90,7 +103,7 @@ const stats = computed(() => {
 const loadContactRequests = async () => {
     try {
         isLoading.value = true
-        const response = await owl.get('/admin/contact-requests')
+        const response = await owl.contactRequests.list()
         contactRequests.value = response.data
     } catch (error) {
         console.error('Failed to load contact requests:', error)
@@ -103,6 +116,31 @@ const loadContactRequests = async () => {
         isLoading.value = false
     }
 }
+
+// Watch for dialog close to cleanup state after animation
+watch(viewDialogOpen, (isOpen) => {
+    if (!isOpen) {
+        // Delay cleanup until after dialog close animation
+        setTimeout(() => {
+            if (!viewDialogOpen.value) {
+                selectedRequest.value = null
+            }
+        }, 150)
+    }
+})
+
+watch(updateDialogOpen, (isOpen) => {
+    if (!isOpen) {
+        // Delay cleanup until after dialog close animation
+        setTimeout(() => {
+            if (!updateDialogOpen.value) {
+                selectedRequest.value = null
+                updateForm.value = { status: '', admin_notes: '' }
+                isUpdating.value = false
+            }
+        }, 150)
+    }
+})
 
 const viewRequest = (request) => {
     selectedRequest.value = request
@@ -119,21 +157,28 @@ const openUpdateDialog = (request) => {
 }
 
 const updateRequest = async () => {
-    if (!selectedRequest.value) return
+    if (!selectedRequest.value || isUpdating.value) return
+
+    const requestSlug = selectedRequest.value.slug
+    isUpdating.value = true
 
     try {
-        const response = await owl.put(
-            `/admin/contact-requests/${selectedRequest.value.slug}`,
+        const response = await owl.contactRequests.update(
+            requestSlug,
             updateForm.value
         )
 
         // Update the request in the list
-        const index = contactRequests.value.findIndex(r => r.slug === selectedRequest.value.slug)
+        const index = contactRequests.value.findIndex(r => r.slug === requestSlug)
         if (index !== -1) {
-            contactRequests.value[index] = response
+            contactRequests.value[index] = response.data
         }
 
+        // Close dialog first, then show toast
         updateDialogOpen.value = false
+
+        await nextTick()
+
         toast({
             title: 'Mis à jour',
             description: 'Le statut de la demande a été mis à jour avec succès.',
@@ -145,6 +190,7 @@ const updateRequest = async () => {
             description: 'Impossible de mettre à jour la demande.',
             variant: 'destructive',
         })
+        isUpdating.value = false
     }
 }
 
@@ -154,7 +200,7 @@ const deleteRequest = async (request) => {
     }
 
     try {
-        await owl.delete(`/admin/contact-requests/${request.slug}`)
+        await owl.contactRequests.delete(request.slug)
         contactRequests.value = contactRequests.value.filter(r => r.slug !== request.slug)
 
         toast({
@@ -269,7 +315,7 @@ onMounted(() => {
                                     <h3 class="font-semibold text-lg text-zinc-900 dark:text-white">
                                         {{ request.name }}
                                     </h3>
-                                    <Badge :variant="statusConfig[request.status].variant">
+                                    <Badge :class="statusConfig[request.status].badgeClass">
                                         {{ statusConfig[request.status].label }}
                                     </Badge>
                                 </div>
@@ -349,9 +395,11 @@ onMounted(() => {
                         </div>
                         <div>
                             <Label>Statut</Label>
-                            <Badge class="mt-1" :variant="statusConfig[selectedRequest.status].variant">
-                                {{ statusConfig[selectedRequest.status].label }}
-                            </Badge>
+                            <div class="mt-1">
+                                <Badge :class="statusConfig[selectedRequest.status].badgeClass">
+                                    {{ statusConfig[selectedRequest.status].label }}
+                                </Badge>
+                            </div>
                         </div>
                     </div>
 
@@ -380,14 +428,14 @@ onMounted(() => {
 
                     <div>
                         <Label>Message</Label>
-                        <p class="bg-zinc-50 dark:bg-zinc-900 mt-1 p-4 rounded text-sm whitespace-pre-wrap">
+                        <p class="bg-zinc-50 dark:bg-zinc-800 mt-1 p-4 rounded-lg border border-zinc-200 dark:border-zinc-700 text-sm whitespace-pre-wrap">
                             {{ selectedRequest.message }}
                         </p>
                     </div>
 
                     <div v-if="selectedRequest.admin_notes">
                         <Label>Notes administrateur</Label>
-                        <p class="bg-zinc-50 dark:bg-zinc-900 mt-1 p-4 rounded text-sm whitespace-pre-wrap">
+                        <p class="bg-zinc-50 dark:bg-zinc-800 mt-1 p-4 rounded-lg border border-zinc-200 dark:border-zinc-700 text-sm whitespace-pre-wrap">
                             {{ selectedRequest.admin_notes }}
                         </p>
                     </div>
@@ -416,7 +464,7 @@ onMounted(() => {
                     </DialogDescription>
                 </DialogHeader>
 
-                <form @submit.prevent="updateRequest" class="space-y-4">
+                <form v-if="selectedRequest" @submit.prevent="updateRequest" class="space-y-4">
                     <div class="space-y-2">
                         <Label for="status">Statut</Label>
                         <Select v-model="updateForm.status">
@@ -424,10 +472,30 @@ onMounted(() => {
                                 <SelectValue placeholder="Sélectionner un statut" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="received">Reçu</SelectItem>
-                                <SelectItem value="in_process">En cours</SelectItem>
-                                <SelectItem value="refused">Refusé</SelectItem>
-                                <SelectItem value="validated">Validé</SelectItem>
+                                <SelectItem value="received">
+                                    <span class="flex items-center gap-2">
+                                        <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                                        Reçu
+                                    </span>
+                                </SelectItem>
+                                <SelectItem value="in_process">
+                                    <span class="flex items-center gap-2">
+                                        <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+                                        En cours
+                                    </span>
+                                </SelectItem>
+                                <SelectItem value="refused">
+                                    <span class="flex items-center gap-2">
+                                        <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                                        Refusé
+                                    </span>
+                                </SelectItem>
+                                <SelectItem value="validated">
+                                    <span class="flex items-center gap-2">
+                                        <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                                        Validé
+                                    </span>
+                                </SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -443,11 +511,12 @@ onMounted(() => {
                     </div>
 
                     <DialogFooter>
-                        <Button type="button" variant="outline" @click="updateDialogOpen = false">
+                        <Button type="button" variant="outline" @click="updateDialogOpen = false" :disabled="isUpdating">
                             Annuler
                         </Button>
-                        <Button type="submit">
-                            Mettre à jour
+                        <Button type="submit" :disabled="isUpdating">
+                            <span v-if="isUpdating">Mise à jour...</span>
+                            <span v-else>Mettre à jour</span>
                         </Button>
                     </DialogFooter>
                 </form>

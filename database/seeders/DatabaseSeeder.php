@@ -8,6 +8,7 @@ use App\Models\Scene;
 use App\Models\Image;
 use App\Models\Hotspot;
 use App\Models\Sticker;
+use App\Models\ContactRequest;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -36,6 +37,12 @@ class DatabaseSeeder extends Seeder
         if ($this->command->confirm('Create additional users with projects?', false)) {
             $count = $this->command->ask('How many users?', 3);
             $this->createAdditionalUsers((int) $count);
+        }
+
+        // Optionally seed contact requests
+        $this->command->newLine();
+        if ($this->command->confirm('Seed contact requests?', true)) {
+            $this->call(ContactRequestSeeder::class);
         }
 
         $this->command->newLine();
