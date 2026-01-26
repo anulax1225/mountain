@@ -22,7 +22,7 @@ const features = [
 </script>
 
 <template>
-  <section id="features" class="bg-zinc-50 dark:bg-zinc-800/50 px-4 sm:px-6 lg:px-8 py-24">
+  <section id="features" class="bg-zinc-50 dark:bg-zinc-900 px-4 sm:px-6 lg:px-8 py-24">
     <div class="mx-auto max-w-7xl">
       <div class="mb-16 text-center">
         <h2 class="mb-4 font-bold text-zinc-900 dark:text-zinc-100 text-3xl sm:text-4xl">

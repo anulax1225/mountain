@@ -8,8 +8,8 @@ import { ArrowRight } from 'lucide-vue-next'
   <section class="px-4 sm:px-6 lg:px-8 py-24">
     <div class="mx-auto max-w-4xl">
       <div class="relative">
-        <div class="absolute inset-0 bg-zinc-900 dark:bg-zinc-800 rounded-3xl"></div>
-        <div class="absolute inset-0 bg-[linear-gradient(to_right,#52525b_1px,transparent_1px),linear-gradient(to_bottom,#52525b_1px,transparent_1px)] bg-[size:4rem_4rem] dark:bg-[linear-gradient(to_right,#3f3f46_1px,transparent_1px),linear-gradient(to_bottom,#3f3f46_1px,transparent_1px)] opacity-10 rounded-3xl"></div>
+        <div class="absolute inset-0 bg-zinc-900 rounded-3xl"></div>
+        <div class="absolute inset-0 bg-[linear-gradient(to_right,#52525b_1px,transparent_1px),linear-gradient(to_bottom,#52525b_1px,transparent_1px)] bg-[size:4rem_4rem] dark:bg-[linear-gradient(to_right,#3f3f46_1px,transparent_1px),linear-gradient(to_bottom,#3f3f46_1px,transparent_1px)] opacity-20 rounded-3xl"></div>
         <div class="relative p-12 text-center">
           <h2 class="mb-4 font-bold text-white text-3xl sm:text-4xl">
             Prêt à commencer?

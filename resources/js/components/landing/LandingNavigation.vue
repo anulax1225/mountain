@@ -26,6 +26,7 @@ const isLoggedIn = computed(() => !!props.auth?.user)
           <a href="/#features" class="text-zinc-600 hover:text-zinc-900 dark:hover:text-zinc-100 dark:text-zinc-400 text-sm transition-colors">Fonctionnalités</a>
           <Link href="/gallery" class="text-zinc-600 hover:text-zinc-900 dark:hover:text-zinc-100 dark:text-zinc-400 text-sm transition-colors">Galerie</Link>
           <Link href="/pricing" class="text-zinc-600 hover:text-zinc-900 dark:hover:text-zinc-100 dark:text-zinc-400 text-sm transition-colors">Tarifs</Link>
+          <Link href="/contact" class="text-zinc-600 hover:text-zinc-900 dark:hover:text-zinc-100 dark:text-zinc-400 text-sm transition-colors">Contact</Link>
           <ThemeToggle />
           <div class="flex items-center gap-3 ml-4">
             <template v-if="isLoggedIn">
@@ -56,6 +57,7 @@ const isLoggedIn = computed(() => !!props.auth?.user)
         <a href="#features" class="block text-zinc-600 hover:text-zinc-900 dark:hover:text-zinc-100 dark:text-zinc-400 text-sm">Fonctionnalités</a>
         <Link href="/gallery" class="block text-zinc-600 hover:text-zinc-900 dark:hover:text-zinc-100 dark:text-zinc-400 text-sm">Galerie</Link>
         <Link href="/pricing" class="block text-zinc-600 hover:text-zinc-900 dark:hover:text-zinc-100 dark:text-zinc-400 text-sm">Tarifs</Link>
+        <Link href="/contact" class="block text-zinc-600 hover:text-zinc-900 dark:hover:text-zinc-100 dark:text-zinc-400 text-sm">Contact</Link>
         <div class="flex items-center gap-2">
           <span class="text-zinc-600 dark:text-zinc-400 text-sm">Thème:</span>
           <ThemeToggle />

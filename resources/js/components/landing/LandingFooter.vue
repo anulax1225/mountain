@@ -13,7 +13,7 @@ import AppLogo from '@/components/AppLogo.vue'
         <div class="flex items-center gap-6 text-zinc-600 dark:text-zinc-400 text-sm">
           <a href="#" class="hover:text-zinc-900 dark:hover:text-zinc-100">Confidentialité</a>
           <a href="#" class="hover:text-zinc-900 dark:hover:text-zinc-100">Conditions</a>
-          <a href="#" class="hover:text-zinc-900 dark:hover:text-zinc-100">Contact</a>
+          <a href="/contact" class="hover:text-zinc-900 dark:hover:text-zinc-100">Contact</a>
         </div>
         <p class="text-zinc-500 dark:text-zinc-400 text-sm">© 2025 Owlaround. Créé avec Three.js & Laravel.</p>
       </div>

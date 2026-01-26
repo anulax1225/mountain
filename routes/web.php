@@ -13,6 +13,8 @@ use App\Http\Controllers\SceneController;
 use App\Http\Controllers\StickerController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AnalyticsController;
+use App\Http\Controllers\ContactRequestController;
+use App\Http\Controllers\AdminContactRequestController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
@@ -25,6 +27,10 @@ Route::get('/login', function () {
 Route::get('/pricing', function () {
     return Inertia::render('Pricing');
 })->name('pricing');
+
+// Public contact page
+Route::get('/contact', [ContactRequestController::class, 'show'])->name('contact');
+Route::post('/api/contact', [ContactRequestController::class, 'store']);
 
 Route::post('/login', [AuthController::class, 'webLogin']);
 
@@ -51,6 +57,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/settings', [DashboardController::class, 'settings'])->name('dashboard.settings');
     Route::get('/dashboard/admin/users', [DashboardController::class, 'adminUsers'])->name('dashboard.admin.users');
+    Route::get('/dashboard/admin/contact-requests', [AdminContactRequestController::class, 'index'])->name('dashboard.admin.contact-requests');
     Route::get('/dashboard/projects/{project:slug}', [DashboardController::class, 'showProject'])->name('dashboard.project');
     Route::get('/dashboard/projects/{project:slug}/analytics', [DashboardController::class, 'showProjectAnalytics'])->name('dashboard.project.analytics');
     Route::get('/dashboard/scenes/{scene:slug}', [DashboardController::class, 'showScene'])->name('dashboard.scene');
@@ -79,6 +86,12 @@ Route::middleware('auth')->group(function () {
     Route::put('/admin/users/{user}/role', [AdminUserController::class, 'updateRole']);
     Route::post('/admin/users/{user}/resend-invitation', [AdminUserController::class, 'resendInvitation']);
     Route::delete('/admin/users/{user}', [AdminUserController::class, 'destroy']);
+
+    // Admin routes (contact requests management)
+    Route::get('/admin/contact-requests', [AdminContactRequestController::class, 'list']);
+    Route::get('/admin/contact-requests/{contactRequest:slug}', [AdminContactRequestController::class, 'show']);
+    Route::put('/admin/contact-requests/{contactRequest:slug}', [AdminContactRequestController::class, 'update']);
+    Route::delete('/admin/contact-requests/{contactRequest:slug}', [AdminContactRequestController::class, 'destroy']);
 
     // Projects routes
     Route::get('/projects', [ProjectController::class, 'index']);

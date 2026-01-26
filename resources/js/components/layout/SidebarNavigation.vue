@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { Link, usePage } from '@inertiajs/vue3'
-import { FolderOpen, ChevronLeft, LayoutGrid, GalleryVerticalEnd, Home, Users, BarChart3, Globe } from 'lucide-vue-next'
+import { FolderOpen, ChevronLeft, LayoutGrid, GalleryVerticalEnd, Home, Users, BarChart3, Globe, MailOpen } from 'lucide-vue-next'
 
 const props = defineProps({
     isOpen: Boolean,
@@ -20,6 +20,7 @@ const baseNavigation = computed(() => {
 
     if (isAdmin.value) {
         items.push({ name: 'Administration', icon: Users, href: '/dashboard/admin/users' })
+        items.push({ name: 'Contact', icon: MailOpen, href: '/dashboard/admin/contact-requests' })
     }
 
     return items
