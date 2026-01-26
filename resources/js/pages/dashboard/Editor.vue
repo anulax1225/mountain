@@ -528,11 +528,12 @@ const handleFullscreenChange = () => {
 }
 
 const handleCameraMove = () => {
-    // Close all popovers and context menus when camera moves
+    // Close all popovers and context menus when camera moves or when clicking empty space
     interaction.clearHoverStates()
     hotspotHoverPosition.value = null
     stickerContextMenuVisible.value = false
     isPopoverHovered.value = false
+    interaction.setSelectedSticker(null) // Clear sticker selection as well
 }
 
 onMounted(() => {

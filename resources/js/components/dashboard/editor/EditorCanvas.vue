@@ -50,6 +50,7 @@ const renderView = ref(null)
 const hideHoverTimeout = ref(null)
 const skipNextWatch = ref(false)
 const isLoadingPanorama = ref(false)
+const lastHoverStartTime = ref(0) // Track when we last started hovering to prevent rapid toggling
 
 // Scale multipliers - must match useEditorInteraction
 const HOVER_SCALE = 1.15
@@ -225,6 +226,15 @@ const onMouseDown = (event) => {
     }
 }
 
+// Helper function to clear hover timeout immediately
+const clearHoverTimeout = () => {
+    if (hideHoverTimeout.value) {
+        clearTimeout(hideHoverTimeout.value)
+        hideHoverTimeout.value = null
+    }
+    lastHoverStartTime.value = 0 // Reset hover start time
+}
+
 // Canvas click handler
 const onCanvasClick = (event) => {
     if (!raycaster.value || !camera.value || !currentMesh.value) return
@@ -272,6 +282,9 @@ const onCanvasClick = (event) => {
             const sprite = intersects[0].object
             const hotspot = sprite.userData.hotspot
 
+            // Clear any pending hover timeouts
+            clearHoverTimeout()
+
             if (props.mode === 'view') {
                 // Navigate to target image
                 emit('hotspot-click', hotspot)
@@ -296,6 +309,9 @@ const onCanvasClick = (event) => {
             const sprite = intersects[0].object
             const sticker = sprite.userData.sticker
 
+            // Clear any pending hover timeouts
+            clearHoverTimeout()
+
             // Emit selection event - parent handles state
             if (sticker?.slug !== props.selectedStickerSlug) {
                 emit('sticker-select', { slug: sticker?.slug })
@@ -309,8 +325,13 @@ const onCanvasClick = (event) => {
             const y = (screenPosition.y * -0.5 + 0.5) * renderView.value.clientHeight
 
             emit('sticker-click', { sticker, position: { x, y } })
+            return
         }
     }
+
+    // If we reach here, user clicked on empty space - clear all interaction states
+    clearHoverTimeout()
+    emit('camera-move')
 }
 
 // Mouse move handler for hotspot hover (view mode) and sticker hover (edit mode) and drag
@@ -368,6 +389,9 @@ const onMouseMove = (event) => {
                 const x = (screenPosition.x * 0.5 + 0.5) * renderView.value.clientWidth
                 const y = (screenPosition.y * -0.5 + 0.5) * renderView.value.clientHeight
 
+                // Record when we started hovering to prevent rapid toggling
+                lastHoverStartTime.value = Date.now()
+
                 emit('hotspot-hover-start', {
                     slug: hotspot?.slug,
                     hotspot,
@@ -380,14 +404,22 @@ const onMouseMove = (event) => {
                 hideHoverTimeout.value = null
             }
         } else {
-            // Emit hover-end with delay
+            // Emit hover-end with delay, but only if enough time has passed since hover-start
+            // This prevents rapid toggling when the popover blocks the raycaster
             if (props.hoveredHotspotSlug) {
+                const timeSinceHoverStart = Date.now() - lastHoverStartTime.value
+                const minHoverTime = 300 // Minimum time (ms) hotspot must be hovered before allowing hide
+
                 if (hideHoverTimeout.value) {
                     clearTimeout(hideHoverTimeout.value)
                 }
-                hideHoverTimeout.value = setTimeout(() => {
-                    emit('hotspot-hover-end')
-                }, TIMING.HOVER_HIDE_DELAY_MS)
+
+                // Only schedule hide if we've been hovering long enough
+                if (timeSinceHoverStart >= minHoverTime) {
+                    hideHoverTimeout.value = setTimeout(() => {
+                        emit('hotspot-hover-end')
+                    }, TIMING.HOVER_HIDE_DELAY_MS)
+                }
             }
         }
     }
@@ -653,6 +685,8 @@ onMounted(() => {
         // Listen for camera movement to close panels
         if (controls.value) {
             controls.value.addEventListener('change', () => {
+                // Clear hover timeout to prevent delayed popover appearance
+                clearHoverTimeout()
                 emit('camera-move')
             })
         }
@@ -673,9 +707,7 @@ const cleanup = () => {
         renderView.value.removeEventListener('mousemove', onMouseMove)
         renderView.value.removeEventListener('wheel', onWheel)
     }
-    if (hideHoverTimeout.value) {
-        clearTimeout(hideHoverTimeout.value)
-    }
+    clearHoverTimeout()
 
     // Clear sprite managers
     if (hotspotManager) hotspotManager.clear()

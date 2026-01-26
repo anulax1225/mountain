@@ -28,6 +28,7 @@ const mode = ref('view')
 const isCreatingHotspot = ref(false)
 const targetDialogOpen = ref(false)
 const pendingHotspotPosition = ref(null)
+const hoveredHotspotSlug = ref(null) // Track by slug for proper state management
 const hoveredHotspot = ref(null)
 const hotspotHoverPosition = ref(null)
 const editingHotspot = ref(null)
@@ -81,12 +82,14 @@ const handleHotspotClick = async (hotspot) => {
 }
 
 const handleHotspotHoverStart = ({ slug, hotspot, position }) => {
+    hoveredHotspotSlug.value = slug
     hoveredHotspot.value = hotspot
     hotspotHoverPosition.value = position
 }
 
 const handleHotspotHoverEnd = () => {
     if (!isPopoverHovered.value) {
+        hoveredHotspotSlug.value = null
         hoveredHotspot.value = null
         hotspotHoverPosition.value = null
     }
@@ -112,8 +115,17 @@ const handlePopoverMouseEnter = () => {
 
 const handlePopoverMouseLeave = () => {
     isPopoverHovered.value = false
+    hoveredHotspotSlug.value = null
     hoveredHotspot.value = null
     hotspotHoverPosition.value = null
+}
+
+const handleCameraMove = () => {
+    // Close popover when camera moves or when clicking empty space
+    hoveredHotspotSlug.value = null
+    hoveredHotspot.value = null
+    hotspotHoverPosition.value = null
+    isPopoverHovered.value = false
 }
 
 const toggleFullscreen = async () => {
@@ -140,8 +152,10 @@ onUnmounted(() => {
 <template>
     <div ref="viewerContainer" class="relative w-full h-full">
         <EditorCanvas ref="editorCanvasRef" :images="images" :current-index="currentImageIndex" :mode="mode"
+            :hovered-hotspot-slug="hoveredHotspotSlug"
             @hotspot-click="handleHotspotClick" @hotspot-position-selected="handleHotspotPositionSelected"
-            @hotspot-hover-start="handleHotspotHoverStart" @hotspot-hover-end="handleHotspotHoverEnd" />
+            @hotspot-hover-start="handleHotspotHoverStart" @hotspot-hover-end="handleHotspotHoverEnd"
+            @camera-move="handleCameraMove" />
 
         <!-- Control buttons on right side (middle height to avoid overlap) -->
         <div class="absolute top-1/2 -translate-y-1/2 right-6 z-40 flex flex-col gap-2">
