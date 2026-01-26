@@ -22,7 +22,7 @@ Route::get('/', function () {
 
 Route::get('/login', function () {
     return Inertia::render('auth/Login');
-})->name('login.form');
+})->name('login');
 
 Route::get('/pricing', function () {
     return Inertia::render('Pricing');
