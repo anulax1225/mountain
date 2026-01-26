@@ -34,6 +34,7 @@ const submitForm = async () => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
                 'Accept': 'application/json',
             },
             body: JSON.stringify(form.value),
