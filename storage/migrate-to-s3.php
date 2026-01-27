@@ -72,7 +72,7 @@ function migrateImages($deleteLocal = false, $dryRun = false)
 
             // Copy file to S3
             $content = Storage::disk('public')->get($image->path);
-            $result = Storage::disk('s3')->put($image->path, $content, 'public');
+            $result = Storage::disk('s3')->put($image->path, $content);
 
             if ($result) {
                 echo "✓ Migrated: {$image->name} ({$image->path})\n";
