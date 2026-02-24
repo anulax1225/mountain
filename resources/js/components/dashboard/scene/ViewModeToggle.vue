@@ -10,11 +10,11 @@ const emit = defineEmits(['update:modelValue'])
 </script>
 
 <template>
-  <div class="flex gap-1 bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg">
+  <div class="flex gap-1 bg-muted p-1 rounded-lg">
     <Button
       variant="ghost"
       size="icon-sm"
-      :class="modelValue === 'grid' ? 'bg-white dark:bg-zinc-700 shadow-sm' : ''"
+      :class="modelValue === 'grid' ? 'bg-card shadow-sm' : ''"
       @click="emit('update:modelValue', 'grid')"
     >
       <Grid3x3 class="w-4 h-4" />
@@ -22,7 +22,7 @@ const emit = defineEmits(['update:modelValue'])
     <Button
       variant="ghost"
       size="icon-sm"
-      :class="modelValue === 'list' ? 'bg-white dark:bg-zinc-700 shadow-sm' : ''"
+      :class="modelValue === 'list' ? 'bg-card shadow-sm' : ''"
       @click="emit('update:modelValue', 'list')"
     >
       <LayoutGrid class="w-4 h-4" />
@@ -30,7 +30,7 @@ const emit = defineEmits(['update:modelValue'])
     <Button
       variant="ghost"
       size="icon-sm"
-      :class="modelValue === 'slider' ? 'bg-white dark:bg-zinc-700 shadow-sm' : ''"
+      :class="modelValue === 'slider' ? 'bg-card shadow-sm' : ''"
       @click="emit('update:modelValue', 'slider')"
     >
       <Presentation class="w-4 h-4" />

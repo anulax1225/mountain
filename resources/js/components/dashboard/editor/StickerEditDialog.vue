@@ -116,12 +116,12 @@ const handleCancel = () => {
                 <!-- Sticker type display (read-only) -->
                 <div>
                     <Label>Type de sticker</Label>
-                    <div class="mt-2 flex items-center gap-3 p-3 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50">
-                        <Smile v-if="sticker.type === 'emoji'" class="w-5 h-5 text-zinc-500" />
-                        <Type v-if="sticker.type === 'text'" class="w-5 h-5 text-zinc-500" />
+                    <div class="mt-2 flex items-center gap-3 p-3 rounded-lg border border-border bg-muted">
+                        <Smile v-if="sticker.type === 'emoji'" class="w-5 h-5 text-muted-foreground" />
+                        <Type v-if="sticker.type === 'text'" class="w-5 h-5 text-muted-foreground" />
                         <div>
                             <div class="font-medium">{{ sticker.type === 'emoji' ? 'Emoji' : 'Texte' }}</div>
-                            <div class="text-sm text-zinc-500 dark:text-zinc-400">
+                            <div class="text-sm text-muted-foreground">
                                 Le type ne peut pas être modifié
                             </div>
                         </div>
@@ -132,7 +132,7 @@ const handleCancel = () => {
                 <div v-if="sticker.type === 'emoji'" class="space-y-4">
                     <div>
                         <Label>Emoji sélectionné</Label>
-                        <div class="mt-2 flex items-center justify-center w-full h-24 bg-zinc-100 dark:bg-zinc-900 rounded-lg text-6xl">
+                        <div class="mt-2 flex items-center justify-center w-full h-24 bg-muted rounded-lg text-6xl">
                             {{ emojiContent }}
                         </div>
                     </div>
@@ -147,8 +147,8 @@ const handleCancel = () => {
                                 :class="[
                                     'w-12 h-12 rounded-lg border-2 text-2xl transition-all flex items-center justify-center',
                                     emojiContent === emoji
-                                        ? 'border-zinc-900 dark:border-zinc-100 bg-zinc-100 dark:bg-zinc-800 scale-110'
-                                        : 'border-zinc-300 dark:border-zinc-600 hover:border-zinc-400'
+                                        ? 'border-foreground bg-muted scale-110'
+                                        : 'border-border hover:border-muted-foreground'
                                 ]"
                             >
                                 {{ emoji }}
@@ -180,7 +180,7 @@ const handleCancel = () => {
                             rows="3"
                             maxlength="200"
                         />
-                        <div class="mt-1 text-xs text-zinc-500">{{ textContent.length }}/200 caractères</div>
+                        <div class="mt-1 text-xs text-muted-foreground">{{ textContent.length }}/200 caractères</div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
@@ -274,13 +274,13 @@ const handleCancel = () => {
                 <!-- Position display (read-only) -->
                 <div>
                     <Label>Position</Label>
-                    <div class="mt-2 p-3 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50">
-                        <div class="text-sm text-zinc-500 dark:text-zinc-400">
+                    <div class="mt-2 p-3 rounded-lg border border-border bg-muted">
+                        <div class="text-sm text-muted-foreground">
                             X: {{ sticker.position_x?.toFixed(3) }},
                             Y: {{ sticker.position_y?.toFixed(3) }},
                             Z: {{ sticker.position_z?.toFixed(3) }}
                         </div>
-                        <div class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                        <div class="text-xs text-muted-foreground mt-1">
                             Glissez-déposez le sticker pour changer sa position
                         </div>
                     </div>

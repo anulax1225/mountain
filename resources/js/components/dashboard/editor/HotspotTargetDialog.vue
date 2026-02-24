@@ -53,7 +53,7 @@ const selectImage = (image) => {
                 <div class="space-y-6">
                     <div v-for="group in groupedImages" :key="group.scene.slug" class="space-y-3">
                         <div class="flex items-center gap-2">
-                            <h3 class="font-semibold text-zinc-900 dark:text-zinc-100">
+                            <h3 class="font-semibold text-foreground">
                                 {{ group.scene.name || 'Sans nom' }}
                             </h3>
                             <Badge variant="secondary">
@@ -86,7 +86,7 @@ const selectImage = (image) => {
                     </div>
 
                     <div v-if="groupedImages.length === 0" class="py-12 text-center">
-                        <p class="text-zinc-500 dark:text-zinc-400">Aucune image disponible</p>
+                        <p class="text-muted-foreground">Aucune image disponible</p>
                     </div>
                 </div>
             </ScrollArea>

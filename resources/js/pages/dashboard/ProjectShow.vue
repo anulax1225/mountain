@@ -131,8 +131,8 @@ onMounted(() => {
           </Button>
         </Link>
         <div class="flex-1">
-          <h1 class="font-bold text-zinc-900 dark:text-zinc-100 text-3xl">{{ project?.name || 'Loading...' }}</h1>
-          <p class="mt-1 text-zinc-600 dark:text-zinc-400">{{ project?.description || 'No description' }}</p>
+          <h1 class="font-bold text-foreground text-3xl">{{ project?.name || 'Loading...' }}</h1>
+          <p class="mt-1 text-muted-foreground">{{ project?.description || 'No description' }}</p>
         </div>
         <div class="flex gap-2">
           <Button
@@ -182,7 +182,7 @@ onMounted(() => {
 
       <div v-else>
         <div class="mb-6">
-          <h2 class="mb-4 font-semibold text-zinc-900 dark:text-zinc-100 text-xl">Scènes</h2>
+          <h2 class="mb-4 font-semibold text-foreground text-xl">Scènes</h2>
 
           <div class="gap-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             <SceneCard

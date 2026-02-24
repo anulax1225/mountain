@@ -94,7 +94,7 @@ watch(() => props.open, async (newValue) => {
                         Lien direct
                     </Label>
                     <div class="flex gap-2">
-                        <div class="flex-1 px-3 py-2 text-sm bg-zinc-100 dark:bg-zinc-800 rounded-md border border-zinc-200 dark:border-zinc-700 truncate">
+                        <div class="flex-1 px-3 py-2 text-sm bg-muted rounded-md border border-border truncate">
                             {{ galleryUrl }}
                         </div>
                         <Button
@@ -114,7 +114,7 @@ watch(() => props.open, async (newValue) => {
                         Code d'intégration (iframe)
                     </Label>
                     <div class="flex gap-2">
-                        <div class="flex-1 px-3 py-2 text-sm bg-zinc-100 dark:bg-zinc-800 rounded-md border border-zinc-200 dark:border-zinc-700 font-mono text-xs overflow-x-auto whitespace-nowrap">
+                        <div class="flex-1 px-3 py-2 bg-muted rounded-md border border-border font-mono text-xs overflow-x-auto whitespace-nowrap">
                             {{ iframeCode }}
                         </div>
                         <Button
@@ -131,7 +131,7 @@ watch(() => props.open, async (newValue) => {
                 <div class="space-y-3">
                     <Label>QR Code</Label>
                     <div class="flex flex-col items-center gap-4">
-                        <div class="p-4 bg-white rounded-lg shadow-sm border border-zinc-200 dark:border-zinc-700">
+                        <div class="p-4 bg-white rounded-lg shadow-sm border border-border">
                             <canvas ref="qrCanvas"></canvas>
                         </div>
                         <Button

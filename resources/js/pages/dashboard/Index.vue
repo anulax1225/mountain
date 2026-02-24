@@ -162,8 +162,8 @@ onMounted(() => {
   <DashboardLayout :auth="auth">
     <div class="mx-auto max-w-7xl">
       <div class="mb-8">
-        <h1 class="font-bold text-zinc-900 dark:text-zinc-100 text-3xl">Projets</h1>
-        <p class="mt-1 text-zinc-600 dark:text-zinc-400">Gérez vos projets de visite virtuelle</p>
+        <h1 class="font-bold text-foreground text-3xl">Projets</h1>
+        <p class="mt-1 text-muted-foreground">Gérez vos projets de visite virtuelle</p>
       </div>
 
       <LoadingSpinner v-if="loading" />

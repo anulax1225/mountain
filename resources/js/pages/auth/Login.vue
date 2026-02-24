@@ -26,8 +26,8 @@ const submit = () => {
 <template>
   <AuthLayout>
     <div class="mb-8">
-      <h2 class="mb-2 font-bold text-zinc-900 dark:text-zinc-100 text-3xl">Bon retour</h2>
-      <p class="text-zinc-600 dark:text-zinc-400">Connectez-vous à votre compte pour continuer</p>
+      <h2 class="mb-2 font-bold text-foreground text-3xl">Bon retour</h2>
+      <p class="text-muted-foreground">Connectez-vous à votre compte pour continuer</p>
     </div>
 
     <div v-if="status" class="mb-4 font-medium text-green-600 dark:text-green-400 text-sm">
@@ -77,7 +77,7 @@ const submit = () => {
     </form>
 
     <div class="mt-6 text-sm text-center">
-      <span class="text-zinc-600 dark:text-zinc-400">Vous n'avez pas de compte? Contactez un administrateur pour obtenir un accès.</span>
+      <span class="text-muted-foreground">Vous n'avez pas de compte? Contactez un administrateur pour obtenir un accès.</span>
     </div>
   </AuthLayout>
 </template>

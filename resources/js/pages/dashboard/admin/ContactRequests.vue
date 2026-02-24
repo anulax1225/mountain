@@ -213,42 +213,42 @@ onMounted(() => {
         <div class="space-y-6">
             <!-- Header -->
             <div>
-                <h1 class="font-bold text-3xl text-zinc-900 dark:text-white">
+                <h1 class="font-bold text-3xl text-foreground">
                     Demandes de contact
                 </h1>
-                <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+                <p class="mt-2 text-sm text-muted-foreground">
                     Gérez les demandes de contact reçues via le formulaire du site.
                 </p>
             </div>
 
             <!-- Stats -->
             <div class="gap-4 grid grid-cols-1 md:grid-cols-5">
-                <div class="bg-white dark:bg-zinc-900 shadow-sm p-6 rounded-lg border border-zinc-200 dark:border-zinc-800">
-                    <p class="text-sm text-zinc-600 dark:text-zinc-400">Total</p>
-                    <p class="mt-2 font-bold text-3xl text-zinc-900 dark:text-white">
+                <div class="bg-card shadow-sm p-6 rounded-lg border border-border">
+                    <p class="text-sm text-muted-foreground">Total</p>
+                    <p class="mt-2 font-bold text-3xl text-foreground">
                         {{ stats.total }}
                     </p>
                 </div>
-                <div class="bg-white dark:bg-zinc-900 shadow-sm p-6 rounded-lg border border-zinc-200 dark:border-zinc-800">
-                    <p class="text-sm text-zinc-600 dark:text-zinc-400">Reçu</p>
+                <div class="bg-card shadow-sm p-6 rounded-lg border border-border">
+                    <p class="text-sm text-muted-foreground">Reçu</p>
                     <p class="mt-2 font-bold text-3xl text-blue-600 dark:text-blue-400">
                         {{ stats.received }}
                     </p>
                 </div>
-                <div class="bg-white dark:bg-zinc-900 shadow-sm p-6 rounded-lg border border-zinc-200 dark:border-zinc-800">
-                    <p class="text-sm text-zinc-600 dark:text-zinc-400">En cours</p>
+                <div class="bg-card shadow-sm p-6 rounded-lg border border-border">
+                    <p class="text-sm text-muted-foreground">En cours</p>
                     <p class="mt-2 font-bold text-3xl text-yellow-600 dark:text-yellow-400">
                         {{ stats.in_process }}
                     </p>
                 </div>
-                <div class="bg-white dark:bg-zinc-900 shadow-sm p-6 rounded-lg border border-zinc-200 dark:border-zinc-800">
-                    <p class="text-sm text-zinc-600 dark:text-zinc-400">Refusé</p>
+                <div class="bg-card shadow-sm p-6 rounded-lg border border-border">
+                    <p class="text-sm text-muted-foreground">Refusé</p>
                     <p class="mt-2 font-bold text-3xl text-red-600 dark:text-red-400">
                         {{ stats.refused }}
                     </p>
                 </div>
-                <div class="bg-white dark:bg-zinc-900 shadow-sm p-6 rounded-lg border border-zinc-200 dark:border-zinc-800">
-                    <p class="text-sm text-zinc-600 dark:text-zinc-400">Validé</p>
+                <div class="bg-card shadow-sm p-6 rounded-lg border border-border">
+                    <p class="text-sm text-muted-foreground">Validé</p>
                     <p class="mt-2 font-bold text-3xl text-green-600 dark:text-green-400">
                         {{ stats.validated }}
                     </p>
@@ -258,7 +258,7 @@ onMounted(() => {
             <!-- Filters -->
             <div class="flex flex-col gap-4 md:flex-row">
                 <div class="relative flex-1">
-                    <Search class="top-3 left-3 absolute w-4 h-4 text-zinc-400" />
+                    <Search class="top-3 left-3 absolute w-4 h-4 text-muted-foreground" />
                     <Input
                         v-model="searchQuery"
                         placeholder="Rechercher par nom, email ou entreprise..."
@@ -280,25 +280,25 @@ onMounted(() => {
             </div>
 
             <!-- Contact Requests List -->
-            <div class="bg-white dark:bg-zinc-900 shadow-sm rounded-lg border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+            <div class="bg-card shadow-sm rounded-lg border border-border overflow-hidden">
                 <div v-if="isLoading" class="p-12 text-center">
-                    <p class="text-zinc-600 dark:text-zinc-400">Chargement...</p>
+                    <p class="text-muted-foreground">Chargement...</p>
                 </div>
 
                 <div v-else-if="filteredRequests.length === 0" class="p-12 text-center">
-                    <p class="text-zinc-600 dark:text-zinc-400">Aucune demande de contact trouvée.</p>
+                    <p class="text-muted-foreground">Aucune demande de contact trouvée.</p>
                 </div>
 
-                <div v-else class="divide-y divide-zinc-200 dark:divide-zinc-800">
+                <div v-else class="divide-y divide-border">
                     <div
                         v-for="request in filteredRequests"
                         :key="request.slug"
-                        class="hover:bg-zinc-50 dark:hover:bg-zinc-800 p-6 transition-colors"
+                        class="hover:bg-muted p-6 transition-colors"
                     >
                         <div class="flex items-start justify-between gap-4">
                             <div class="flex-1 space-y-3">
                                 <div class="flex items-center gap-3">
-                                    <h3 class="font-semibold text-lg text-zinc-900 dark:text-white">
+                                    <h3 class="font-semibold text-lg text-foreground">
                                         {{ request.name }}
                                     </h3>
                                     <Badge :class="statusConfig[request.status].badgeClass">
@@ -307,32 +307,32 @@ onMounted(() => {
                                 </div>
 
                                 <div class="gap-x-6 gap-y-2 grid grid-cols-1 md:grid-cols-2">
-                                    <div class="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
+                                    <div class="flex items-center gap-2 text-sm text-muted-foreground">
                                         <Mail class="w-4 h-4" />
-                                        <a :href="`mailto:${request.email}`" class="hover:text-zinc-900 dark:hover:text-white">
+                                        <a :href="`mailto:${request.email}`" class="hover:text-foreground">
                                             {{ request.email }}
                                         </a>
                                     </div>
 
-                                    <div v-if="request.phone" class="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
+                                    <div v-if="request.phone" class="flex items-center gap-2 text-sm text-muted-foreground">
                                         <Phone class="w-4 h-4" />
-                                        <a :href="`tel:${request.phone}`" class="hover:text-zinc-900 dark:hover:text-white">
+                                        <a :href="`tel:${request.phone}`" class="hover:text-foreground">
                                             {{ request.phone }}
                                         </a>
                                     </div>
 
-                                    <div v-if="request.company" class="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
+                                    <div v-if="request.company" class="flex items-center gap-2 text-sm text-muted-foreground">
                                         <Building2 class="w-4 h-4" />
                                         {{ request.company }}
                                     </div>
 
-                                    <div class="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
+                                    <div class="flex items-center gap-2 text-sm text-muted-foreground">
                                         <Calendar class="w-4 h-4" />
                                         {{ formatSmartDate(request.created_at) }}
                                     </div>
                                 </div>
 
-                                <p class="text-sm text-zinc-600 dark:text-zinc-400 line-clamp-2">
+                                <p class="text-sm text-muted-foreground line-clamp-2">
                                     {{ request.message }}
                                 </p>
                             </div>
@@ -414,14 +414,14 @@ onMounted(() => {
 
                     <div>
                         <Label>Message</Label>
-                        <p class="bg-zinc-50 dark:bg-zinc-800 mt-1 p-4 rounded-lg border border-zinc-200 dark:border-zinc-700 text-sm whitespace-pre-wrap">
+                        <p class="bg-muted mt-1 p-4 rounded-lg border border-border text-sm whitespace-pre-wrap">
                             {{ selectedRequest.message }}
                         </p>
                     </div>
 
                     <div v-if="selectedRequest.admin_notes">
                         <Label>Notes administrateur</Label>
-                        <p class="bg-zinc-50 dark:bg-zinc-800 mt-1 p-4 rounded-lg border border-zinc-200 dark:border-zinc-700 text-sm whitespace-pre-wrap">
+                        <p class="bg-muted mt-1 p-4 rounded-lg border border-border text-sm whitespace-pre-wrap">
                             {{ selectedRequest.admin_notes }}
                         </p>
                     </div>

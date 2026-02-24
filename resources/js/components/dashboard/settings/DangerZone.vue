@@ -22,8 +22,8 @@ const deleteAccount = async () => {
     <CardContent>
       <div class="flex justify-between items-center">
         <div>
-          <p class="font-medium text-zinc-900 dark:text-zinc-100">Supprimer le compte</p>
-          <p class="text-zinc-500 dark:text-zinc-400 text-sm">Supprimer définitivement votre compte et toutes vos données</p>
+          <p class="font-medium text-foreground">Supprimer le compte</p>
+          <p class="text-muted-foreground text-sm">Supprimer définitivement votre compte et toutes vos données</p>
         </div>
         <Button variant="destructive" @click="deleteAccount">
           Supprimer le compte

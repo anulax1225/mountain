@@ -128,8 +128,8 @@ onMounted(() => {
           </Button>
         </Link>
         <div class="flex-1">
-          <h1 class="font-bold text-zinc-900 dark:text-zinc-100 text-3xl">{{ scene?.name || 'Loading...' }}</h1>
-          <p class="mt-1 text-zinc-600 dark:text-zinc-400">{{ images.length }} image(s)</p>
+          <h1 class="font-bold text-foreground text-3xl">{{ scene?.name || 'Loading...' }}</h1>
+          <p class="mt-1 text-muted-foreground">{{ images.length }} image(s)</p>
         </div>
         <div class="flex items-center gap-2">
           <Link :href="`/dashboard/editor/${scene?.project?.slug}`">

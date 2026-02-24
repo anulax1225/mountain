@@ -37,17 +37,17 @@ const emit = defineEmits(['edit', 'delete'])
         }"
         class="pointer-events-auto"
     >
-        <div class="bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-zinc-200 dark:border-zinc-700 overflow-hidden">
+        <div class="bg-card rounded-lg shadow-lg border border-border overflow-hidden">
             <button
                 @click="emit('edit', sticker)"
-                class="w-full flex items-center gap-3 px-4 py-3 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors text-left"
+                class="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors text-left"
             >
-                <Edit class="w-4 h-4 text-zinc-600 dark:text-zinc-400" />
-                <span class="text-sm font-medium text-zinc-900 dark:text-zinc-100">Modifier</span>
+                <Edit class="w-4 h-4 text-muted-foreground" />
+                <span class="text-sm font-medium text-foreground">Modifier</span>
             </button>
             <button
                 @click="emit('delete', sticker)"
-                class="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-left border-t border-zinc-200 dark:border-zinc-700"
+                class="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-left border-t border-border"
             >
                 <Trash2 class="w-4 h-4 text-red-600 dark:text-red-400" />
                 <span class="text-sm font-medium text-red-600 dark:text-red-400">Supprimer</span>

@@ -15,7 +15,7 @@
     </script>
 
     <template>
-      <div class="top-0 right-0 left-0 absolute bg-gradient-to-b from-black/50 to-transparent backdrop-blur-sm p-4">
+      <div class="top-0 right-0 left-0 absolute bg-gradient-to-b from-card/80 to-transparent backdrop-blur-sm p-4">
         <div class="flex justify-between items-center">
           <div class="flex items-center gap-3">
             <Link :href="`/dashboard/projects/${projectSlug}`">
@@ -23,32 +23,32 @@
                 <ArrowLeft class="w-4 h-4" />
               </Button>
             </Link>
-            <div class="text-white">
+            <div class="text-card-foreground">
               <div class="flex items-center gap-2">
                 <h1 class="font-semibold text-sm">{{ projectName }}</h1>
                 <Badge :variant="mode === 'edit' ? 'default' : 'secondary'" class="text-xs">
                   {{ mode === 'edit' ? 'Édition' : 'Aperçu' }}
                 </Badge>
               </div>
-              <p class="text-white/60 text-xs">
+              <p class="text-muted-foreground text-xs">
                 {{ currentSceneName ? `Scène: ${currentSceneName}` : 'Éditeur 360°' }}
               </p>
             </div>
           </div>
           <div class="flex items-center gap-2">
-            <Button 
+            <Button
               v-if="mode === 'edit'"
-              variant="default" 
-              size="sm" 
+              variant="default"
+              size="sm"
               @click="emit('create-hotspot')"
             >
               <Plus class="mr-2 w-4 h-4" />
               Point d'accès
             </Button>
-            <Button 
+            <Button
               v-if="mode === 'edit'"
-              variant="default" 
-              size="sm" 
+              variant="default"
+              size="sm"
               @click="emit('create-sticker')"
             >
               <Sticker class="mr-2 w-4 h-4" />

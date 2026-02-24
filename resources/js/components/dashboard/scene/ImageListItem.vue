@@ -26,7 +26,7 @@
       <Card class="hover:shadow-md transition-shadow">
         <CardContent class="flex items-center gap-4 p-4">
           <div
-            class="relative flex-shrink-0 bg-zinc-100 dark:bg-zinc-800 rounded-lg w-32 h-20 overflow-hidden cursor-pointer"
+            class="relative flex-shrink-0 bg-muted rounded-lg w-32 h-20 overflow-hidden cursor-pointer"
             @click="emit('view', image)"
           >
             <img
@@ -36,12 +36,12 @@
             />
           </div>
           <div class="flex-1 min-w-0">
-            <p class="font-medium text-sm text-zinc-900 dark:text-zinc-100 truncate mb-1">
+            <p class="font-medium text-sm text-foreground truncate mb-1">
               {{ image.name || 'Sans nom' }}
             </p>
-            <p class="text-zinc-500 dark:text-zinc-400 text-sm">{{ formatBytes(image.size) }}</p>
-            <p class="text-zinc-400 dark:text-zinc-500 text-xs">Créé le {{ formatDate(image.created_at) }}</p>
-            <div class="flex items-center gap-1 text-zinc-400 dark:text-zinc-500 text-xs mt-1">
+            <p class="text-muted-foreground text-sm">{{ formatBytes(image.size) }}</p>
+            <p class="text-muted-foreground text-xs">Créé le {{ formatDate(image.created_at) }}</p>
+            <div class="flex items-center gap-1 text-muted-foreground text-xs mt-1">
               <Navigation class="w-3 h-3" />
               <span>{{ image.hotspots_from?.length || 0 }} point(s) d'accès</span>
             </div>

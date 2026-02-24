@@ -116,26 +116,26 @@ watch(() => props.open, (isOpen) => {
             </DialogHeader>
 
             <div class="space-y-4">
-                <div ref="previewContainer" class="relative bg-zinc-900 rounded-lg w-full h-[500px] overflow-hidden">
+                <div ref="previewContainer" class="relative bg-muted rounded-lg w-full h-[500px] overflow-hidden">
                     <div v-if="!targetImage" class="flex justify-center items-center w-full h-full">
-                        <p class="text-white">Chargement...</p>
+                        <p class="text-muted-foreground">Chargement...</p>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 p-3 rounded-lg">
-                    <Eye class="w-4 h-4 text-zinc-600 dark:text-zinc-400" />
-                    <p class="flex-1 text-sm text-zinc-600 dark:text-zinc-400">
+                <div class="flex items-center gap-2 bg-muted p-3 rounded-lg">
+                    <Eye class="w-4 h-4 text-muted-foreground" />
+                    <p class="flex-1 text-sm text-muted-foreground">
                         Utilisez la souris pour faire pivoter la vue. Cette orientation sera appliquée lors de la
                         navigation vers cette image.
                     </p>
                 </div>
 
                 <div
-                    class="flex items-center gap-3 bg-blue-50 dark:bg-blue-950/30 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+                    class="flex items-center gap-3 bg-secondary p-3 rounded-lg border border-border">
                     <Checkbox :id="'bidirectional'" v-model:checked="createBidirectional" />
                     <div class="flex items-center gap-2 flex-1">
-                        <ArrowLeftRight class="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                        <Label :for="'bidirectional'" class="text-sm text-blue-900 dark:text-blue-100 cursor-pointer">
+                        <ArrowLeftRight class="w-4 h-4 text-primary" />
+                        <Label :for="'bidirectional'" class="text-sm text-secondary-foreground cursor-pointer">
                             Créer un point d'accès bidirectionnel (retour automatique)
                         </Label>
                     </div>

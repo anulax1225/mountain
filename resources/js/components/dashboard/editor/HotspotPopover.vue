@@ -25,17 +25,17 @@ const style = computed(() => {
 <template>
     <Transition name="fade">
         <div v-if="visible && hotspot"
-            class="absolute z-50 bg-white dark:bg-zinc-800 shadow-xl border border-zinc-200 dark:border-zinc-700 rounded-lg overflow-hidden"
+            class="absolute z-50 bg-card shadow-xl border border-border rounded-lg overflow-hidden"
             :style="style" @mouseenter="emit('mouseenter')" @mouseleave="emit('mouseleave')">
             <!-- Edit mode - Show only buttons prominently -->
             <div v-if="mode === 'edit'" class="flex flex-col">
                 <button @click="emit('edit', hotspot)"
-                    class="flex items-center gap-3 px-4 py-3 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors text-left">
-                    <Pencil class="w-4 h-4 text-zinc-600 dark:text-zinc-400" />
-                    <span class="text-sm font-medium text-zinc-900 dark:text-zinc-100">Modifier le point d'accès</span>
+                    class="flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors text-left">
+                    <Pencil class="w-4 h-4 text-muted-foreground" />
+                    <span class="text-sm font-medium text-foreground">Modifier le point d'accès</span>
                 </button>
                 <button @click="emit('delete', hotspot)"
-                    class="flex items-center gap-3 px-4 py-3 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-left border-t border-zinc-200 dark:border-zinc-700">
+                    class="flex items-center gap-3 px-4 py-3 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-left border-t border-border">
                     <Trash2 class="w-4 h-4 text-red-600 dark:text-red-400" />
                     <span class="text-sm font-medium text-red-600 dark:text-red-400">Supprimer</span>
                 </button>
@@ -47,12 +47,12 @@ const style = computed(() => {
                     <img :src="`/images/${hotspot.to_image.slug}/download`" :alt="hotspot.to_image.name"
                         class="w-full h-full object-cover" />
                 </div>
-                <div v-else class="flex justify-center items-center bg-zinc-100 dark:bg-zinc-900 rounded aspect-video">
-                    <p class="text-zinc-400 text-sm">Aucune image</p>
+                <div v-else class="flex justify-center items-center bg-muted rounded aspect-video">
+                    <p class="text-muted-foreground text-sm">Aucune image</p>
                 </div>
 
                 <div v-if="hotspot.to_image" class="px-1">
-                    <p class="font-medium text-sm text-zinc-900 dark:text-zinc-100 truncate">
+                    <p class="font-medium text-sm text-foreground truncate">
                         {{ hotspot.to_image.name || 'Sans nom' }}
                     </p>
                 </div>

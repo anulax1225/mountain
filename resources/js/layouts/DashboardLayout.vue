@@ -25,7 +25,7 @@ const toggleSidebar = () => {
 </script>
 
 <template>
-  <div class="bg-zinc-50 dark:bg-zinc-950 min-h-screen">
+  <div class="bg-background min-h-screen">
     <Sidebar
       :is-open="sidebarOpen"
       :auth="auth"
@@ -38,7 +38,7 @@ const toggleSidebar = () => {
       <Transition name="slide-down">
         <header
           v-if="headerVisible || !collapsibleHeader"
-          class="flex justify-between items-center bg-zinc-50 dark:bg-zinc-950 px-6 border-zinc-200 dark:border-zinc-800 border-b h-14"
+          class="flex justify-between items-center bg-background px-6 border-border/50 border-b h-14"
         >
           <div class="flex items-center gap-2">
             <Button variant="ghost" size="icon" @click="toggleSidebar">
@@ -62,17 +62,17 @@ const toggleSidebar = () => {
       <Transition name="fade">
         <div
           v-if="!headerVisible && collapsibleHeader"
-          class="fixed top-0 left-1/2 -translate-x-1/2 z-50"
+          class="top-0 left-1/2 z-50 fixed -translate-x-1/2"
           :style="{ marginLeft: sidebarOpen ? '8rem' : '2rem' }"
         >
           <Button
             variant="secondary"
             size="sm"
             @click="toggleHeader"
-            class="bg-white/90 hover:bg-white dark:bg-zinc-800/90 dark:hover:bg-zinc-800 shadow-lg backdrop-blur rounded-t-none rounded-b-lg"
+            class="bg-card/90 hover:bg-card shadow-lg backdrop-blur rounded-t-none rounded-b-lg"
             title="Afficher la barre d'en-tête"
           >
-            <ChevronDown class="w-4 h-4 mr-2" />
+            <ChevronDown class="mr-2 w-4 h-4" />
             Afficher l'en-tête
           </Button>
         </div>

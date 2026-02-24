@@ -54,7 +54,7 @@ const isActive = (href) => {
     <nav class="flex-1 py-3 overflow-y-auto">
         <div :class="['px-3', isOpen ? '' : 'px-2']">
             <p v-if="isOpen"
-                class="mb-2 px-3 font-medium text-zinc-500 dark:text-zinc-400 text-xs uppercase tracking-wider">
+                class="mb-2 px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">
                 Général
             </p>
             <ul class="space-y-2">
@@ -62,8 +62,8 @@ const isActive = (href) => {
                     <Link :href="item.href" :title="!isOpen ? item.name : undefined" :class="[
                         'flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors',
                         isActive(item.href)
-                            ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-normal'
-                            : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-zinc-100'
+                            ? 'bg-muted text-foreground font-normal'
+                            : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                     ]">
                         <component :is="item.icon" class="w-5 h-5 shrink-0" />
                         <span v-if="isOpen">{{ item.name }}</span>

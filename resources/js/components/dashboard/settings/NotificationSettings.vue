@@ -15,7 +15,7 @@ import { Separator } from '@/components/ui/separator'
       <div class="flex justify-between items-center">
         <div class="space-y-0.5">
           <Label>Notifications par email</Label>
-          <p class="text-zinc-500 dark:text-zinc-400 text-sm">Recevez des notifications par email concernant votre compte</p>
+          <p class="text-muted-foreground text-sm">Recevez des notifications par email concernant votre compte</p>
         </div>
         <Switch />
       </div>
@@ -23,7 +23,7 @@ import { Separator } from '@/components/ui/separator'
       <div class="flex justify-between items-center">
         <div class="space-y-0.5">
           <Label>Mises à jour de projets</Label>
-          <p class="text-zinc-500 dark:text-zinc-400 text-sm">Soyez notifié des modifications de vos projets</p>
+          <p class="text-muted-foreground text-sm">Soyez notifié des modifications de vos projets</p>
         </div>
         <Switch />
       </div>

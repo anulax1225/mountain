@@ -16,7 +16,7 @@ const sizeClasses = {
 <template>
   <div class="flex justify-center items-center py-12">
     <div :class="[
-      'border-4 border-zinc-300 dark:border-zinc-700 border-t-zinc-900 dark:border-t-zinc-100 rounded-full animate-spin',
+      'border-4 border-muted border-t-foreground rounded-full animate-spin',
       sizeClasses[size]
     ]"></div>
   </div>

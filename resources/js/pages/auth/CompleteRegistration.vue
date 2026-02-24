@@ -27,15 +27,15 @@ const submit = () => {
 <template>
   <AuthLayout>
     <div class="mb-8">
-      <h2 class="mb-2 font-bold text-zinc-900 dark:text-zinc-100 text-3xl">Finaliser votre inscription</h2>
-      <p class="text-zinc-600 dark:text-zinc-400">
+      <h2 class="mb-2 font-bold text-foreground text-3xl">Finaliser votre inscription</h2>
+      <p class="text-muted-foreground">
         Configurez votre mot de passe pour accéder à votre compte
       </p>
     </div>
 
-    <div class="mb-6 bg-zinc-100 dark:bg-zinc-800 p-4 rounded-lg">
-      <p class="text-zinc-600 dark:text-zinc-400 text-sm">
-        Adresse email : <span class="font-medium text-zinc-900 dark:text-zinc-100">{{ email }}</span>
+    <div class="mb-6 bg-muted p-4 rounded-lg">
+      <p class="text-muted-foreground text-sm">
+        Adresse email : <span class="font-medium text-foreground">{{ email }}</span>
       </p>
     </div>
 

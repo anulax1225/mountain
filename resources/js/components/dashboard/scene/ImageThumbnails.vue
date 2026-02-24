@@ -21,7 +21,7 @@ const { getImageUrl } = useImagePath()
       :class="[
         'relative flex-shrink-0 w-24 h-16 rounded-lg overflow-hidden transition-all',
         currentIndex === index
-          ? 'ring-2 ring-purple-500 dark:ring-purple-400 ring-offset-2 dark:ring-offset-zinc-900'
+          ? 'ring-2 ring-purple-500 dark:ring-purple-400 ring-offset-2 ring-offset-background'
           : 'opacity-60 hover:opacity-100'
       ]"
     >

@@ -45,14 +45,14 @@ watch(() => props.project, (newProject) => {
   <div v-if="isOpen" class="mt-4">
     <Separator class="my-4" />
     <div class="mb-3 px-4">
-      <h3 class="font-semibold text-zinc-900 dark:text-zinc-100 text-xs uppercase tracking-wider">
+      <h3 class="font-semibold text-foreground text-xs uppercase tracking-wider">
         {{ project.name }}
       </h3>
     </div>
     
     <!-- Loading State -->
     <div v-if="loading" class="flex justify-center items-center py-4">
-      <div class="border-2 border-zinc-300 dark:border-zinc-700 border-t-zinc-900 dark:border-t-zinc-100 rounded-full w-5 h-5 animate-spin"></div>
+      <div class="border-2 border-border border-t-foreground rounded-full w-5 h-5 animate-spin"></div>
     </div>
 
     <!-- Scenes List -->
@@ -62,9 +62,9 @@ watch(() => props.project, (newProject) => {
           :href="`/dashboard/scenes/${sceneItem.slug}`"
           :class="[
             'flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors',
-            scene?.slug === sceneItem.slug 
-              ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-medium' 
-              : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-zinc-100'
+            scene?.slug === sceneItem.slug
+              ? 'bg-muted text-foreground font-medium'
+              : 'text-muted-foreground hover:bg-muted hover:text-foreground'
           ]"
         >
             <component :is="([ Theater, Spotlight, Image, Camera, Aperture ])[index % 5]" class="flex-shrink-0 w-4 h-4"/>
@@ -74,7 +74,7 @@ watch(() => props.project, (newProject) => {
       
       <!-- Empty State -->
       <li v-if="projectScenes.length === 0" class="px-3 py-2">
-        <p class="text-zinc-500 dark:text-zinc-600 text-xs">Aucune scène</p>
+        <p class="text-muted-foreground text-xs">Aucune scène</p>
       </li>
     </ul>
   </div>

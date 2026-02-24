@@ -117,7 +117,7 @@ watch(() => props.open, (newValue) => {
 
       <div class="space-y-6 mt-4">
         <!-- Add User Form -->
-        <div class="border rounded-lg p-4 space-y-3 bg-zinc-50 dark:bg-zinc-900/50">
+        <div class="border rounded-lg p-4 space-y-3 bg-muted/50">
           <h3 class="font-medium flex items-center gap-2">
             <UserPlus class="w-4 h-4" />
             Ajouter un utilisateur
@@ -128,7 +128,7 @@ watch(() => props.open, (newValue) => {
               <Label>Utilisateur</Label>
               <select
                 v-model="selectedUserId"
-                class="w-full px-3 py-2 border rounded-md bg-white dark:bg-zinc-900 border-zinc-300 dark:border-zinc-700"
+                class="w-full px-3 py-2 border rounded-md bg-card border-border"
               >
                 <option :value="null">-- Sélectionner --</option>
                 <option v-for="user in availableUsers" :key="user.id" :value="user.id">
@@ -141,7 +141,7 @@ watch(() => props.open, (newValue) => {
               <Label>Rôle</Label>
               <select
                 v-model="selectedRoleId"
-                class="w-full px-3 py-2 border rounded-md bg-white dark:bg-zinc-900 border-zinc-300 dark:border-zinc-700"
+                class="w-full px-3 py-2 border rounded-md bg-card border-border"
               >
                 <option :value="null">-- Sélectionner --</option>
                 <option v-for="role in availableRoles" :key="role.id" :value="role.id">
@@ -151,7 +151,7 @@ watch(() => props.open, (newValue) => {
             </div>
           </div>
 
-          <div class="text-xs text-zinc-500 dark:text-zinc-400 space-y-1">
+          <div class="text-xs text-muted-foreground space-y-1">
             <p><strong>Owner:</strong> Peut modifier le projet et gérer les collaborateurs</p>
             <p><strong>Viewer:</strong> Lecture seule</p>
           </div>
@@ -169,11 +169,11 @@ watch(() => props.open, (newValue) => {
         <div class="space-y-3">
           <h3 class="font-medium">Utilisateurs assignés ({{ assignedUsers.length }})</h3>
 
-          <div v-if="loading" class="text-center py-4 text-zinc-500">
+          <div v-if="loading" class="text-center py-4 text-muted-foreground">
             Chargement...
           </div>
 
-          <div v-else-if="assignedUsers.length === 0" class="text-center py-8 text-zinc-500">
+          <div v-else-if="assignedUsers.length === 0" class="text-center py-8 text-muted-foreground">
             Aucun utilisateur assigné à ce projet
           </div>
 
@@ -185,7 +185,7 @@ watch(() => props.open, (newValue) => {
             >
               <div class="flex-1">
                 <div class="font-medium">{{ user.name }}</div>
-                <div class="text-sm text-zinc-500">{{ user.email }}</div>
+                <div class="text-sm text-muted-foreground">{{ user.email }}</div>
               </div>
 
               <div class="flex items-center gap-2">

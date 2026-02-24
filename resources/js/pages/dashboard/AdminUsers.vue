@@ -152,8 +152,8 @@ onMounted(() => {
     <div class="mx-auto max-w-7xl">
       <div class="flex justify-between items-center mb-8">
         <div>
-          <h1 class="font-bold text-zinc-900 dark:text-zinc-100 text-3xl">Administration</h1>
-          <p class="mt-1 text-zinc-600 dark:text-zinc-400">Gérez les utilisateurs et leurs rôles</p>
+          <h1 class="font-bold text-foreground text-3xl">Administration</h1>
+          <p class="mt-1 text-muted-foreground">Gérez les utilisateurs et leurs rôles</p>
         </div>
         <Button @click="createSheetOpen = true">
           <UserPlus class="w-4 h-4 mr-2" />
@@ -163,7 +163,7 @@ onMounted(() => {
 
       <LoadingSpinner v-if="loading" />
 
-      <div v-else class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden">
+      <div v-else class="bg-card border border-border rounded-lg overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
@@ -187,7 +187,7 @@ onMounted(() => {
                   <Shield class="w-3 h-3 mr-1" />
                   {{ getUserGlobalRole(user).name }}
                 </Badge>
-                <span v-else class="text-zinc-500">Aucun rôle</span>
+                <span v-else class="text-muted-foreground">Aucun rôle</span>
               </TableCell>
               <TableCell>
                 <Badge v-if="user.invitation_pending" variant="outline" class="text-amber-600 border-amber-300">
@@ -222,7 +222,7 @@ onMounted(() => {
               </TableCell>
             </TableRow>
             <TableRow v-if="users.length === 0">
-              <TableCell colspan="6" class="text-center text-zinc-500 py-8">
+              <TableCell colspan="6" class="text-center text-muted-foreground py-8">
                 Aucun utilisateur trouvé
               </TableCell>
             </TableRow>

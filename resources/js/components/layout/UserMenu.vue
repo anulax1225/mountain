@@ -28,31 +28,31 @@ const getInitials = (name) => {
 </script>
 
 <template>
-  <div class="p-3 border-t border-zinc-200/80 dark:border-zinc-800/80">
+  <div class="p-3 border-t border-border">
     <DropdownMenu>
       <DropdownMenuTrigger as-child>
         <button
           :class="[
             'w-full flex items-center gap-3 p-2 rounded-xl transition-all duration-200',
-            'hover:bg-zinc-200/80 dark:hover:bg-zinc-800/80',
-            'focus:outline-none focus:ring-2 focus:ring-zinc-400 dark:focus:ring-zinc-600 focus:ring-offset-2 focus:ring-offset-zinc-50 dark:focus:ring-offset-zinc-900',
+            'hover:bg-muted',
+            'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background',
             !isOpen && 'justify-center'
           ]"
         >
           <Avatar class="w-9 h-9 shrink-0">
-            <AvatarFallback class="bg-gradient-to-br from-zinc-700 to-zinc-900 dark:from-zinc-200 dark:to-zinc-400 text-white dark:text-zinc-900 text-sm font-medium">
+            <AvatarFallback class="bg-gradient-to-br from-foreground/70 to-foreground text-background text-sm font-medium">
               {{ getInitials(auth?.user?.name) }}
             </AvatarFallback>
           </Avatar>
           <div v-if="isOpen" class="flex-1 text-left min-w-0">
-            <p class="font-medium text-zinc-900 dark:text-zinc-100 text-sm truncate">
+            <p class="font-medium text-foreground text-sm truncate">
               {{ auth?.user?.name || 'Utilisateur' }}
             </p>
-            <p class="text-zinc-500 dark:text-zinc-400 text-xs truncate">
+            <p class="text-muted-foreground text-xs truncate">
               {{ auth?.user?.email || 'utilisateur@exemple.com' }}
             </p>
           </div>
-          <ChevronUp v-if="isOpen" class="w-4 h-4 text-zinc-400 shrink-0" />
+          <ChevronUp v-if="isOpen" class="w-4 h-4 text-muted-foreground shrink-0" />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -64,7 +64,7 @@ const getInitials = (name) => {
         <DropdownMenuLabel class="font-normal">
           <div class="flex flex-col space-y-1">
             <p class="text-sm font-medium">{{ auth?.user?.name || 'Utilisateur' }}</p>
-            <p class="text-xs text-zinc-500 dark:text-zinc-400 truncate">
+            <p class="text-xs text-muted-foreground truncate">
               {{ auth?.user?.email || 'utilisateur@exemple.com' }}
             </p>
           </div>

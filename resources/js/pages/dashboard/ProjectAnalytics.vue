@@ -87,8 +87,8 @@ onMounted(async () => {
           </Button>
         </Link>
         <div class="flex-1">
-          <h1 class="font-bold text-zinc-900 dark:text-zinc-100 text-3xl">Statistiques</h1>
-          <p class="mt-1 text-zinc-600 dark:text-zinc-400">{{ project?.name || 'Chargement...' }}</p>
+          <h1 class="font-bold text-foreground text-3xl">Statistiques</h1>
+          <p class="mt-1 text-muted-foreground">{{ project?.name || 'Chargement...' }}</p>
         </div>
         <div class="flex gap-2">
           <Button
@@ -118,7 +118,7 @@ onMounted(async () => {
           <Card>
             <CardHeader class="flex flex-row justify-between items-center space-y-0 pb-2">
               <CardTitle class="font-medium text-sm">Vues totales</CardTitle>
-              <TrendingUp class="w-4 h-4 text-zinc-500" />
+              <TrendingUp class="w-4 h-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div class="font-bold text-2xl">{{ analytics.overview.total_views }}</div>
@@ -131,7 +131,7 @@ onMounted(async () => {
           <Card>
             <CardHeader class="flex flex-row justify-between items-center space-y-0 pb-2">
               <CardTitle class="font-medium text-sm">Visiteurs uniques</CardTitle>
-              <Users class="w-4 h-4 text-zinc-500" />
+              <Users class="w-4 h-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div class="font-bold text-2xl">{{ analytics.overview.unique_visitors }}</div>
@@ -144,7 +144,7 @@ onMounted(async () => {
           <Card>
             <CardHeader class="flex flex-row justify-between items-center space-y-0 pb-2">
               <CardTitle class="font-medium text-sm">Durée moyenne</CardTitle>
-              <Clock class="w-4 h-4 text-zinc-500" />
+              <Clock class="w-4 h-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div class="font-bold text-2xl">{{ formatDuration(analytics.overview.avg_duration_seconds) }}</div>
@@ -157,7 +157,7 @@ onMounted(async () => {
           <Card>
             <CardHeader class="flex flex-row justify-between items-center space-y-0 pb-2">
               <CardTitle class="font-medium text-sm">Interactions</CardTitle>
-              <MousePointer class="w-4 h-4 text-zinc-500" />
+              <MousePointer class="w-4 h-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div class="font-bold text-2xl">{{ analytics.overview.total_hotspot_clicks }}</div>
@@ -177,7 +177,7 @@ onMounted(async () => {
           <CardContent>
             <div class="relative" :style="{ height: chartHeight + 'px' }">
               <!-- Y-axis labels -->
-              <div class="absolute left-0 top-0 bottom-0 flex flex-col justify-between pr-2 text-right text-xs text-zinc-500">
+              <div class="absolute left-0 top-0 bottom-0 flex flex-col justify-between pr-2 text-right text-xs text-muted-foreground">
                 <span>{{ maxViews }}</span>
                 <span>{{ Math.floor(maxViews / 2) }}</span>
                 <span>0</span>
@@ -197,7 +197,7 @@ onMounted(async () => {
                   ></div>
 
                   <!-- Tooltip -->
-                  <div class="opacity-0 group-hover:opacity-100 absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-zinc-900 dark:bg-zinc-100 text-zinc-100 dark:text-zinc-900 text-xs rounded shadow-lg whitespace-nowrap pointer-events-none transition-opacity z-10">
+                  <div class="opacity-0 group-hover:opacity-100 absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-foreground text-background text-xs rounded shadow-lg whitespace-nowrap pointer-events-none transition-opacity z-10">
                     <div class="font-semibold">{{ formatChartDate(day.date) }}</div>
                     <div>{{ day.views }} vues</div>
                     <div>{{ day.unique_visitors }} visiteurs</div>
@@ -206,7 +206,7 @@ onMounted(async () => {
               </div>
 
               <!-- X-axis labels (show every 7th day) -->
-              <div class="ml-12 mt-2 flex justify-between text-xs text-zinc-500">
+              <div class="ml-12 mt-2 flex justify-between text-xs text-muted-foreground">
                 <span v-for="(day, index) in analytics.views_over_time" :key="index">
                   <span v-if="index % 7 === 0">{{ formatChartDate(day.date) }}</span>
                 </span>
@@ -239,20 +239,20 @@ onMounted(async () => {
                   <div
                     v-for="(item, index) in analytics.most_viewed_images"
                     :key="item.image?.id || index"
-                    class="flex items-center gap-4 p-3 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                    class="flex items-center gap-4 p-3 rounded-lg hover:bg-muted transition-colors"
                   >
                     <Badge variant="secondary" class="shrink-0 w-8 h-8 flex items-center justify-center">
                       {{ index + 1 }}
                     </Badge>
                     <div class="flex-1 min-w-0">
-                      <p class="font-medium text-zinc-900 dark:text-zinc-100 truncate">
+                      <p class="font-medium text-foreground truncate">
                         {{ item.image?.name || 'Sans nom' }}
                       </p>
-                      <p class="text-zinc-500 dark:text-zinc-400 text-sm">
+                      <p class="text-muted-foreground text-sm">
                         {{ item.view_count }} vues
                       </p>
                     </div>
-                    <div class="shrink-0 w-24 h-16 bg-zinc-100 dark:bg-zinc-800 rounded overflow-hidden">
+                    <div class="shrink-0 w-24 h-16 bg-muted rounded overflow-hidden">
                       <img
                         v-if="item.image?.slug"
                         :src="`/images/${item.image.slug}/download`"
@@ -262,7 +262,7 @@ onMounted(async () => {
                     </div>
                   </div>
                 </div>
-                <div v-else class="py-12 text-center text-zinc-500">
+                <div v-else class="py-12 text-center text-muted-foreground">
                   Aucune donnée disponible
                 </div>
               </CardContent>
@@ -280,22 +280,22 @@ onMounted(async () => {
                   <div
                     v-for="(item, index) in analytics.most_clicked_hotspots"
                     :key="item.hotspot?.id || index"
-                    class="flex items-center gap-4 p-3 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                    class="flex items-center gap-4 p-3 rounded-lg hover:bg-muted transition-colors"
                   >
                     <Badge variant="secondary" class="shrink-0 w-8 h-8 flex items-center justify-center">
                       {{ index + 1 }}
                     </Badge>
                     <div class="flex-1">
-                      <p class="font-medium text-zinc-900 dark:text-zinc-100">
+                      <p class="font-medium text-foreground">
                         Hotspot #{{ item.hotspot?.id || '?' }}
                       </p>
-                      <p class="text-zinc-500 dark:text-zinc-400 text-sm">
+                      <p class="text-muted-foreground text-sm">
                         {{ item.click_count }} clics
                       </p>
                     </div>
                   </div>
                 </div>
-                <div v-else class="py-12 text-center text-zinc-500">
+                <div v-else class="py-12 text-center text-muted-foreground">
                   Aucune donnée disponible
                 </div>
               </CardContent>

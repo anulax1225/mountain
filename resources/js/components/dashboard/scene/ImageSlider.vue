@@ -39,7 +39,7 @@ const prevSlide = () => {
 <template>
   <Card class="overflow-hidden">
     <CardContent class="relative p-0">
-      <div class="relative bg-zinc-900 aspect-video">
+      <div class="relative bg-black aspect-video">
         <img
           :src="getImageUrl(currentImage.path)"
           :alt="sceneName"
@@ -81,8 +81,8 @@ const prevSlide = () => {
 
       <div class="flex justify-between items-center gap-4 p-4">
         <div class="flex-1 min-w-0">
-          <p class="text-zinc-500 dark:text-zinc-400 text-sm">{{ formatBytes(currentImage.size) }}</p>
-          <p class="text-zinc-400 dark:text-zinc-500 text-xs">0 point d'accès</p>
+          <p class="text-muted-foreground text-sm">{{ formatBytes(currentImage.size) }}</p>
+          <p class="text-muted-foreground text-xs">0 point d'accès</p>
         </div>
         <div class="flex items-center gap-2">
           <Button

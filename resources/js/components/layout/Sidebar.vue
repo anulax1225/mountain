@@ -15,17 +15,17 @@ defineProps({
 
 <template>
   <aside :class="[
-    'fixed inset-y-0 left-0 z-50 flex flex-col bg-zinc-50 dark:bg-zinc-900 border-r border-zinc-200/80 dark:border-zinc-800/80 transition-all duration-300 ease-in-out',
+    'fixed inset-y-0 left-0 z-50 flex flex-col bg-card border-r border-border transition-all duration-300 ease-in-out',
     isOpen ? 'w-64' : 'w-16'
   ]">
     <!-- Brand -->
     <div :class="[
-      'flex items-center h-14 border-zinc-200/80 dark:border-zinc-800/80 shrink-0',
+      'flex items-center h-14 border-border shrink-0',
       isOpen ? 'px-4 justify-start' : 'justify-center'
     ]">
       <Link href="/" class="group flex items-center gap-2.5">
         <AppLogo class="w-8 h-8 group-hover:scale-105 transition-transform" />
-        <span v-if="isOpen" class="font-semibold text-zinc-900 dark:text-zinc-100 tracking-tight">Owlaround</span>
+        <span v-if="isOpen" class="font-semibold text-foreground tracking-tight">Owlaround</span>
       </Link>
     </div>
 

@@ -8,7 +8,11 @@ import { Upload } from 'lucide-vue-next'
 
 const props = defineProps({
   open: Boolean,
-  uploading: Boolean
+  uploading: Boolean,
+  errors: {
+    type: Array,
+    default: () => []
+  }
 })
 
 const emit = defineEmits(['update:open', 'upload'])
@@ -59,23 +63,35 @@ const formatFileSize = (bytes) => {
             @change="handleFileSelect"
             required
           />
-          <p class="text-zinc-500 dark:text-zinc-400 text-xs">Formats acceptés: JPG, PNG, WebP. Vous pouvez sélectionner plusieurs fichiers.</p>
+          <p class="text-muted-foreground text-xs">Formats acceptés: JPG, PNG, WebP. Vous pouvez sélectionner plusieurs fichiers.</p>
           <div v-if="imageFiles.length > 0" class="space-y-1 pt-2">
-            <p class="font-medium text-zinc-700 dark:text-zinc-300 text-sm">{{ imageFiles.length }} fichier(s) sélectionné(s):</p>
+            <p class="font-medium text-foreground text-sm">{{ imageFiles.length }} fichier(s) sélectionné(s):</p>
             <ul class="space-y-1">
-              <li 
-                v-for="(file, index) in imageFiles" 
+              <li
+                v-for="(file, index) in imageFiles"
                 :key="index"
-                class="text-zinc-600 dark:text-zinc-400 text-xs"
+                class="text-muted-foreground text-xs"
               >
                 {{ file.name }} ({{ formatFileSize(file.size) }})
               </li>
             </ul>
           </div>
         </div>
-        <Button 
-          type="submit" 
-          class="w-full" 
+        <div v-if="errors.length > 0" class="bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800 mt-4 p-4 border rounded-lg">
+          <p class="font-medium text-red-800 dark:text-red-200 text-sm">Erreurs de validation:</p>
+          <ul class="space-y-1 mt-2">
+            <li
+              v-for="(error, index) in errors"
+              :key="index"
+              class="text-red-700 dark:text-red-300 text-xs"
+            >
+              <span class="font-medium">{{ error.file }}:</span> {{ error.message }}
+            </li>
+          </ul>
+        </div>
+        <Button
+          type="submit"
+          class="w-full"
           :disabled="imageFiles.length === 0 || uploading"
         >
           <Upload class="mr-2 w-4 h-4" />

@@ -64,22 +64,22 @@ const submitForm = async () => {
 
 <template>
     <LandingLayout>
-        <div class="bg-zinc-50 dark:bg-zinc-950 py-24">
+        <div class="bg-muted py-24">
             <div class="mx-auto px-6 max-w-7xl lg:px-8">
                 <!-- Header -->
                 <div class="mx-auto max-w-2xl text-center mb-16">
-                    <h1 class="font-bold text-4xl text-zinc-900 dark:text-white sm:text-5xl">
+                    <h1 class="font-bold text-4xl text-foreground sm:text-5xl">
                         Contactez-nous
                     </h1>
-                    <p class="mt-6 text-lg text-zinc-600 dark:text-zinc-400 leading-8">
+                    <p class="mt-6 text-lg text-muted-foreground leading-8">
                         Une question sur nos services ? Un projet de visite virtuelle ? Notre équipe est là pour vous accompagner.
                     </p>
                 </div>
 
                 <div class="gap-x-8 gap-y-20 lg:gap-y-0 grid lg:grid-cols-2 mx-auto max-w-6xl">
                     <!-- Contact Form -->
-                    <div class="bg-white dark:bg-zinc-900 shadow-sm hover:shadow-md p-8 rounded-lg border border-zinc-200 dark:border-zinc-800 transition-shadow">
-                        <h2 class="mb-6 font-semibold text-2xl text-zinc-900 dark:text-white">
+                    <div class="bg-card shadow-sm hover:shadow-md p-8 rounded-lg border border-border transition-shadow">
+                        <h2 class="mb-6 font-semibold text-2xl text-foreground">
                             Envoyez-nous un message
                         </h2>
 
@@ -105,7 +105,7 @@ const submitForm = async () => {
                             <div class="space-y-2">
                                 <Label for="email">Email *</Label>
                                 <div class="relative">
-                                    <Mail class="top-3 left-3 absolute w-5 h-5 text-zinc-400" />
+                                    <Mail class="top-3 left-3 absolute w-5 h-5 text-muted-foreground" />
                                     <Input
                                         id="email"
                                         v-model="form.email"
@@ -126,7 +126,7 @@ const submitForm = async () => {
                             <div class="space-y-2">
                                 <Label for="phone">Téléphone</Label>
                                 <div class="relative">
-                                    <Phone class="top-3 left-3 absolute w-5 h-5 text-zinc-400" />
+                                    <Phone class="top-3 left-3 absolute w-5 h-5 text-muted-foreground" />
                                     <Input
                                         id="phone"
                                         v-model="form.phone"
@@ -146,7 +146,7 @@ const submitForm = async () => {
                             <div class="space-y-2">
                                 <Label for="company">Entreprise</Label>
                                 <div class="relative">
-                                    <Building2 class="top-3 left-3 absolute w-5 h-5 text-zinc-400" />
+                                    <Building2 class="top-3 left-3 absolute w-5 h-5 text-muted-foreground" />
                                     <Input
                                         id="company"
                                         v-model="form.company"
@@ -207,31 +207,31 @@ const submitForm = async () => {
 
                     <!-- Contact Information -->
                     <div class="space-y-8">
-                        <div class="bg-white dark:bg-zinc-900 shadow-sm p-8 rounded-lg border border-zinc-200 dark:border-zinc-800">
-                            <h3 class="mb-6 font-semibold text-xl text-zinc-900 dark:text-white">
+                        <div class="bg-card shadow-sm p-8 rounded-lg border border-border">
+                            <h3 class="mb-6 font-semibold text-xl text-foreground">
                                 Informations de contact
                             </h3>
 
                             <div class="space-y-6">
                                 <div class="flex items-start gap-4">
-                                    <div class="bg-zinc-100 dark:bg-zinc-800 p-3 rounded-lg">
-                                        <Mail class="w-5 h-5 text-zinc-700 dark:text-zinc-300" />
+                                    <div class="bg-muted p-3 rounded-lg">
+                                        <Mail class="w-5 h-5 text-foreground" />
                                     </div>
                                     <div>
-                                        <p class="font-medium text-sm text-zinc-900 dark:text-white">Email</p>
-                                        <a href="mailto:contact@example.com" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white">
+                                        <p class="font-medium text-sm text-foreground">Email</p>
+                                        <a href="mailto:contact@example.com" class="text-sm text-muted-foreground hover:text-foreground">
                                             contact@example.com
                                         </a>
                                     </div>
                                 </div>
 
                                 <div class="flex items-start gap-4">
-                                    <div class="bg-zinc-100 dark:bg-zinc-800 p-3 rounded-lg">
-                                        <Phone class="w-5 h-5 text-zinc-700 dark:text-zinc-300" />
+                                    <div class="bg-muted p-3 rounded-lg">
+                                        <Phone class="w-5 h-5 text-foreground" />
                                     </div>
                                     <div>
-                                        <p class="font-medium text-sm text-zinc-900 dark:text-white">Téléphone</p>
-                                        <a href="tel:+33612345678" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white">
+                                        <p class="font-medium text-sm text-foreground">Téléphone</p>
+                                        <a href="tel:+33612345678" class="text-sm text-muted-foreground hover:text-foreground">
                                             +33 6 12 34 56 78
                                         </a>
                                     </div>
@@ -239,20 +239,20 @@ const submitForm = async () => {
                             </div>
                         </div>
 
-                        <div class="bg-gradient-to-br from-zinc-100 dark:from-zinc-900 to-zinc-200 dark:to-zinc-800 p-8 rounded-lg border border-zinc-200 dark:border-zinc-700">
-                            <h3 class="mb-4 font-semibold text-xl text-zinc-900 dark:text-white">
+                        <div class="bg-gradient-to-br from-muted to-muted/50 p-8 rounded-lg border border-border">
+                            <h3 class="mb-4 font-semibold text-xl text-foreground">
                                 Temps de réponse
                             </h3>
-                            <p class="text-zinc-600 text-sm dark:text-zinc-400 leading-relaxed">
+                            <p class="text-sm text-muted-foreground leading-relaxed">
                                 Notre équipe s'engage à vous répondre dans les <strong>24 heures ouvrées</strong>. Pour les urgences, n'hésitez pas à nous appeler directement.
                             </p>
                         </div>
 
-                        <div class="bg-gradient-to-br from-zinc-100 dark:from-zinc-900 to-zinc-200 dark:to-zinc-800 p-8 rounded-lg border border-zinc-200 dark:border-zinc-700">
-                            <h3 class="mb-4 font-semibold text-xl text-zinc-900 dark:text-white">
+                        <div class="bg-gradient-to-br from-muted to-muted/50 p-8 rounded-lg border border-border">
+                            <h3 class="mb-4 font-semibold text-xl text-foreground">
                                 Horaires
                             </h3>
-                            <div class="space-y-2 text-zinc-600 text-sm dark:text-zinc-400">
+                            <div class="space-y-2 text-sm text-muted-foreground">
                                 <p><strong>Lundi - Vendredi :</strong> 9h00 - 18h00</p>
                                 <p><strong>Weekend :</strong> Fermé</p>
                             </div>

@@ -137,7 +137,7 @@
           </SheetHeader>
           
           <div v-if="image" class="space-y-6 mt-6">
-            <div class="relative bg-zinc-100 dark:bg-zinc-800 rounded-lg aspect-video overflow-hidden">
+            <div class="relative bg-muted rounded-lg aspect-video overflow-hidden">
               <img
                 :src="getImageUrl(image.slug)"
                 :alt="image.name || sceneName"
@@ -165,30 +165,30 @@
 
             <div class="space-y-3">
               <div>
-                <p class="font-medium text-sm text-zinc-700 dark:text-zinc-300">Taille du fichier</p>
-                <p class="text-zinc-500 dark:text-zinc-400 text-sm">{{ formatBytes(image.size) }}</p>
+                <p class="font-medium text-sm text-foreground">Taille du fichier</p>
+                <p class="text-muted-foreground text-sm">{{ formatBytes(image.size) }}</p>
               </div>
 
               <div>
-                <p class="font-medium text-sm text-zinc-700 dark:text-zinc-300">Date de création</p>
-                <p class="text-zinc-500 dark:text-zinc-400 text-sm">{{ formatDateTime(image.created_at) }}</p>
+                <p class="font-medium text-sm text-foreground">Date de création</p>
+                <p class="text-muted-foreground text-sm">{{ formatDateTime(image.created_at) }}</p>
               </div>
 
               <div>
-                <p class="font-medium text-sm text-zinc-700 dark:text-zinc-300">Points d'accès</p>
-                <div class="flex items-center gap-1 text-zinc-500 dark:text-zinc-400 text-sm">
+                <p class="font-medium text-sm text-foreground">Points d'accès</p>
+                <div class="flex items-center gap-1 text-muted-foreground text-sm">
                   <Navigation class="w-4 h-4" />
                   <span>{{ image.hotspots_from?.length || 0 }} point(s) d'accès depuis cette image</span>
                 </div>
               </div>
             </div>
 
-            <div v-if="canEdit" class="space-y-4 border-t border-zinc-200 dark:border-zinc-800 pt-4">
+            <div v-if="canEdit" class="space-y-4 border-t border-border pt-4">
               <div>
-                <p class="font-medium text-sm text-zinc-700 dark:text-zinc-300 mb-2">
+                <p class="font-medium text-sm text-foreground mb-2">
                   Remplacer l'image
                 </p>
-                <p class="text-xs text-zinc-500 dark:text-zinc-400 mb-3">
+                <p class="text-xs text-muted-foreground mb-3">
                   Le fichier de l'image sera remplacé. Les points d'accès et stickers seront conservés.
                 </p>
 
@@ -212,7 +212,7 @@
                 </div>
 
                 <div v-else class="space-y-3">
-                  <div class="relative bg-zinc-100 dark:bg-zinc-800 rounded-lg aspect-video overflow-hidden">
+                  <div class="relative bg-muted rounded-lg aspect-video overflow-hidden">
                     <img
                       :src="replacementPreview"
                       alt="Prévisualisation"

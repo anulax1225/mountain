@@ -49,19 +49,19 @@ const resetZoom = () => {
 <template>
     <div class="absolute bottom-24 right-6 z-40 flex flex-col gap-2">
         <Button @click="zoomIn" size="icon" variant="secondary"
-            class="w-10 h-10 bg-white/90 dark:bg-zinc-800/90 backdrop-blur shadow-lg hover:bg-white dark:hover:bg-zinc-800"
+            class="w-10 h-10 bg-card/90 backdrop-blur shadow-lg hover:bg-card"
             title="Zoom avant">
             <ZoomIn class="w-5 h-5" />
         </Button>
 
         <Button @click="zoomOut" size="icon" variant="secondary"
-            class="w-10 h-10 bg-white/90 dark:bg-zinc-800/90 backdrop-blur shadow-lg hover:bg-white dark:hover:bg-zinc-800"
+            class="w-10 h-10 bg-card/90 backdrop-blur shadow-lg hover:bg-card"
             title="Zoom arrière">
             <ZoomOut class="w-5 h-5" />
         </Button>
 
         <Button @click="resetZoom" size="icon" variant="secondary"
-            class="w-10 h-10 bg-white/90 dark:bg-zinc-800/90 backdrop-blur shadow-lg hover:bg-white dark:hover:bg-zinc-800"
+            class="w-10 h-10 bg-card/90 backdrop-blur shadow-lg hover:bg-card"
             title="Réinitialiser le zoom">
             <RotateCcw class="w-5 h-5" />
         </Button>

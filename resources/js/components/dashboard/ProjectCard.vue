@@ -65,18 +65,18 @@ const showMenu = computed(() => canEdit.value || canDelete.value)
     </CardHeader>
     <CardContent>
       <Link :href="`/dashboard/projects/${project.slug}`" class="block">
-        <div class="flex justify-center items-center bg-gradient-to-br from-zinc-100 dark:from-zinc-800 to-zinc-200 dark:to-zinc-700 mb-4 rounded-lg aspect-video overflow-hidden group-hover:ring-2 ring-zinc-300 dark:ring-zinc-600 transition-all">
+        <div class="flex justify-center items-center bg-gradient-to-br from-muted to-muted/80 mb-4 rounded-lg aspect-video overflow-hidden group-hover:ring-2 ring-border transition-all">
           <img
             v-if="project.picture_path"
             :src="`/projects/${project.slug}/picture`"
             :alt="project.name"
             class="w-full h-full object-cover"
           />
-          <Globe v-else class="w-16 h-16 text-zinc-400 dark:text-zinc-500"/>
+          <Globe v-else class="w-16 h-16 text-muted-foreground"/>
         </div>
       </Link>
       <div class="flex justify-between items-center text-sm">
-        <span class="text-zinc-500 dark:text-zinc-400">Créé {{ formatNumericDate(project.created_at) }}</span>
+        <span class="text-muted-foreground">Créé {{ formatNumericDate(project.created_at) }}</span>
       </div>
     </CardContent>
   </Card>

@@ -64,14 +64,14 @@ const handleCancel = () => {
                 <RadioGroup v-model="customizationType" class="space-y-4">
                     <!-- Default option -->
                     <div
-                        class="flex items-center space-x-3 p-4 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-colors">
+                        class="flex items-center space-x-3 p-4 rounded-lg border border-border hover:bg-muted cursor-pointer transition-colors">
                         <RadioGroupItem value="default" id="default" />
                         <Label for="default" class="flex-1 cursor-pointer">
                             <div class="flex items-center gap-3">
-                                <Circle class="w-5 h-5 text-zinc-500" />
+                                <Circle class="w-5 h-5 text-muted-foreground" />
                                 <div>
                                     <div class="font-medium">Point blanc par défaut</div>
-                                    <div class="text-sm text-zinc-500 dark:text-zinc-400">Point blanc simple avec
+                                    <div class="text-sm text-muted-foreground">Point blanc simple avec
                                         bordure noire</div>
                                 </div>
                             </div>
@@ -80,15 +80,15 @@ const handleCancel = () => {
 
                     <!-- Color option -->
                     <div
-                        class="flex items-start space-x-3 p-4 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-colors">
+                        class="flex items-start space-x-3 p-4 rounded-lg border border-border hover:bg-muted cursor-pointer transition-colors">
                         <RadioGroupItem value="color" id="color" class="mt-1" />
                         <Label for="color" class="flex-1 cursor-pointer">
                             <div class="space-y-3">
                                 <div class="flex items-center gap-3">
-                                    <Palette class="w-5 h-5 text-zinc-500" />
+                                    <Palette class="w-5 h-5 text-muted-foreground" />
                                     <div>
                                         <div class="font-medium">Couleur personnalisée</div>
-                                        <div class="text-sm text-zinc-500 dark:text-zinc-400">Choisissez une couleur
+                                        <div class="text-sm text-muted-foreground">Choisissez une couleur
                                             pour le point</div>
                                     </div>
                                 </div>
@@ -98,8 +98,8 @@ const handleCancel = () => {
                                         @click="selectedColor = color" :class="[
                                             'w-10 h-10 rounded-lg border-2 transition-all',
                                             selectedColor === color
-                                                ? 'border-zinc-900 dark:border-zinc-100 scale-110'
-                                                : 'border-zinc-300 dark:border-zinc-600'
+                                                ? 'border-foreground scale-110'
+                                                : 'border-border'
                                         ]" :style="{ backgroundColor: color }" />
                                 </div>
                             </div>
@@ -108,15 +108,15 @@ const handleCancel = () => {
 
                     <!-- Image option -->
                     <div
-                        class="flex items-start space-x-3 p-4 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-colors">
+                        class="flex items-start space-x-3 p-4 rounded-lg border border-border hover:bg-muted cursor-pointer transition-colors">
                         <RadioGroupItem value="image" id="image" class="mt-1" />
                         <Label for="image" class="flex-1 cursor-pointer">
                             <div class="space-y-3">
                                 <div class="flex items-center gap-3">
-                                    <ImageIcon class="w-5 h-5 text-zinc-500" />
+                                    <ImageIcon class="w-5 h-5 text-muted-foreground" />
                                     <div>
                                         <div class="font-medium">Icône prédéfinie</div>
-                                        <div class="text-sm text-zinc-500 dark:text-zinc-400">Utilisez une icône de la
+                                        <div class="text-sm text-muted-foreground">Utilisez une icône de la
                                             bibliothèque</div>
                                     </div>
                                 </div>
@@ -124,10 +124,10 @@ const handleCancel = () => {
                                 <div v-if="customizationType === 'image'" class="grid grid-cols-6 gap-3 pt-2">
                                     <button v-for="image in predefinedImages" :key="image"
                                         @click="selectedImage = image" :class="[
-                                            'w-16 h-16 rounded-lg border-2 transition-all flex items-center justify-center bg-zinc-100 dark:bg-zinc-800',
+                                            'w-16 h-16 rounded-lg border-2 transition-all flex items-center justify-center bg-muted',
                                             selectedImage === image
-                                                ? 'border-zinc-900 dark:border-zinc-100 scale-105'
-                                                : 'border-zinc-300 dark:border-zinc-600'
+                                                ? 'border-foreground scale-105'
+                                                : 'border-border'
                                         ]">
                                         <img :src="`/hotspot-icons/${image}`" :alt="image"
                                             class="w-10 h-10 object-contain" />

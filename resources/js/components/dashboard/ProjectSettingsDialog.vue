@@ -101,7 +101,7 @@ watch(() => isPublic.value, (newValue) => {
                 <div class="flex items-center justify-between">
                     <div class="space-y-0.5">
                         <Label>Projet public</Label>
-                        <p class="text-sm text-zinc-500 dark:text-zinc-400">
+                        <p class="text-sm text-muted-foreground">
                             Rendre ce projet visible dans la galerie publique
                         </p>
                     </div>
@@ -110,14 +110,14 @@ watch(() => isPublic.value, (newValue) => {
 
                 <div class="space-y-2">
                     <Label>Image de départ</Label>
-                    <p class="text-xs text-zinc-500 dark:text-zinc-400 mb-2">
+                    <p class="text-xs text-muted-foreground mb-2">
                         Sélectionnez l'image panoramique par laquelle les visiteurs commenceront
                     </p>
                     <ScrollArea class="pr-4 max-h-[60vh]">
                         <div class="space-y-6">
                             <div v-for="group in groupedImages" :key="group.scene.slug" class="space-y-3">
                                 <div class="flex items-center gap-2">
-                                    <h3 class="font-semibold text-zinc-900 dark:text-zinc-100">
+                                    <h3 class="font-semibold text-foreground">
                                         {{ group.scene.name || 'Sans nom' }}
                                     </h3>
                                     <Badge variant="secondary">
@@ -151,12 +151,12 @@ watch(() => isPublic.value, (newValue) => {
                             </div>
 
                             <div v-if="groupedImages.length === 0" class="py-12 text-center">
-                                <p class="text-zinc-500 dark:text-zinc-400">Aucune image disponible</p>
+                                <p class="text-muted-foreground">Aucune image disponible</p>
                             </div>
                         </div>
                     </ScrollArea>
                     <!-- <select v-model="startImageId"
-                        class="w-full px-3 py-2 border rounded-md bg-white dark:bg-zinc-900 border-zinc-300 dark:border-zinc-700">
+                        class="w-full px-3 py-2 border rounded-md bg-card border-border">
                         <option :value="null">-- Sélectionnez une image --</option>
                         <option v-for="image in images" :key="image.id" :value="image.slug">
                             <img :src="`/images/${image.slug}/download`" :alt="image.name">

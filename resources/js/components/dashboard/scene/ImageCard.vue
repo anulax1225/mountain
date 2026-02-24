@@ -31,14 +31,14 @@
         </div>
         <CardContent class="pt-4">
           <div class="mb-2">
-            <p class="font-medium text-sm text-zinc-900 dark:text-zinc-100 truncate">
+            <p class="font-medium text-sm text-foreground truncate">
               {{ image.name || 'Sans nom' }}
             </p>
           </div>
           <div class="flex justify-between items-center gap-2">
             <div class="flex-1 min-w-0">
-              <p class="text-zinc-500 dark:text-zinc-400 text-xs">{{ formatBytes(image.size) }}</p>
-              <div class="flex items-center gap-1 text-zinc-400 dark:text-zinc-500 text-xs">
+              <p class="text-muted-foreground text-xs">{{ formatBytes(image.size) }}</p>
+              <div class="flex items-center gap-1 text-muted-foreground text-xs">
                 <Navigation class="w-3 h-3" />
                 <span>{{ image.hotspots_from?.length || 0 }} point(s) d'accès</span>
               </div>

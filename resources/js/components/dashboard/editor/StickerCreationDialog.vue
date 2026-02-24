@@ -111,24 +111,24 @@
     
                 <div class="space-y-6">
                     <RadioGroup v-model="stickerType" class="space-y-3">
-                        <div class="flex items-center space-x-3 p-3 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-colors">
+                        <div class="flex items-center space-x-3 p-3 rounded-lg border border-border hover:bg-muted cursor-pointer transition-colors">
                             <RadioGroupItem value="emoji" id="emoji" />
                             <Label for="emoji" class="flex-1 cursor-pointer flex items-center gap-3">
-                                <Smile class="w-5 h-5 text-zinc-500" />
+                                <Smile class="w-5 h-5 text-muted-foreground" />
                                 <div>
                                     <div class="font-medium">Emoji</div>
-                                    <div class="text-sm text-zinc-500 dark:text-zinc-400">Ajouter un emoji</div>
+                                    <div class="text-sm text-muted-foreground">Ajouter un emoji</div>
                                 </div>
                             </Label>
                         </div>
-    
-                        <div class="flex items-center space-x-3 p-3 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-colors">
+
+                        <div class="flex items-center space-x-3 p-3 rounded-lg border border-border hover:bg-muted cursor-pointer transition-colors">
                             <RadioGroupItem value="text" id="text" />
                             <Label for="text" class="flex-1 cursor-pointer flex items-center gap-3">
-                                <Type class="w-5 h-5 text-zinc-500" />
+                                <Type class="w-5 h-5 text-muted-foreground" />
                                 <div>
                                     <div class="font-medium">Texte</div>
-                                    <div class="text-sm text-zinc-500 dark:text-zinc-400">Ajouter du texte personnalisé</div>
+                                    <div class="text-sm text-muted-foreground">Ajouter du texte personnalisé</div>
                                 </div>
                             </Label>
                         </div>
@@ -138,11 +138,11 @@
                     <div v-if="stickerType === 'emoji'" class="space-y-4">
                         <div>
                             <Label>Emoji sélectionné</Label>
-                            <div class="mt-2 flex items-center justify-center w-full h-24 bg-zinc-100 dark:bg-zinc-900 rounded-lg text-6xl">
+                            <div class="mt-2 flex items-center justify-center w-full h-24 bg-muted rounded-lg text-6xl">
                                 {{ emojiContent }}
                             </div>
                         </div>
-    
+
                         <div>
                             <Label>Choisir un emoji</Label>
                             <div class="mt-2 grid grid-cols-8 gap-2">
@@ -152,9 +152,9 @@
                                     @click="emojiContent = emoji"
                                     :class="[
                                         'w-12 h-12 rounded-lg border-2 text-2xl transition-all flex items-center justify-center',
-                                        emojiContent === emoji 
-                                            ? 'border-zinc-900 dark:border-zinc-100 bg-zinc-100 dark:bg-zinc-800 scale-110' 
-                                            : 'border-zinc-300 dark:border-zinc-600 hover:border-zinc-400'
+                                        emojiContent === emoji
+                                            ? 'border-foreground bg-muted scale-110'
+                                            : 'border-border hover:border-muted-foreground'
                                     ]"
                                 >
                                     {{ emoji }}
@@ -186,7 +186,7 @@
                                 rows="3"
                                 maxlength="200"
                             />
-                            <div class="mt-1 text-xs text-zinc-500">{{ textContent.length }}/200 caractères</div>
+                            <div class="mt-1 text-xs text-muted-foreground">{{ textContent.length }}/200 caractères</div>
                         </div>
     
                         <div class="grid grid-cols-2 gap-4">
