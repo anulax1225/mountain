@@ -18,7 +18,6 @@ import owl from '@/owl-sdk.js'
 import { useConfirm } from '@/composables/useConfirm'
 import { useFileDownload } from '@/composables/useFileDownload'
 import { useViewMode } from '@/composables/useViewMode'
-import { useImageUpload } from '@/composables/useImageUpload'
 
 const props = defineProps({
   auth: Object,
@@ -42,10 +41,6 @@ const canEdit = computed(() => project.value?.permissions?.can_edit ?? false)
 const { confirmDelete } = useConfirm()
 const { downloadBlob } = useFileDownload()
 const { viewMode } = useViewMode('sceneViewMode', 'grid', ['grid', 'list', 'slider'])
-const { uploadFiles, isUploading, errors: uploadErrors } = useImageUpload({
-    maxFileSize: 50 * 1024 * 1024,
-    validateEquirectangular: true
-})
 
 const loadScene = async () => {
   try {
@@ -64,19 +59,9 @@ const loadScene = async () => {
   }
 }
 
-const uploadImages = async (files) => {
-  if (!files.length) return
-
-  const result = await uploadFiles(files, async (formData) => {
-    // Extract file from formData
-    const file = formData.get('file')
-    return await owl.images.upload(props.sceneSlug, file)
-  })
-
-  if (result.success) {
-    uploadSheetOpen.value = false
-    await loadScene()
-  }
+const handleUploadComplete = async () => {
+  uploadSheetOpen.value = false
+  await loadScene()
 }
 
 const deleteImage = async (imageSlug) => {
@@ -210,8 +195,8 @@ onMounted(() => {
 
       <ImageUploadSheet
         v-model:open="uploadSheetOpen"
-        :uploading="isUploading"
-        @upload="uploadImages"
+        :scene-slug="sceneSlug"
+        @upload-complete="handleUploadComplete"
       />
 
       <ImageDetailsSheet
