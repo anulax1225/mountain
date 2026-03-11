@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import DropzoneUpload from '@/components/dashboard/scene/DropzoneUpload.vue'
 import owl from '@/owl-sdk.js'
 
 const props = defineProps({
@@ -20,28 +21,10 @@ const form = ref({
   photo: null
 })
 
-const photoInput = ref(null)
-const photoPreview = ref(null)
 const saving = ref(false)
 
-const handlePhotoSelect = (event) => {
-  const file = event.target.files[0]
-  if (file) {
-    form.value.photo = file
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      photoPreview.value = e.target.result
-    }
-    reader.readAsDataURL(file)
-  }
-}
-
-const removePhoto = () => {
-  form.value.photo = null
-  photoPreview.value = null
-  if (photoInput.value) {
-    photoInput.value.value = ''
-  }
+const handleFileSelected = (file) => {
+  form.value.photo = file
 }
 
 const saveProject = async () => {
@@ -74,7 +57,6 @@ watch(() => props.open, (newValue) => {
     form.value.name = props.project.name
     form.value.description = props.project.description || ''
     form.value.photo = null
-    photoPreview.value = props.project.picture_path ? `/projects/${props.project.slug}/picture` : null
   }
 })
 </script>
@@ -111,31 +93,13 @@ watch(() => props.open, (newValue) => {
         </div>
 
         <div class="space-y-2">
-          <Label for="edit-photo">Photo de couverture</Label>
-          <Input
-            id="edit-photo"
-            ref="photoInput"
-            type="file"
-            accept="image/*"
-            @change="handlePhotoSelect"
+          <Label>Photo de couverture</Label>
+          <DropzoneUpload
+            :multiple="false"
+            mode="select"
+            allowed-formats="JPG, PNG, WebP"
+            @file-selected="handleFileSelected"
           />
-
-          <div v-if="photoPreview" class="mt-2 relative">
-            <img
-              :src="photoPreview"
-              alt="Preview"
-              class="w-full h-32 object-cover rounded-md"
-            />
-            <Button
-              type="button"
-              variant="destructive"
-              size="sm"
-              class="absolute top-2 right-2"
-              @click="removePhoto"
-            >
-              Supprimer
-            </Button>
-          </div>
         </div>
 
         <div class="flex justify-end gap-2">

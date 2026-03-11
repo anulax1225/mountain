@@ -4,14 +4,14 @@
     import { Input } from '@/components/ui/input'
     import { Label } from '@/components/ui/label'
     import { Button } from '@/components/ui/button'
-    import { Download, Trash2, Navigation, Upload } from 'lucide-vue-next'
+    import { Download, Trash2, Navigation } from 'lucide-vue-next'
     import owl from '@/owl-sdk.js'
     import { useDateTime } from '@/composables/useDateTime'
     import { useFileSize } from '@/composables/useFileSize'
     import { useImagePath } from '@/composables/useImagePath'
     import { useConfirm } from '@/composables/useConfirm'
     import { useApiError } from '@/composables/useApiError'
-    import { useImageUpload } from '@/composables/useImageUpload'
+    import DropzoneUpload from '@/components/dashboard/scene/DropzoneUpload.vue'
 
     const props = defineProps({
       open: Boolean,
@@ -28,26 +28,27 @@
     const imageName = ref('')
     const saving = ref(false)
     const replacementFile = ref(null)
-    const replacementPreview = ref(null)
     const isReplacing = ref(false)
-    const fileInputRef = ref(null)
 
     const { formatDateTime } = useDateTime()
     const { formatBytes } = useFileSize()
     const { getImageUrl } = useImagePath()
     const { confirmAction } = useConfirm()
     const { handleError } = useApiError()
-    const upload = useImageUpload({
-        maxFileSize: 50 * 1024 * 1024, // 50MB
-        allowedTypes: ['image/jpeg', 'image/png'],
-        validateEquirectangular: true
-    })
 
     watch(() => props.image, (newImage) => {
       if (newImage) {
         imageName.value = newImage.name || ''
       }
     }, { immediate: true })
+
+    // Reset replacement state when sheet closes
+    watch(() => props.open, (newVal) => {
+      if (!newVal) {
+        replacementFile.value = null
+        isReplacing.value = false
+      }
+    })
 
     const saveName = async () => {
       if (!props.image) return
@@ -56,7 +57,6 @@
         saving.value = true
         await owl.images.updateName(props.image.slug, imageName.value)
         emit('update:open', false)
-        // Trigger reload
         window.location.reload()
       } catch (error) {
         console.error('Failed to update image name:', error)
@@ -65,32 +65,8 @@
       }
     }
 
-    const handleFileSelect = async (event) => {
-      const file = event.target.files[0]
-      if (!file) return
-
-      // Validate file
-      const validation = await upload.validateFiles([file])
-      if (validation.errors.length > 0) {
-        const error = validation.errors[0]
-        handleError({ message: error.message }, { showToast: true })
-        return
-      }
-
-      // Create preview
+    const handleFileSelected = (file) => {
       replacementFile.value = file
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        replacementPreview.value = e.target.result
-
-        // Get image dimensions
-        const img = new Image()
-        img.onload = () => {
-          console.log('Replacement image dimensions:', img.width, 'x', img.height)
-        }
-        img.src = e.target.result
-      }
-      reader.readAsDataURL(file)
     }
 
     const confirmReplacement = async () => {
@@ -98,7 +74,7 @@
 
       const confirmed = await confirmAction('replace', 'cette image')
       if (!confirmed) {
-        cancelReplacement()
+        replacementFile.value = null
         return
       }
 
@@ -106,26 +82,17 @@
         isReplacing.value = true
         await owl.images.update(props.image.slug, replacementFile.value)
 
-        // Emit event to parent to reload scene
         emit('update:open', false)
         emit('image-replaced', props.image.slug)
       } catch (error) {
         handleError(error, { context: 'Replacing image', showToast: true })
       } finally {
         isReplacing.value = false
-        cancelReplacement()
-      }
-    }
-
-    const cancelReplacement = () => {
-      replacementFile.value = null
-      replacementPreview.value = null
-      if (fileInputRef.value) {
-        fileInputRef.value.value = ''
+        replacementFile.value = null
       }
     }
     </script>
-    
+
     <template>
       <Sheet :open="open" @update:open="emit('update:open', $event)">
         <SheetContent class="px-6">
@@ -135,7 +102,7 @@
               Informations et actions pour cette image
             </SheetDescription>
           </SheetHeader>
-          
+
           <div v-if="image" class="space-y-6 mt-6">
             <div class="relative bg-muted rounded-lg aspect-video overflow-hidden">
               <img
@@ -192,51 +159,23 @@
                   Le fichier de l'image sera remplacé. Les points d'accès et stickers seront conservés.
                 </p>
 
-                <input
-                  ref="fileInputRef"
-                  type="file"
+                <DropzoneUpload
+                  :multiple="false"
+                  mode="select"
                   accept="image/jpeg,image/png"
-                  @change="handleFileSelect"
-                  class="hidden"
+                  allowed-formats="JPG, PNG"
+                  :disabled="isReplacing"
+                  @file-selected="handleFileSelected"
                 />
 
-                <div v-if="!replacementPreview">
-                  <Button
-                    @click="fileInputRef?.click()"
-                    variant="outline"
-                    class="w-full"
-                  >
-                    <Upload class="mr-2 w-4 h-4" />
-                    Choisir une nouvelle image
-                  </Button>
-                </div>
-
-                <div v-else class="space-y-3">
-                  <div class="relative bg-muted rounded-lg aspect-video overflow-hidden">
-                    <img
-                      :src="replacementPreview"
-                      alt="Prévisualisation"
-                      class="w-full h-full object-cover"
-                    />
-                  </div>
-
-                  <div class="flex gap-2">
-                    <Button
-                      @click="confirmReplacement"
-                      :disabled="isReplacing"
-                      class="flex-1"
-                    >
-                      {{ isReplacing ? 'Remplacement...' : 'Confirmer le remplacement' }}
-                    </Button>
-                    <Button
-                      @click="cancelReplacement"
-                      variant="outline"
-                      :disabled="isReplacing"
-                    >
-                      Annuler
-                    </Button>
-                  </div>
-                </div>
+                <Button
+                  v-if="replacementFile"
+                  @click="confirmReplacement"
+                  :disabled="isReplacing"
+                  class="w-full mt-3"
+                >
+                  {{ isReplacing ? 'Remplacement...' : 'Confirmer le remplacement' }}
+                </Button>
               </div>
             </div>
 

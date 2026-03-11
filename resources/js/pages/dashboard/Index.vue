@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import ProjectCard from '@/components/dashboard/ProjectCard.vue'
 import CreateProjectCard from '@/components/dashboard/CreateProjectCard.vue'
+import DropzoneUpload from '@/components/dashboard/scene/DropzoneUpload.vue'
 import { useConfirm } from '@/composables'
 import owl from '@/owl-sdk.js'
 
@@ -39,10 +40,6 @@ const editForm = ref({
   photo: null
 })
 
-const photoInput = ref(null)
-const photoPreview = ref(null)
-const editPhotoPreview = ref(null)
-
 const loadProjects = async () => {
   try {
     loading.value = true
@@ -52,18 +49,6 @@ const loadProjects = async () => {
     console.error('Failed to load projects:', error)
   } finally {
     loading.value = false
-  }
-}
-
-const handlePhotoSelect = (event) => {
-  const file = event.target.files[0]
-  if (file) {
-    form.value.photo = file
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      photoPreview.value = e.target.result
-    }
-    reader.readAsDataURL(file)
   }
 }
 
@@ -81,7 +66,6 @@ const createProject = async () => {
     await owl.projects.create(formData)
     sheetOpen.value = false
     form.value = { name: '', description: '', photo: null }
-    photoPreview.value = null
     await loadProjects()
   } catch (error) {
     console.error('Failed to create project:', error)
@@ -89,6 +73,7 @@ const createProject = async () => {
 }
 
 const openCreateSheet = () => {
+  form.value = { name: '', description: '', photo: null }
   sheetOpen.value = true
 }
 
@@ -99,20 +84,7 @@ const openEditSheet = (project) => {
     description: project.description || '',
     photo: null
   }
-  editPhotoPreview.value = project.picture_path ? `/projects/${project.slug}/picture` : null
   editSheetOpen.value = true
-}
-
-const handleEditPhotoSelect = (event) => {
-  const file = event.target.files[0]
-  if (file) {
-    editForm.value.photo = file
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      editPhotoPreview.value = e.target.result
-    }
-    reader.readAsDataURL(file)
-  }
 }
 
 const updateProject = async () => {
@@ -132,7 +104,6 @@ const updateProject = async () => {
     editSheetOpen.value = false
     editingProject.value = null
     editForm.value = { name: '', description: '', photo: null }
-    editPhotoPreview.value = null
     await loadProjects()
   } catch (error) {
     console.error('Failed to update project:', error)
@@ -208,17 +179,13 @@ onMounted(() => {
               />
             </div>
             <div class="space-y-2">
-              <Label for="photo">Photo de couverture</Label>
-              <Input
-                id="photo"
-                ref="photoInput"
-                type="file"
-                accept="image/*"
-                @change="handlePhotoSelect"
+              <Label>Photo de couverture</Label>
+              <DropzoneUpload
+                :multiple="false"
+                mode="select"
+                allowed-formats="JPG, PNG, WebP"
+                @file-selected="(file) => form.photo = file"
               />
-              <div v-if="photoPreview" class="mt-2">
-                <img :src="photoPreview" alt="Preview" class="w-full h-32 object-cover rounded-md" />
-              </div>
             </div>
             <Button type="submit" class="w-full">
               Créer le projet
@@ -255,16 +222,13 @@ onMounted(() => {
               />
             </div>
             <div class="space-y-2">
-              <Label for="edit-photo">Photo de couverture</Label>
-              <Input
-                id="edit-photo"
-                type="file"
-                accept="image/*"
-                @change="handleEditPhotoSelect"
+              <Label>Photo de couverture</Label>
+              <DropzoneUpload
+                :multiple="false"
+                mode="select"
+                allowed-formats="JPG, PNG, WebP"
+                @file-selected="(file) => editForm.photo = file"
               />
-              <div v-if="editPhotoPreview" class="mt-2">
-                <img :src="editPhotoPreview" alt="Preview" class="w-full h-32 object-cover rounded-md" />
-              </div>
             </div>
             <Button type="submit" class="w-full" :disabled="submitting">
               {{ submitting ? 'Enregistrement...' : 'Enregistrer les modifications' }}
