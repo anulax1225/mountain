@@ -1,20 +1,21 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\AdminContactRequestController;
+use App\Http\Controllers\AdminUserController;
+use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ChunkedUploadController;
+use App\Http\Controllers\ContactRequestController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GalleryController;
-use Inertia\Inertia;
 use App\Http\Controllers\HotspotController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectUserController;
 use App\Http\Controllers\SceneController;
 use App\Http\Controllers\StickerController;
-use App\Http\Controllers\AdminUserController;
-use App\Http\Controllers\AnalyticsController;
-use App\Http\Controllers\ContactRequestController;
-use App\Http\Controllers\AdminContactRequestController;
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
@@ -63,7 +64,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard/scenes/{scene:slug}', [DashboardController::class, 'showScene'])->name('dashboard.scene');
     Route::get('/dashboard/editor/{project:slug}', [DashboardController::class, 'showEditor'])->name('dashboard.editor');
 });
-
 
 // Protected routes
 Route::middleware('auth')->group(function () {
@@ -118,6 +118,13 @@ Route::middleware('auth')->group(function () {
     Route::put('/scenes/{scene:slug}', [SceneController::class, 'update']);
     Route::patch('/scenes/{scene:slug}', [SceneController::class, 'update']);
     Route::delete('/scenes/{scene:slug}', [SceneController::class, 'destroy']);
+
+    // Chunked upload routes (S3 staging)
+    Route::post('/uploads/direct', [ChunkedUploadController::class, 'directUpload']);
+    Route::post('/uploads/initiate', [ChunkedUploadController::class, 'initiate']);
+    Route::post('/uploads/part', [ChunkedUploadController::class, 'uploadPart']);
+    Route::post('/uploads/complete', [ChunkedUploadController::class, 'complete']);
+    Route::post('/uploads/abort', [ChunkedUploadController::class, 'abort']);
 
     // Images routes (nested under scenes)
     Route::get('/scenes/{scene:slug}/images', [ImageController::class, 'index']);

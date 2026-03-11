@@ -45,6 +45,7 @@ class OwlAPIClient {
         this.admin = new AdminAPI(this);
         this.contact = new ContactAPI(this);
         this.projectUsers = new ProjectUsersAPI(this);
+        this.chunkedUpload = new ChunkedUploadAPI(this);
 
         // Active requests tracking for cancellation
         this.activeRequests = new Map();
@@ -158,8 +159,9 @@ class OwlAPIClient {
             config.body = JSON.stringify(options.body);
         }
 
-        // Setup timeout
-        const timeoutId = setTimeout(() => this.timeout ?? controller.abort(), this.timeout);
+        // Setup timeout (allow per-request override)
+        const requestTimeout = options.timeout || this.timeout;
+        const timeoutId = setTimeout(() => controller.abort(), requestTimeout);
 
         try {
             // Request interceptor
@@ -652,23 +654,19 @@ class ImagesAPI {
     }
 
     /**
-     * Upload a new image to a scene
+     * Create an image record from an S3 staging key
      * @param {string} sceneSlug - Scene slug
-     * @param {File} imageFile - Image file (max 20MB)
-     * @param {string} [name] - Optional name for the image
+     * @param {Object} data - Image data from S3 upload
+     * @param {string} data.key - S3 staging key (starts with uploads/)
+     * @param {string} [data.name] - Optional name for the image
+     * @param {number} data.size - File size in bytes
+     * @param {string} data.mime - MIME type
      * @returns {Promise<Object>}
      */
-    async upload(sceneSlug, imageFile, name = null) {
-        const formData = new FormData();
-        formData.append('image', imageFile);
-        if (name) {
-            formData.append('name', name);
-        }
-
+    async upload(sceneSlug, { key, name, size, mime }) {
         return await this.client.request(`/scenes/${sceneSlug}/images`, {
             method: 'POST',
-            body: formData,
-            isFormData: true,
+            body: { key, name, size, mime },
         });
     }
 
@@ -1113,6 +1111,95 @@ class ProjectUsersAPI {
     }
 }
 
+/**
+ * Chunked Upload API endpoints (S3 staging)
+ */
+class ChunkedUploadAPI {
+    constructor(client) {
+        this.client = client;
+    }
+
+    /**
+     * Direct upload for small files (≤50MB) to S3 staging
+     * @param {File} file - File to upload
+     * @returns {Promise<{key: string, filename: string, size: number, mime: string}>}
+     */
+    async directUpload(file) {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        return await this.client.request('/uploads/direct', {
+            method: 'POST',
+            body: formData,
+            isFormData: true,
+            timeout: 120000,
+        });
+    }
+
+    /**
+     * Initiate a multipart upload for large files
+     * @param {string} filename - Original filename
+     * @param {string} contentType - MIME type
+     * @returns {Promise<{upload_id: string, key: string}>}
+     */
+    async initiate(filename, contentType) {
+        return await this.client.request('/uploads/initiate', {
+            method: 'POST',
+            body: { filename, content_type: contentType },
+        });
+    }
+
+    /**
+     * Upload a single chunk
+     * @param {string} uploadId - Multipart upload ID
+     * @param {string} key - S3 key
+     * @param {number} partNumber - Part number (1-based)
+     * @param {Blob} chunk - Chunk data
+     * @returns {Promise<{etag: string}>}
+     */
+    async uploadPart(uploadId, key, partNumber, chunk) {
+        const formData = new FormData();
+        formData.append('upload_id', uploadId);
+        formData.append('key', key);
+        formData.append('part_number', String(partNumber));
+        formData.append('chunk', chunk, 'chunk');
+
+        return await this.client.request('/uploads/part', {
+            method: 'POST',
+            body: formData,
+            isFormData: true,
+            timeout: 120000,
+        });
+    }
+
+    /**
+     * Complete a multipart upload
+     * @param {string} uploadId - Multipart upload ID
+     * @param {string} key - S3 key
+     * @param {Array<{PartNumber: number, ETag: string}>} parts - Uploaded parts
+     * @returns {Promise<{url: string, key: string}>}
+     */
+    async complete(uploadId, key, parts) {
+        return await this.client.request('/uploads/complete', {
+            method: 'POST',
+            body: { upload_id: uploadId, key, parts },
+        });
+    }
+
+    /**
+     * Abort a multipart upload
+     * @param {string} uploadId - Multipart upload ID
+     * @param {string} key - S3 key
+     * @returns {Promise<void>}
+     */
+    async abort(uploadId, key) {
+        return await this.client.request('/uploads/abort', {
+            method: 'POST',
+            body: { upload_id: uploadId, key },
+        });
+    }
+}
+
 // =============================================================================
 // GLOBAL CLIENT SINGLETON
 // =============================================================================
@@ -1168,3 +1255,4 @@ export const contactRequests = client.contactRequests;
 export const admin = client.admin;
 export const contact = client.contact;
 export const projectUsers = client.projectUsers;
+export const chunkedUpload = client.chunkedUpload;
