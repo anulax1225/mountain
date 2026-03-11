@@ -95,6 +95,15 @@ export const ZOOM = {
     OUT_FACTOR: 1.35, // Multiplier for zoom out (larger = farther)
 }
 
+export const UPLOAD = {
+    CHUNK_SIZE: 10 * 1024 * 1024,        // 10MB per chunk
+    CHUNKED_THRESHOLD: 50 * 1024 * 1024, // Use multipart above 50MB
+    MAX_FILE_SIZE: 500 * 1024 * 1024,    // 500MB max
+    MAX_RETRIES: 3,                       // Retry failed chunks
+    MAX_CONCURRENT: 3,                    // Concurrent uploads
+    ALLOWED_TYPES: ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'],
+}
+
 // Export a convenience object with all constants
 export default {
     SCENE,
@@ -108,4 +117,5 @@ export default {
     TIMING,
     INTERACTION,
     ZOOM,
+    UPLOAD,
 }
