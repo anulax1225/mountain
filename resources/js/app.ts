@@ -10,7 +10,7 @@ import { configure } from './owl-sdk';
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 configure({
-    baseURL: import.meta.env.VITE_OWL_API_BASE_URL || 'https://owlaround.anulax.ch',
+    baseURL: import.meta.env.VITE_OWL_API_BASE_URL,
 });
 // Initialize theme before app
 const { initTheme } = useTheme();
