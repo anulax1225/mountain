@@ -5,6 +5,7 @@ import { useThreeScene } from '@/composables/useThreeScene.js'
 import { usePanoramaLoader } from '@/composables/usePanoramaLoader.js'
 import { SpriteFactory, SpriteManager } from '@/lib/spriteFactory.js'
 import { SPRITE, TIMING, CONTROLS, INTERACTION, ZOOM } from '@/lib/editorConstants.js'
+import { useImagePath } from '@/composables/useImagePath.js'
 
 const props = defineProps({
     images: Array,
@@ -68,6 +69,8 @@ const draggedStickerSlug = ref(null) // Track which sticker was just dragged
 // Sprite managers
 let hotspotManager = null
 let stickerManager = null
+
+const { getImagePreview } = useImagePath()
 
 const currentImage = computed(() => props.images[props.currentIndex])
 
@@ -546,11 +549,14 @@ const loadPanorama = async (index, transition = true, rotation = null, skipWatch
     clearSprites()
 
     // Load panorama (includes fade out/in transition)
+    const image = props.images[index]
+    const previewUrl = image.preview_path ? getImagePreview(image) : null
     await loadPanoramaBase(
-        `/images/${props.images[index].slug}/download`,
+        `/images/${image.slug}/download`,
         transition,
         rotation,
-        controls.value
+        controls.value,
+        previewUrl
     )
 
     // Display sprites AFTER transition completes

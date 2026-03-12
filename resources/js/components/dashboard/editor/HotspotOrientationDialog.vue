@@ -16,6 +16,7 @@ import { useThreeScene } from '@/composables/useThreeScene.js'
 import { usePanoramaLoader } from '@/composables/usePanoramaLoader.js'
 import { calculateOppositePosition } from '@/lib/spatialMath.js'
 import { SPHERE, SPRITE, TIMING } from '@/lib/editorConstants.js'
+import { useImagePath } from '@/composables/useImagePath.js'
 
 const props = defineProps({
     open: Boolean,
@@ -24,6 +25,8 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['update:open', 'save'])
+
+const { getImagePreview } = useImagePath()
 
 const previewContainer = ref(null)
 const createBidirectional = ref(true)
@@ -53,12 +56,14 @@ const initPreview = async () => {
 
     if (!initialized) return
 
-    // Load panorama first
+    // Load panorama first (with preview preloading if available)
+    const previewUrl = props.targetImage.preview_path ? getImagePreview(props.targetImage) : null
     await loadPanorama(
         `/images/${props.targetImage.slug}/download`,
         false, // No transition for preview
         props.initialRotation, // Apply rotation via panorama loader
-        controls.value
+        controls.value,
+        previewUrl
     )
 }
 

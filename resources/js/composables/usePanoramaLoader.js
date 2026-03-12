@@ -25,9 +25,10 @@ export function usePanoramaLoader(sceneRef, textureLoaderRef, options = {}) {
      * @param {boolean} transition - Whether to fade in/out
      * @param {Object} rotation - Optional camera rotation {x, y, z}
      * @param {OrbitControls} controls - Camera controls for applying rotation
+     * @param {string|null} previewUrl - Optional preview URL for progressive loading
      * @returns {Promise<THREE.Mesh>}
      */
-    const loadPanorama = async (imageUrl, transition = true, rotation = null, controls = null) => {
+    const loadPanorama = async (imageUrl, transition = true, rotation = null, controls = null, previewUrl = null) => {
         if (!sceneRef.value || !textureLoaderRef.value) {
             console.warn('Scene or texture loader not available')
             return null
@@ -48,8 +49,9 @@ export function usePanoramaLoader(sceneRef, textureLoaderRef, options = {}) {
             currentMesh.value.material?.dispose()
         }
 
-        // Load texture
-        const texture = await textureLoaderRef.value.loadAsync(imageUrl)
+        // Load initial texture (preview if available, otherwise full-res)
+        const initialUrl = previewUrl || imageUrl
+        const texture = await textureLoaderRef.value.loadAsync(initialUrl)
         texture.colorSpace = THREE.SRGBColorSpace
         texture.minFilter = THREE.LinearFilter
         texture.magFilter = THREE.LinearFilter
@@ -75,6 +77,25 @@ export function usePanoramaLoader(sceneRef, textureLoaderRef, options = {}) {
         // Apply camera rotation if provided
         if (rotation && controls && rotation.x !== null && rotation.y !== null) {
             applyCameraRotation(controls, rotation)
+        }
+
+        // If preview was used, preload full-res texture in background and swap
+        if (previewUrl) {
+            textureLoaderRef.value.loadAsync(imageUrl).then(fullTexture => {
+                fullTexture.colorSpace = THREE.SRGBColorSpace
+                fullTexture.minFilter = THREE.LinearFilter
+                fullTexture.magFilter = THREE.LinearFilter
+
+                // Only swap if this mesh is still the current one
+                if (currentMesh.value === mesh) {
+                    const oldTexture = mesh.material.map
+                    mesh.material.map = fullTexture
+                    mesh.material.needsUpdate = true
+                    oldTexture?.dispose()
+                } else {
+                    fullTexture.dispose()
+                }
+            })
         }
 
         return mesh
