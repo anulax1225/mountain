@@ -1,5 +1,6 @@
 <script setup>
-import { ref, computed, onMounted, watch, nextTick } from 'vue'
+import { ref, computed, watch } from 'vue'
+import { useForm, router } from '@inertiajs/vue3'
 import DashboardLayout from '@/layouts/DashboardLayout.vue'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -22,29 +23,23 @@ import {
 } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
 import { Search, Mail, Phone, Building2, Calendar, Trash2, Eye } from 'lucide-vue-next'
-import { useToast } from '@/components/ui/toast/use-toast'
-import { useDateTime, useConfirm, useApiError } from '@/composables'
-import owl from '@/owl-sdk.js'
+import { useDateTime, useConfirm } from '@/composables'
 
-defineProps({
+const props = defineProps({
     auth: Object,
+    contactRequests: Array,
 })
 
-const { toast } = useToast()
 const { formatSmartDate } = useDateTime('fr-FR')
 const { confirmDelete } = useConfirm()
-const { handleError } = useApiError()
 
-const contactRequests = ref([])
-const isLoading = ref(true)
 const searchQuery = ref('')
 const statusFilter = ref('all')
 const selectedRequest = ref(null)
 const viewDialogOpen = ref(false)
 const updateDialogOpen = ref(false)
-const isUpdating = ref(false)
 
-const updateForm = ref({
+const updateForm = useForm({
     status: '',
     admin_notes: '',
 })
@@ -69,16 +64,14 @@ const statusConfig = {
     },
 }
 
-// Filtered requests
+// Filtered requests (client-side)
 const filteredRequests = computed(() => {
-    let filtered = contactRequests.value
+    let filtered = props.contactRequests || []
 
-    // Filter by status
     if (statusFilter.value !== 'all') {
         filtered = filtered.filter(req => req.status === statusFilter.value)
     }
 
-    // Filter by search query
     if (searchQuery.value) {
         const query = searchQuery.value.toLowerCase()
         filtered = filtered.filter(req =>
@@ -93,31 +86,19 @@ const filteredRequests = computed(() => {
 
 // Stats
 const stats = computed(() => {
+    const all = props.contactRequests || []
     return {
-        total: contactRequests.value.length,
-        received: contactRequests.value.filter(r => r.status === 'received').length,
-        in_process: contactRequests.value.filter(r => r.status === 'in_process').length,
-        refused: contactRequests.value.filter(r => r.status === 'refused').length,
-        validated: contactRequests.value.filter(r => r.status === 'validated').length,
+        total: all.length,
+        received: all.filter(r => r.status === 'received').length,
+        in_process: all.filter(r => r.status === 'in_process').length,
+        refused: all.filter(r => r.status === 'refused').length,
+        validated: all.filter(r => r.status === 'validated').length,
     }
 })
-
-const loadContactRequests = async () => {
-    try {
-        isLoading.value = true
-        const response = await owl.contactRequests.list()
-        contactRequests.value = response.data
-    } catch (error) {
-        handleError(error, { context: 'Chargement des demandes de contact', showToast: true })
-    } finally {
-        isLoading.value = false
-    }
-}
 
 // Watch for dialog close to cleanup state after animation
 watch(viewDialogOpen, (isOpen) => {
     if (!isOpen) {
-        // Delay cleanup until after dialog close animation
         setTimeout(() => {
             if (!viewDialogOpen.value) {
                 selectedRequest.value = null
@@ -128,12 +109,10 @@ watch(viewDialogOpen, (isOpen) => {
 
 watch(updateDialogOpen, (isOpen) => {
     if (!isOpen) {
-        // Delay cleanup until after dialog close animation
         setTimeout(() => {
             if (!updateDialogOpen.value) {
                 selectedRequest.value = null
-                updateForm.value = { status: '', admin_notes: '' }
-                isUpdating.value = false
+                updateForm.reset()
             }
         }, 150)
     }
@@ -146,66 +125,27 @@ const viewRequest = (request) => {
 
 const openUpdateDialog = (request) => {
     selectedRequest.value = request
-    updateForm.value = {
-        status: request.status,
-        admin_notes: request.admin_notes || '',
-    }
+    updateForm.status = request.status
+    updateForm.admin_notes = request.admin_notes || ''
     updateDialogOpen.value = true
 }
 
-const updateRequest = async () => {
-    if (!selectedRequest.value || isUpdating.value) return
+const updateRequest = () => {
+    if (!selectedRequest.value) return
 
-    const requestSlug = selectedRequest.value.slug
-    isUpdating.value = true
-
-    try {
-        const response = await owl.contactRequests.update(
-            requestSlug,
-            updateForm.value
-        )
-
-        // Update the request in the list
-        const index = contactRequests.value.findIndex(r => r.slug === requestSlug)
-        if (index !== -1) {
-            contactRequests.value[index] = response.data
-        }
-
-        // Close dialog first, then show toast
-        updateDialogOpen.value = false
-
-        await nextTick()
-
-        toast({
-            title: 'Mis à jour',
-            description: 'Le statut de la demande a été mis à jour avec succès.',
-        })
-    } catch (error) {
-        handleError(error, { context: 'Mise à jour de la demande', showToast: true })
-        isUpdating.value = false
-    }
+    updateForm.put(`/dashboard/admin/contact-requests/${selectedRequest.value.slug}`, {
+        onSuccess: () => {
+            updateDialogOpen.value = false
+        },
+    })
 }
 
 const deleteRequest = async (request) => {
     const confirmed = await confirmDelete(request.name)
     if (!confirmed) return
 
-    try {
-        await owl.contactRequests.delete(request.slug)
-        contactRequests.value = contactRequests.value.filter(r => r.slug !== request.slug)
-
-        toast({
-            title: 'Supprimé',
-            description: 'La demande a été supprimée avec succès.',
-        })
-    } catch (error) {
-        handleError(error, { context: 'Suppression de la demande', showToast: true })
-    }
+    router.delete(`/dashboard/admin/contact-requests/${request.slug}`)
 }
-
-onMounted(() => {
-    loadContactRequests()
-})
 </script>
 
 <template>
@@ -281,11 +221,7 @@ onMounted(() => {
 
             <!-- Contact Requests List -->
             <div class="bg-card shadow-sm rounded-lg border border-border overflow-hidden">
-                <div v-if="isLoading" class="p-12 text-center">
-                    <p class="text-muted-foreground">Chargement...</p>
-                </div>
-
-                <div v-else-if="filteredRequests.length === 0" class="p-12 text-center">
+                <div v-if="filteredRequests.length === 0" class="p-12 text-center">
                     <p class="text-muted-foreground">Aucune demande de contact trouvée.</p>
                 </div>
 
@@ -497,12 +433,11 @@ onMounted(() => {
                     </div>
 
                     <DialogFooter>
-                        <Button type="button" variant="outline" @click="updateDialogOpen = false" :disabled="isUpdating">
+                        <Button type="button" variant="outline" @click="updateDialogOpen = false" :disabled="updateForm.processing">
                             Annuler
                         </Button>
-                        <Button type="submit" :disabled="isUpdating">
-                            <span v-if="isUpdating">Mise à jour...</span>
-                            <span v-else>Mettre à jour</span>
+                        <Button type="submit" :disabled="updateForm.processing">
+                            {{ updateForm.processing ? 'Mise à jour...' : 'Mettre à jour' }}
                         </Button>
                     </DialogFooter>
                 </form>

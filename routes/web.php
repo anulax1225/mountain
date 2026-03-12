@@ -14,6 +14,7 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectUserController;
 use App\Http\Controllers\SceneController;
 use App\Http\Controllers\StickerController;
+use App\Http\Controllers\Web\AdminContactRequestController as WebAdminContactRequestController;
 use App\Http\Controllers\Web\AdminUserController as WebAdminUserController;
 use App\Http\Controllers\Web\DashboardController as WebDashboardController;
 use App\Http\Controllers\Web\EditorController as WebEditorController;
@@ -83,7 +84,9 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/dashboard/admin/users/{user}/role', [WebAdminUserController::class, 'updateRole'])->name('web.admin.users.update-role');
     Route::post('/dashboard/admin/users/{user}/resend-invitation', [WebAdminUserController::class, 'resendInvitation'])->name('web.admin.users.resend-invitation');
     Route::delete('/dashboard/admin/users/{user}', [WebAdminUserController::class, 'destroy'])->name('web.admin.users.destroy');
-    Route::get('/dashboard/admin/contact-requests', [AdminContactRequestController::class, 'index'])->name('dashboard.admin.contact-requests');
+    Route::get('/dashboard/admin/contact-requests', [WebAdminContactRequestController::class, 'index'])->name('dashboard.admin.contact-requests');
+    Route::put('/dashboard/admin/contact-requests/{contactRequest:slug}', [WebAdminContactRequestController::class, 'update'])->name('web.admin.contact-requests.update');
+    Route::delete('/dashboard/admin/contact-requests/{contactRequest:slug}', [WebAdminContactRequestController::class, 'destroy'])->name('web.admin.contact-requests.destroy');
     Route::get('/dashboard/projects/{project:slug}/analytics', [DashboardController::class, 'showProjectAnalytics'])->name('dashboard.project.analytics');
     Route::get('/dashboard/scenes/{scene:slug}', [WebSceneController::class, 'show'])->name('dashboard.scene');
     Route::delete('/dashboard/images/{image:slug}', [WebSceneController::class, 'destroyImage'])->name('web.images.destroy');
