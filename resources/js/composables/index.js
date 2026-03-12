@@ -3,7 +3,6 @@ export { useImagePath } from './useImagePath';
 export { useApiError } from './useApiError';
 export { useImageUpload } from './useImageUpload';
 export { useChunkedUpload } from './useChunkedUpload';
-export { useResource, useProject, useScene, useImage } from './useResource';
 export { useDialog, useDialogStack } from './useDialog';
 export { useConfirm } from './useConfirm';
 export { useFileDownload } from './useFileDownload';

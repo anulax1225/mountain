@@ -5,7 +5,6 @@ import { Maximize, Minimize, VenetianMask } from 'lucide-vue-next'
 import EditorCanvas from '@/components/dashboard/editor/EditorCanvas.vue'
 import ImageThumbnailsPanel from '@/components/dashboard/editor/ImageThumbnailsPanel.vue'
 import HotspotPopover from '@/components/dashboard/editor/HotspotPopover.vue'
-import owl from '@/owl-sdk.js'
 import EditorZoomControls from './EditorZoomControls.vue'
 
 const props = defineProps({
