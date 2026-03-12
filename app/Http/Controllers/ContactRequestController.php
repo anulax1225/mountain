@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\Contact\SubmitContactRequest;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
@@ -52,5 +53,23 @@ class ContactRequestController extends Controller
             'message' => 'Votre demande a été envoyée avec succès. Nous vous contacterons bientôt.',
             'slug' => $contactRequest->slug,
         ], 201);
+    }
+
+    /**
+     * Submit a contact request (web form)
+     */
+    public function webStore(Request $request, SubmitContactRequest $submitContactRequest): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'phone' => 'nullable|string|max:50',
+            'company' => 'nullable|string|max:255',
+            'message' => 'required|string|max:5000',
+        ]);
+
+        $submitContactRequest($validated);
+
+        return back();
     }
 }

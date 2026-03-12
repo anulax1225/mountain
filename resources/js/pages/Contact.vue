@@ -1,19 +1,14 @@
 <script setup>
 import { ref } from 'vue'
+import { useForm } from '@inertiajs/vue3'
 import LandingLayout from '@/layouts/LandingLayout.vue'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Mail, Phone, Building2, Send, CheckCircle } from 'lucide-vue-next'
-import { useToast } from '@/components/ui/toast/use-toast'
-import { useApiError } from '@/composables'
-import { contact } from '@/owl-sdk'
 
-const { toast } = useToast()
-const { isValidationError, getValidationErrors, handleError } = useApiError()
-
-const form = ref({
+const form = useForm({
     name: '',
     email: '',
     phone: '',
@@ -21,44 +16,15 @@ const form = ref({
     message: '',
 })
 
-const errors = ref({})
-const isSubmitting = ref(false)
 const submitted = ref(false)
 
-const submitForm = async () => {
-    if (isSubmitting.value) return
-
-    isSubmitting.value = true
-    errors.value = {}
-
-    try {
-        const response = await contact.submit(form.value)
-        submitted.value = true
-        form.value = {
-            name: '',
-            email: '',
-            phone: '',
-            company: '',
-            message: '',
-        }
-        toast({
-            title: 'Message envoyé !',
-            description: response.message,
-        })
-    } catch (error) {
-        if (isValidationError(error)) {
-            errors.value = getValidationErrors(error)
-            toast({
-                title: 'Erreur de validation',
-                description: 'Veuillez vérifier les champs du formulaire.',
-                variant: 'destructive',
-            })
-        } else {
-            handleError(error, { context: 'Submitting contact form', showToast: true })
-        }
-    } finally {
-        isSubmitting.value = false
-    }
+const submitForm = () => {
+    form.post('/contact', {
+        onSuccess: () => {
+            submitted.value = true
+            form.reset()
+        },
+    })
 }
 </script>
 
@@ -93,11 +59,11 @@ const submitForm = async () => {
                                     type="text"
                                     placeholder="Jean Dupont"
                                     required
-                                    :disabled="isSubmitting"
-                                    :class="errors.name ? 'border-red-500' : ''"
+                                    :disabled="form.processing"
+                                    :class="form.errors.name ? 'border-red-500' : ''"
                                 />
-                                <p v-if="errors.name" class="text-red-500 text-sm">
-                                    {{ errors.name[0] }}
+                                <p v-if="form.errors.name" class="text-red-500 text-sm">
+                                    {{ form.errors.name }}
                                 </p>
                             </div>
 
@@ -113,12 +79,12 @@ const submitForm = async () => {
                                         placeholder="jean.dupont@exemple.fr"
                                         class="pl-10"
                                         required
-                                        :disabled="isSubmitting"
-                                        :class="errors.email ? 'border-red-500' : ''"
+                                        :disabled="form.processing"
+                                        :class="form.errors.email ? 'border-red-500' : ''"
                                     />
                                 </div>
-                                <p v-if="errors.email" class="text-red-500 text-sm">
-                                    {{ errors.email[0] }}
+                                <p v-if="form.errors.email" class="text-red-500 text-sm">
+                                    {{ form.errors.email }}
                                 </p>
                             </div>
 
@@ -133,12 +99,12 @@ const submitForm = async () => {
                                         type="tel"
                                         placeholder="+33 6 12 34 56 78"
                                         class="pl-10"
-                                        :disabled="isSubmitting"
-                                        :class="errors.phone ? 'border-red-500' : ''"
+                                        :disabled="form.processing"
+                                        :class="form.errors.phone ? 'border-red-500' : ''"
                                     />
                                 </div>
-                                <p v-if="errors.phone" class="text-red-500 text-sm">
-                                    {{ errors.phone[0] }}
+                                <p v-if="form.errors.phone" class="text-red-500 text-sm">
+                                    {{ form.errors.phone }}
                                 </p>
                             </div>
 
@@ -153,12 +119,12 @@ const submitForm = async () => {
                                         type="text"
                                         placeholder="Votre entreprise"
                                         class="pl-10"
-                                        :disabled="isSubmitting"
-                                        :class="errors.company ? 'border-red-500' : ''"
+                                        :disabled="form.processing"
+                                        :class="form.errors.company ? 'border-red-500' : ''"
                                     />
                                 </div>
-                                <p v-if="errors.company" class="text-red-500 text-sm">
-                                    {{ errors.company[0] }}
+                                <p v-if="form.errors.company" class="text-red-500 text-sm">
+                                    {{ form.errors.company }}
                                 </p>
                             </div>
 
@@ -171,11 +137,11 @@ const submitForm = async () => {
                                     placeholder="Décrivez votre projet ou posez-nous vos questions..."
                                     rows="6"
                                     required
-                                    :disabled="isSubmitting"
-                                    :class="errors.message ? 'border-red-500' : ''"
+                                    :disabled="form.processing"
+                                    :class="form.errors.message ? 'border-red-500' : ''"
                                 />
-                                <p v-if="errors.message" class="text-red-500 text-sm">
-                                    {{ errors.message[0] }}
+                                <p v-if="form.errors.message" class="text-red-500 text-sm">
+                                    {{ form.errors.message }}
                                 </p>
                             </div>
 
@@ -183,10 +149,10 @@ const submitForm = async () => {
                             <Button
                                 type="submit"
                                 class="w-full"
-                                :disabled="isSubmitting"
+                                :disabled="form.processing"
                             >
-                                <Send v-if="!isSubmitting" class="mr-2 w-4 h-4" />
-                                <span v-if="isSubmitting">Envoi en cours...</span>
+                                <Send v-if="!form.processing" class="mr-2 w-4 h-4" />
+                                <span v-if="form.processing">Envoi en cours...</span>
                                 <span v-else>Envoyer le message</span>
                             </Button>
                         </form>

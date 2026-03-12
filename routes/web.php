@@ -38,6 +38,7 @@ Route::get('/pricing', function () {
 // Public contact page
 Route::get('/contact', [ContactRequestController::class, 'show'])->name('contact');
 Route::post('/api/contact', [ContactRequestController::class, 'store']);
+Route::post('/contact', [ContactRequestController::class, 'webStore'])->name('contact.store');
 
 Route::post('/login', [AuthController::class, 'webLogin']);
 
