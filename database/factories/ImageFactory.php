@@ -3,8 +3,8 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\File;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Image>
@@ -23,6 +23,7 @@ class ImageFactory extends Factory
             'scene_id' => \App\Models\Scene::factory(),
             // Path and size will be set by withFile() state method
             'path' => null,
+            'preview_path' => null,
             'size' => 0,
         ];
     }
@@ -31,19 +32,18 @@ class ImageFactory extends Factory
      * Add an actual file to the image.
      * This copies the source file to the storage and sets the path and size.
      *
-     * @param string $sourceFilePath Absolute path to the source image file
-     * @return static
+     * @param  string  $sourceFilePath  Absolute path to the source image file
      */
     public function withFile(string $sourceFilePath): static
     {
         return $this->state(function (array $attributes) use ($sourceFilePath) {
-            if (!file_exists($sourceFilePath)) {
+            if (! file_exists($sourceFilePath)) {
                 throw new \InvalidArgumentException("Source file does not exist: {$sourceFilePath}");
             }
 
             // Generate a unique filename
             $extension = pathinfo($sourceFilePath, PATHINFO_EXTENSION);
-            $filename = uniqid('panorama_') . '.' . $extension;
+            $filename = uniqid('panorama_').'.'.$extension;
 
             // Store the file in the images directory on the public disk
             $storedPath = Storage::disk('public')->putFileAs('images', new File($sourceFilePath), $filename);
@@ -65,13 +65,12 @@ class ImageFactory extends Factory
     /**
      * Create a fake image entry without an actual file.
      * Useful for testing when you don't need real image files.
-     *
-     * @return static
      */
     public function fake(): static
     {
         return $this->state(fn (array $attributes) => [
-            'path' => 'images/fake_' . fake()->uuid() . '.jpg',
+            'path' => 'images/fake_'.fake()->uuid().'.jpg',
+            'preview_path' => 'previews/fake_'.fake()->uuid().'.jpg',
             'size' => fake()->numberBetween(1000000, 50000000), // 1MB to 50MB
         ]);
     }

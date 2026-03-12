@@ -19,7 +19,7 @@
 
     const { formatDate } = useDateTime()
     const { formatBytes } = useFileSize()
-    const { getImageUrl } = useImagePath()
+    const { getImageUrl, getImagePreview } = useImagePath()
     </script>
     
     <template>
@@ -30,7 +30,7 @@
             @click="emit('view', image)"
           >
             <img
-              :src="getImageUrl(image.slug)"
+              :src="getImagePreview(image)"
               :alt="image.name || sceneName"
               class="w-full h-full object-cover"
             />

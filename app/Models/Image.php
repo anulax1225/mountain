@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class Image extends Model
 {
@@ -19,12 +19,13 @@ class Image extends Model
         'size',
         'name',
         'path',
+        'preview_path',
     ];
 
     protected static function boot()
     {
         parent::boot();
-        
+
         static::creating(function ($image) {
             if (empty($image->slug)) {
                 $image->slug = (string) Str::uuid();
@@ -35,6 +36,11 @@ class Image extends Model
             // Delete the image file when the model is deleted
             if ($image->path && Storage::disk('s3')->exists($image->path)) {
                 Storage::disk('s3')->delete($image->path);
+            }
+
+            // Delete the preview file when the model is deleted
+            if ($image->preview_path && Storage::disk('s3')->exists($image->preview_path)) {
+                Storage::disk('s3')->delete($image->preview_path);
             }
 
             // Delete related hotspots

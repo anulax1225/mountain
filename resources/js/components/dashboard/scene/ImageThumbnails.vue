@@ -9,7 +9,7 @@ defineProps({
 
 const emit = defineEmits(['select'])
 
-const { getImageUrl } = useImagePath()
+const { getImagePreview } = useImagePath()
 </script>
 
 <template>
@@ -26,7 +26,7 @@ const { getImageUrl } = useImagePath()
       ]"
     >
       <img
-        :src="getImageUrl(image.slug)"
+        :src="getImagePreview(image)"
         :alt="sceneName"
         class="w-full h-full object-cover"
       />

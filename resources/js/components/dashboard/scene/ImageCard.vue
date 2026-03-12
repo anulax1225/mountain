@@ -17,14 +17,14 @@
     const emit = defineEmits(['view', 'download', 'delete'])
 
     const { formatBytes } = useFileSize()
-    const { getImageUrl } = useImagePath()
+    const { getImageUrl, getImagePreview } = useImagePath()
     </script>
     
     <template>
       <Card class="hover:shadow-lg overflow-hidden transition-shadow cursor-pointer">
         <div class="relative aspect-video" @click="emit('view', image)">
           <img
-            :src="getImageUrl(image.slug)"
+            :src="getImagePreview(image)"
             :alt="image.name || sceneName"
             class="w-full h-full object-cover"
           />

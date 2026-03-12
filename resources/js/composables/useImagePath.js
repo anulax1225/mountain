@@ -31,11 +31,13 @@ export function useImagePath() {
 
     const getImagePreview = (image) => {
         if (!image) return null;
-        
-        // Try thumbnail first, fallback to full image
-        return image.thumbnail_path 
-            ? getImageUrl(image.thumbnail_path)
-            : getImageUrl(image.slug);
+
+        if (image.preview_path) {
+            const cleanSlug = image.slug.startsWith('/') ? image.slug.slice(1) : image.slug;
+            return `${window.location.origin}/images/${cleanSlug}/preview`;
+        }
+
+        return getImageUrl(image.slug);
     };
 
     const isValidImageUrl = (url) => {

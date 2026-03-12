@@ -14,6 +14,7 @@ class ImageResource extends JsonResource
             'slug' => $this->slug,
             'name' => $this->name,
             'path' => $this->path,
+            'preview_path' => $this->preview_path,
             'size' => $this->size,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

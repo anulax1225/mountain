@@ -106,6 +106,33 @@ class ImageController extends Controller
     }
 
     /**
+     * Download an image preview
+     *
+     * @response 200 <binary>
+     */
+    public function preview(Image $image): StreamedResponse
+    {
+        if (! $image->scene->project->is_public) {
+            $this->authorize('view', $image);
+        }
+
+        if (! $image->preview_path || ! Storage::disk('s3')->exists($image->preview_path)) {
+            return $this->download($image);
+        }
+
+        $stream = Storage::disk('s3')->readStream($image->preview_path);
+
+        return response()->stream(function () use ($stream) {
+            fpassthru($stream);
+            fclose($stream);
+        }, 200, [
+            'Content-Type' => 'image/jpeg',
+            'Content-Disposition' => 'inline; filename="'.basename($image->preview_path).'"',
+            'Cache-Control' => 'public, max-age=31536000, immutable',
+        ]);
+    }
+
+    /**
      * Update an image
      *
      * @authenticated

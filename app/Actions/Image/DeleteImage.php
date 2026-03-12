@@ -13,6 +13,11 @@ class DeleteImage
         $affectedProject = Project::where('start_image_id', $image->id)->first();
 
         Storage::disk('s3')->delete($image->path);
+
+        if ($image->preview_path) {
+            Storage::disk('s3')->delete($image->preview_path);
+        }
+
         $image->delete();
 
         if ($affectedProject) {

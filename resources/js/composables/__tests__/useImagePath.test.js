@@ -69,13 +69,13 @@ describe('useImagePath', () => {
     });
 
     describe('getImagePreview', () => {
-        it('uses thumbnail_path if available', () => {
-            const image = { slug: 'main-slug', thumbnail_path: 'thumb-slug' };
+        it('uses preview endpoint when preview_path is available', () => {
+            const image = { slug: 'main-slug', preview_path: 'previews/something.jpg' };
             const result = getImagePreview(image);
-            expect(result).toBe('http://localhost/images/thumb-slug/download');
+            expect(result).toBe('http://localhost/images/main-slug/preview');
         });
 
-        it('falls back to slug when no thumbnail_path', () => {
+        it('falls back to download when no preview_path', () => {
             const image = { slug: 'main-slug' };
             const result = getImagePreview(image);
             expect(result).toBe('http://localhost/images/main-slug/download');

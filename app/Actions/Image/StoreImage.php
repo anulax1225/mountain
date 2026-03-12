@@ -2,6 +2,7 @@
 
 namespace App\Actions\Image;
 
+use App\Jobs\GenerateImagePreview;
 use App\Models\Image;
 use App\Models\Scene;
 use Illuminate\Support\Facades\Storage;
@@ -17,10 +18,14 @@ class StoreImage
         $disk->copy($stagingKey, $permanentPath);
         $disk->delete($stagingKey);
 
-        return $scene->images()->create([
+        $image = $scene->images()->create([
             'name' => $name ?? $filename,
             'path' => $permanentPath,
             'size' => $size,
         ]);
+
+        GenerateImagePreview::dispatch($image);
+
+        return $image;
     }
 }

@@ -11,7 +11,7 @@
 
     const emit = defineEmits(['select'])
 
-    const { getImageUrl } = useImagePath()
+    const { getImagePreview } = useImagePath()
 
     // Group images by scene
     const sceneGroups = computed(() => {
@@ -70,7 +70,7 @@
                       ]"
                     >
                       <img
-                        :src="getImageUrl(item.image.slug)"
+                        :src="getImagePreview(item.image)"
                         :alt="item.image.name"
                         class="w-full h-full object-cover"
                       />

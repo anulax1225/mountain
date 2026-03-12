@@ -61,6 +61,7 @@ Route::post('/register/invitation/{token}', [AuthController::class, 'completeInv
 
 // Public file downloads (binary streams)
 Route::get('/images/{image:slug}/download', [ImageController::class, 'download']);
+Route::get('/images/{image:slug}/preview', [ImageController::class, 'preview']);
 Route::get('/projects/{project:slug}/picture', [ProjectController::class, 'downloadPicture']);
 
 // ==========================================================================
