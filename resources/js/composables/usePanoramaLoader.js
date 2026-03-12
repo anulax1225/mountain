@@ -3,6 +3,21 @@ import * as THREE from 'three'
 import { SPHERE, TRANSITION } from '@/lib/editorConstants.js'
 import { applyCameraRotation } from '@/lib/spatialMath.js'
 
+// Module-level cache: persists across component instances until page reload
+const imageCache = new Map() // url → HTMLImageElement
+
+/**
+ * Create a configured THREE.Texture from a cached HTMLImageElement
+ */
+function createTextureFromCache(image) {
+    const texture = new THREE.Texture(image)
+    texture.colorSpace = THREE.SRGBColorSpace
+    texture.minFilter = THREE.LinearFilter
+    texture.magFilter = THREE.LinearFilter
+    texture.needsUpdate = true
+    return texture
+}
+
 /**
  * Composable for loading and managing panoramic images in Three.js
  * Handles texture loading, mesh creation, and transition effects
@@ -49,12 +64,24 @@ export function usePanoramaLoader(sceneRef, textureLoaderRef, options = {}) {
             currentMesh.value.material?.dispose()
         }
 
-        // Load initial texture (preview if available, otherwise full-res)
-        const initialUrl = previewUrl || imageUrl
-        const texture = await textureLoaderRef.value.loadAsync(initialUrl)
-        texture.colorSpace = THREE.SRGBColorSpace
-        texture.minFilter = THREE.LinearFilter
-        texture.magFilter = THREE.LinearFilter
+        // Load texture: use cache if available, otherwise preview then full-res
+        const isCached = imageCache.has(imageUrl)
+        let texture
+
+        if (isCached) {
+            texture = createTextureFromCache(imageCache.get(imageUrl))
+        } else {
+            const initialUrl = previewUrl || imageUrl
+            texture = await textureLoaderRef.value.loadAsync(initialUrl)
+            texture.colorSpace = THREE.SRGBColorSpace
+            texture.minFilter = THREE.LinearFilter
+            texture.magFilter = THREE.LinearFilter
+
+            // If loaded full-res directly (no preview), cache it
+            if (!previewUrl) {
+                imageCache.set(imageUrl, texture.image)
+            }
+        }
 
         // Create geometry (inverted sphere for inside view)
         const geometry = new THREE.SphereGeometry(sphereRadius, sphereSegments, sphereRings)
@@ -79,13 +106,16 @@ export function usePanoramaLoader(sceneRef, textureLoaderRef, options = {}) {
             applyCameraRotation(controls, rotation)
         }
 
-        // If preview was used, preload full-res texture in background and swap
-        if (previewUrl) {
+        // If preview was used and not cached, preload full-res in background and swap
+        if (previewUrl && !isCached) {
             textureLoaderRef.value.loadAsync(imageUrl).then(fullTexture => {
                 fullTexture.colorSpace = THREE.SRGBColorSpace
                 fullTexture.minFilter = THREE.LinearFilter
                 fullTexture.magFilter = THREE.LinearFilter
                 fullTexture.needsUpdate = true
+
+                // Cache the image data for future visits
+                imageCache.set(imageUrl, fullTexture.image)
 
                 // Only swap if this mesh is still the current one
                 if (currentMesh.value === mesh) {
