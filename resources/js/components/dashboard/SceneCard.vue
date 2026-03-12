@@ -9,6 +9,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { MoreVertical, Pencil, Trash2, Image as ImageIcon } from 'lucide-vue-next'
+import { useImagePath } from '@/composables/useImagePath'
+
+const { getImagePreview } = useImagePath()
 
 defineProps({
   scene: Object,
@@ -59,7 +62,7 @@ const emit = defineEmits(['edit', 'delete'])
           class="relative bg-muted rounded-lg aspect-square overflow-hidden"
         >
           <img
-            :src="`/images/${image.slug}/download`"
+            :src="getImagePreview(image)"
             :alt="scene.name"
             class="w-full h-full object-cover"
           />

@@ -1,4 +1,5 @@
 <script setup>
+import { ref, watch, computed } from 'vue'
 import { Button } from '@/components/ui/button'
 import { X, ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import { useImagePath } from '@/composables/useImagePath'
@@ -12,7 +13,32 @@ const props = defineProps({
 
 const emit = defineEmits(['update:open', 'update:currentIndex'])
 
-const { getImageUrl } = useImagePath()
+const { getImageUrl, getImagePreview } = useImagePath()
+
+const fullResLoaded = ref(false)
+
+const currentImage = computed(() => props.images?.[props.currentIndex])
+
+const displaySrc = computed(() => {
+  if (!currentImage.value) return null
+  if (fullResLoaded.value) {
+    return getImageUrl(currentImage.value.slug)
+  }
+  return getImagePreview(currentImage.value)
+})
+
+watch([() => props.currentIndex, () => props.open], () => {
+  fullResLoaded.value = false
+
+  if (!props.open || !currentImage.value) return
+
+  const fullUrl = getImageUrl(currentImage.value.slug)
+  const img = new Image()
+  img.onload = () => {
+    fullResLoaded.value = true
+  }
+  img.src = fullUrl
+}, { immediate: true })
 
 const close = () => emit('update:open', false)
 
@@ -30,8 +56,8 @@ const prevSlide = () => {
 </script>
 
 <template>
-  <div 
-    v-if="open && images[currentIndex]"
+  <div
+    v-if="open && currentImage"
     class="z-[100] fixed inset-0 bg-black"
   >
     <Button
@@ -64,9 +90,10 @@ const prevSlide = () => {
 
     <div class="flex justify-center items-center w-full h-full">
       <img
-        :src="getImageUrl(images[currentIndex].path)"
+        :src="displaySrc"
         :alt="sceneName"
-        class="max-w-full max-h-full object-contain"
+        class="max-w-full max-h-full object-contain transition-[filter] duration-300"
+        :class="{ 'blur-sm': !fullResLoaded && currentImage.preview_path }"
       />
     </div>
 

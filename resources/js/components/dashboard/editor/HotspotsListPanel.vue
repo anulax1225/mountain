@@ -4,14 +4,17 @@
     import { Button } from '@/components/ui/button'
     import { Badge } from '@/components/ui/badge'
     import { Pencil, Trash2, Eye } from 'lucide-vue-next'
-    
+    import { useImagePath } from '@/composables/useImagePath'
+
     const props = defineProps({
       currentImage: Object
     })
-    
+
     const emit = defineEmits(['edit', 'delete', 'view'])
-    
-    const currentHotspots = computed(() => 
+
+    const { getImagePreview } = useImagePath()
+
+    const currentHotspots = computed(() =>
       props.currentImage?.hotspots_from || []
     )
     </script>
@@ -42,7 +45,7 @@
                 class="relative rounded overflow-hidden flex-shrink-0 w-16 aspect-video"
               >
                 <img
-                  :src="`/images/${hotspot.to_image.slug}/download`"
+                  :src="getImagePreview(hotspot.to_image)"
                   :alt="hotspot.to_image.name"
                   class="w-full h-full object-cover"
                 />

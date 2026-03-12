@@ -32,7 +32,7 @@
 
     const { formatDateTime } = useDateTime()
     const { formatBytes } = useFileSize()
-    const { getImageUrl } = useImagePath()
+    const { getImagePreview } = useImagePath()
     const { confirmAction } = useConfirm()
     const { handleError } = useApiError()
 
@@ -106,7 +106,7 @@
           <div v-if="image" class="space-y-6 mt-6">
             <div class="relative bg-muted rounded-lg aspect-video overflow-hidden">
               <img
-                :src="getImageUrl(image.slug)"
+                :src="getImagePreview(image)"
                 :alt="image.name || sceneName"
                 class="w-full h-full object-cover"
               />

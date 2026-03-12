@@ -7,6 +7,9 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Badge } from '@/components/ui/badge'
+import { useImagePath } from '@/composables/useImagePath'
+
+const { getImagePreview } = useImagePath()
 
 const props = defineProps({
     open: Boolean,
@@ -117,7 +120,7 @@ watch(() => isPublic.value, (newValue) => {
                                                     ? 'ring-2 ring-primary ring-offset-2 scale-105 shadow-xl cursor-pointer'
                                                     : 'hover:scale-105 hover:shadow-xl cursor-pointer'
                                         ]">
-                                        <img :src="`/images/${image.slug}/download`" :alt="image.name || 'Image'"
+                                        <img :src="getImagePreview(image)" :alt="image.name || 'Image'"
                                             class="w-full h-full object-cover" />
                                         <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent">
                                         </div>

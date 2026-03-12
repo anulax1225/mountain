@@ -21,7 +21,7 @@ const emit = defineEmits(['update:currentIndex', 'download', 'delete', 'fullscre
 const currentImage = computed(() => props.images[props.currentIndex])
 
 const { formatBytes } = useFileSize()
-const { getImageUrl } = useImagePath()
+const { getImagePreview } = useImagePath()
 
 const nextSlide = () => {
   if (props.currentIndex < props.images.length - 1) {
@@ -41,7 +41,7 @@ const prevSlide = () => {
     <CardContent class="relative p-0">
       <div class="relative bg-black aspect-video">
         <img
-          :src="getImageUrl(currentImage.path)"
+          :src="getImagePreview(currentImage)"
           :alt="sceneName"
           class="w-full h-full object-contain"
         />

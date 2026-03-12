@@ -10,6 +10,7 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Badge } from '@/components/ui/badge'
 import { Navigation } from 'lucide-vue-next'
+import { useImagePath } from '@/composables/useImagePath'
 
 const props = defineProps({
     open: Boolean,
@@ -18,6 +19,8 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['update:open', 'select'])
+
+const { getImagePreview } = useImagePath()
 
 const groupedImages = computed(() => {
     if (!props.allScenes) return []
@@ -69,7 +72,7 @@ const selectImage = (image) => {
                                         ? 'opacity-50 cursor-not-allowed'
                                         : 'hover:scale-105 hover:shadow-xl cursor-pointer'
                                 ]">
-                                <img :src="`/images/${image.slug}/download`" :alt="image.name || 'Image'"
+                                <img :src="getImagePreview(image)" :alt="image.name || 'Image'"
                                     class="w-full h-full object-cover" />
                                 <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                                 <div class="bottom-2 left-2 right-2 absolute">

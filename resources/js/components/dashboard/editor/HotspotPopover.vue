@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Pencil, Trash2 } from 'lucide-vue-next'
+import { useImagePath } from '@/composables/useImagePath'
 
 const props = defineProps({
     hotspot: Object,
@@ -11,6 +12,8 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['edit', 'delete', 'mouseenter', 'mouseleave'])
+
+const { getImagePreview } = useImagePath()
 
 const style = computed(() => {
     if (!props.position) return {}
@@ -44,7 +47,7 @@ const style = computed(() => {
             <!-- View mode - Show thumbnail with subtle edit button -->
             <div v-else class="flex flex-col gap-2 p-2 w-64">
                 <div v-if="hotspot.to_image" class="relative rounded overflow-hidden aspect-video">
-                    <img :src="`/images/${hotspot.to_image.slug}/download`" :alt="hotspot.to_image.name"
+                    <img :src="getImagePreview(hotspot.to_image)" :alt="hotspot.to_image.name"
                         class="w-full h-full object-cover" />
                 </div>
                 <div v-else class="flex justify-center items-center bg-muted rounded aspect-video">
