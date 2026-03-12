@@ -44,12 +44,10 @@ describe('ProjectShow', () => {
                 is_owner: true,
             },
         },
-        scenes: {
-            data: [
-                { slug: 'scene-1', name: 'Scene One' },
-                { slug: 'scene-2', name: 'Scene Two' },
-            ],
-        },
+        scenes: [
+            { slug: 'scene-1', name: 'Scene One' },
+            { slug: 'scene-2', name: 'Scene Two' },
+        ],
         projectImages: [],
         assignedUsers: [],
         availableUsers: [],
@@ -77,7 +75,7 @@ describe('ProjectShow', () => {
         expect(wrapper.text()).toContain('A test project');
     });
 
-    it('renders scene cards from scenes.data', () => {
+    it('renders scene cards from scenes prop', () => {
         const wrapper = mountComponent();
         const cards = wrapper.findAll('[data-testid="scene-card"]');
         expect(cards).toHaveLength(2);
@@ -169,7 +167,7 @@ describe('ProjectShow', () => {
 
     it('renders with empty scenes list', () => {
         const wrapper = mountComponent({
-            scenes: { data: [] },
+            scenes: [],
         });
         const cards = wrapper.findAll('[data-testid="scene-card"]');
         expect(cards).toHaveLength(0);

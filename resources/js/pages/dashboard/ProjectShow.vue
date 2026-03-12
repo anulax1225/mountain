@@ -144,7 +144,7 @@ const deleteScene = async (sceneSlug) => {
 
           <div class="gap-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             <SceneCard
-              v-for="scene in scenes.data"
+              v-for="scene in scenes"
               :key="scene.slug"
               :scene="scene"
               :can-edit="canEdit"
