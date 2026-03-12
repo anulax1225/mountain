@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Menu, ChevronUp, ChevronDown } from 'lucide-vue-next'
 import ThemeToggle from '@/components/ThemeToggle.vue'
@@ -16,7 +16,14 @@ const props = defineProps({
   }
 })
 
-const sidebarOpen = ref(true)
+const mobileQuery = typeof window !== 'undefined' ? window.matchMedia('(max-width: 1023px)') : null
+const isMobile = ref(mobileQuery?.matches ?? false)
+
+const onMediaChange = (e) => { isMobile.value = e.matches }
+onMounted(() => mobileQuery?.addEventListener('change', onMediaChange))
+onUnmounted(() => mobileQuery?.removeEventListener('change', onMediaChange))
+
+const sidebarOpen = ref(!isMobile.value)
 const { isVisible: headerVisible, toggle: toggleHeader } = useHeaderVisibility('dashboardHeaderVisible', true)
 
 const toggleSidebar = () => {
@@ -33,12 +40,12 @@ const toggleSidebar = () => {
       :scene="scene"
     />
 
-    <div :class="['transition-all duration-300 ease-in-out', sidebarOpen ? 'ml-64' : 'ml-16']">
+    <div :class="['transition-all duration-300 ease-in-out', sidebarOpen ? 'lg:ml-64' : 'lg:ml-16']">
       <!-- Collapsible Header -->
       <Transition name="slide-down">
         <header
           v-if="headerVisible || !collapsibleHeader"
-          class="flex justify-between items-center bg-background px-6 border-border/50 border-b h-14"
+          class="flex justify-between items-center bg-background px-4 md:px-6 border-border/50 border-b h-14"
         >
           <div class="flex items-center gap-2">
             <Button variant="ghost" size="icon" @click="toggleSidebar">
@@ -63,7 +70,7 @@ const toggleSidebar = () => {
         <div
           v-if="!headerVisible && collapsibleHeader"
           class="top-0 left-1/2 z-50 fixed -translate-x-1/2"
-          :style="{ marginLeft: sidebarOpen ? '8rem' : '2rem' }"
+          :style="{ marginLeft: isMobile ? '0' : (sidebarOpen ? '8rem' : '2rem') }"
         >
           <Button
             variant="secondary"
@@ -78,7 +85,7 @@ const toggleSidebar = () => {
         </div>
       </Transition>
 
-      <main :class="['px-6', headerVisible || !collapsibleHeader ? 'py-5' : 'pt-5 pb-5']">
+      <main :class="['px-4 md:px-6', headerVisible || !collapsibleHeader ? 'py-5' : 'pt-5 pb-5']">
         <slot />
       </main>
     </div>

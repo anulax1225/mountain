@@ -84,17 +84,19 @@ const deleteScene = async (sceneSlug) => {
 <template>
   <DashboardLayout :auth="auth" :project="project">
     <div class="mx-auto max-w-7xl">
-      <div class="flex items-center gap-4 mb-8">
-        <Link href="/dashboard">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft class="w-5 h-5" />
-          </Button>
-        </Link>
-        <div class="flex-1">
-          <h1 class="font-bold text-foreground text-3xl">{{ project?.name }}</h1>
-          <p class="mt-1 text-muted-foreground">{{ project?.description || 'No description' }}</p>
+      <div class="mb-6 md:mb-8 space-y-4">
+        <div class="flex items-center gap-4">
+          <Link href="/dashboard">
+            <Button variant="ghost" size="icon">
+              <ArrowLeft class="w-5 h-5" />
+            </Button>
+          </Link>
+          <div class="flex-1 min-w-0">
+            <h1 class="font-bold text-foreground text-2xl md:text-3xl truncate">{{ project?.name }}</h1>
+            <p class="mt-1 text-muted-foreground truncate">{{ project?.description || 'No description' }}</p>
+          </div>
         </div>
-        <div class="flex gap-2">
+        <div class="flex flex-wrap gap-2">
           <Button
             v-if="canEdit"
             variant="outline"
@@ -103,7 +105,7 @@ const deleteScene = async (sceneSlug) => {
             class="gap-2"
           >
             <Edit class="w-4 h-4" />
-            Modifier
+            <span class="hidden sm:inline">Modifier</span>
           </Button>
           <Button
             v-if="canManageUsers"
@@ -113,7 +115,7 @@ const deleteScene = async (sceneSlug) => {
             class="gap-2"
           >
             <Users class="w-4 h-4" />
-            Utilisateurs
+            <span class="hidden sm:inline">Utilisateurs</span>
           </Button>
           <Button
             v-if="canManageSettings"
@@ -123,7 +125,7 @@ const deleteScene = async (sceneSlug) => {
             class="gap-2"
           >
             <Settings class="w-4 h-4" />
-            Paramètres
+            <span class="hidden sm:inline">Paramètres</span>
           </Button>
           <Button
             v-if="project?.is_public"
@@ -133,7 +135,7 @@ const deleteScene = async (sceneSlug) => {
             class="gap-2"
           >
             <Share2 class="w-4 h-4" />
-            Partager
+            <span class="hidden sm:inline">Partager</span>
           </Button>
         </div>
       </div>

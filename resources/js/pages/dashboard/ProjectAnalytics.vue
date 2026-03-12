@@ -58,17 +58,19 @@ const chartHeight = 200
   <DashboardLayout :auth="auth" :project="project">
     <div class="mx-auto max-w-7xl">
       <!-- Header -->
-      <div class="flex items-center gap-4 mb-8">
-        <Link :href="`/dashboard/projects/${project?.slug}`">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft class="w-5 h-5" />
-          </Button>
-        </Link>
-        <div class="flex-1">
-          <h1 class="font-bold text-foreground text-3xl">Statistiques</h1>
-          <p class="mt-1 text-muted-foreground">{{ project?.name }}</p>
+      <div class="mb-6 md:mb-8 space-y-4">
+        <div class="flex items-center gap-4">
+          <Link :href="`/dashboard/projects/${project?.slug}`">
+            <Button variant="ghost" size="icon">
+              <ArrowLeft class="w-5 h-5" />
+            </Button>
+          </Link>
+          <div class="flex-1 min-w-0">
+            <h1 class="font-bold text-foreground text-2xl md:text-3xl">Statistiques</h1>
+            <p class="mt-1 text-muted-foreground truncate">{{ project?.name }}</p>
+          </div>
         </div>
-        <div class="flex gap-2">
+        <div class="flex flex-wrap gap-2">
           <Button
             v-for="period in periods"
             :key="period.value"
@@ -193,7 +195,7 @@ const chartHeight = 200
 
         <!-- Details Tabs -->
         <Tabs default-value="images" class="w-full">
-          <TabsList class="grid grid-cols-2 w-full max-w-md">
+          <TabsList class="grid grid-cols-2 w-full max-w-full sm:max-w-md">
             <TabsTrigger value="images">
               <Eye class="mr-2 w-4 h-4" />
               Images les plus vues

@@ -153,7 +153,7 @@ const deleteRequest = async (request) => {
         <div class="space-y-6">
             <!-- Header -->
             <div>
-                <h1 class="font-bold text-3xl text-foreground">
+                <h1 class="font-bold text-2xl md:text-3xl text-foreground">
                     Demandes de contact
                 </h1>
                 <p class="mt-2 text-sm text-muted-foreground">
@@ -162,7 +162,7 @@ const deleteRequest = async (request) => {
             </div>
 
             <!-- Stats -->
-            <div class="gap-4 grid grid-cols-1 md:grid-cols-5">
+            <div class="gap-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5">
                 <div class="bg-card shadow-sm p-6 rounded-lg border border-border">
                     <p class="text-sm text-muted-foreground">Total</p>
                     <p class="mt-2 font-bold text-3xl text-foreground">

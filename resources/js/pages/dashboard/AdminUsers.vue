@@ -97,9 +97,9 @@ const getUserGlobalRole = (user) => {
 <template>
   <DashboardLayout :auth="auth">
     <div class="mx-auto max-w-7xl">
-      <div class="flex justify-between items-center mb-8">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 md:mb-8">
         <div>
-          <h1 class="font-bold text-foreground text-3xl">Administration</h1>
+          <h1 class="font-bold text-foreground text-2xl md:text-3xl">Administration</h1>
           <p class="mt-1 text-muted-foreground">Gérez les utilisateurs et leurs rôles</p>
         </div>
         <Button @click="createSheetOpen = true">
@@ -109,6 +109,7 @@ const getUserGlobalRole = (user) => {
       </div>
 
       <div class="bg-card border border-border rounded-lg overflow-hidden">
+        <div class="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -173,6 +174,7 @@ const getUserGlobalRole = (user) => {
             </TableRow>
           </TableBody>
         </Table>
+        </div>
       </div>
 
       <!-- Create User Sheet -->

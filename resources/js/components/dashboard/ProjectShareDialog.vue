@@ -87,7 +87,7 @@ watch(() => props.open, async (newValue) => {
                 </DialogDescription>
             </DialogHeader>
 
-            <div class="space-y-6 mt-4 w-fit max-w-md">
+            <div class="space-y-6 mt-4 w-full overflow-hidden">
                 <div class="space-y-2">
                     <Label class="flex items-center gap-2">
                         <Link class="w-4 h-4" />
@@ -114,7 +114,7 @@ watch(() => props.open, async (newValue) => {
                         Code d'intégration (iframe)
                     </Label>
                     <div class="flex gap-2">
-                        <div class="flex-1 px-3 py-2 bg-muted rounded-md border border-border font-mono text-xs overflow-x-auto whitespace-nowrap">
+                        <div class="flex-1 min-w-0 px-3 py-2 bg-muted rounded-md border border-border font-mono text-xs overflow-x-auto whitespace-nowrap">
                             {{ iframeCode }}
                         </div>
                         <Button
