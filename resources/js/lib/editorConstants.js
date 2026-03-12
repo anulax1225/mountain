@@ -77,7 +77,6 @@ export const COLORS = {
 export const TIMING = {
     HOVER_HIDE_DELAY_MS: 100, // Delay before hiding hotspot hover popover
     DIALOG_TRANSITION_DELAY_MS: 100, // Delay between closing/opening sequential dialogs
-    MIN_HOVER_TIME_MS: 300, // Minimum time before allowing hover hide
     DRAG_FINISH_DELAY_MS: 500, // Delay after drag before re-enabling hover
 }
 

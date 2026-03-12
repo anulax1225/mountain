@@ -29,6 +29,7 @@ const style = computed(() => {
     <Transition name="fade">
         <div v-if="visible && hotspot"
             class="absolute z-50 bg-card shadow-xl border border-border rounded-lg overflow-hidden"
+            :class="{ 'pointer-events-none': mode !== 'edit' }"
             :style="style" @mouseenter="emit('mouseenter')" @mouseleave="emit('mouseleave')">
             <!-- Edit mode - Show only buttons prominently -->
             <div v-if="mode === 'edit'" class="flex flex-col">

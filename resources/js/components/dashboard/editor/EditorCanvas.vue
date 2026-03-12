@@ -51,7 +51,7 @@ const renderView = ref(null)
 const hideHoverTimeout = ref(null)
 const skipNextWatch = ref(false)
 const isLoadingPanorama = ref(false)
-const lastHoverStartTime = ref(0) // Track when we last started hovering to prevent rapid toggling
+
 
 // Scale multipliers - from editorConstants (must match useEditorInteraction)
 const HOVER_SCALE = INTERACTION.HOVER_SCALE
@@ -235,7 +235,7 @@ const clearHoverTimeout = () => {
         clearTimeout(hideHoverTimeout.value)
         hideHoverTimeout.value = null
     }
-    lastHoverStartTime.value = 0 // Reset hover start time
+
 }
 
 // Canvas click handler
@@ -392,9 +392,6 @@ const onMouseMove = (event) => {
                 const x = (screenPosition.x * 0.5 + 0.5) * renderView.value.clientWidth
                 const y = (screenPosition.y * -0.5 + 0.5) * renderView.value.clientHeight
 
-                // Record when we started hovering to prevent rapid toggling
-                lastHoverStartTime.value = Date.now()
-
                 emit('hotspot-hover-start', {
                     slug: hotspot?.slug,
                     hotspot,
@@ -407,21 +404,10 @@ const onMouseMove = (event) => {
                 hideHoverTimeout.value = null
             }
         } else {
-            // Emit hover-end with delay, but only if enough time has passed since hover-start
-            // This prevents rapid toggling when the popover blocks the raycaster
-            if (props.hoveredHotspotSlug) {
-                const timeSinceHoverStart = Date.now() - lastHoverStartTime.value
-
-                if (hideHoverTimeout.value) {
-                    clearTimeout(hideHoverTimeout.value)
-                }
-
-                // Only schedule hide if we've been hovering long enough
-                if (timeSinceHoverStart >= TIMING.MIN_HOVER_TIME_MS) {
-                    hideHoverTimeout.value = setTimeout(() => {
-                        emit('hotspot-hover-end')
-                    }, TIMING.HOVER_HIDE_DELAY_MS)
-                }
+            if (props.hoveredHotspotSlug && !hideHoverTimeout.value) {
+                hideHoverTimeout.value = setTimeout(() => {
+                    emit('hotspot-hover-end')
+                }, TIMING.HOVER_HIDE_DELAY_MS)
             }
         }
     }
