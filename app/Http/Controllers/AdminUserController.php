@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\UserInvitation;
+use App\Actions\Admin\CreateUser;
+use App\Actions\Admin\DeleteUser;
+use App\Actions\Admin\ListUsers;
+use App\Actions\Admin\ResendInvitation;
+use App\Actions\Admin\UpdateUserRole;
 use App\Models\Role;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
+use Illuminate\Http\Response;
 
 /**
  * @group Admin - User Management
@@ -21,35 +23,19 @@ class AdminUserController extends Controller
     /**
      * List all users with their roles
      */
-    public function index()
+    public function index(ListUsers $listUsers): JsonResponse
     {
         $this->authorize('viewAny', User::class);
 
-        $users = User::with('roles')->get()->map(function ($user) {
-            return [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'roles' => $user->roles->map(fn($role) => [
-                    'id' => $role->id,
-                    'name' => $role->name,
-                    'slug' => $role->slug,
-                ]),
-                'created_at' => $user->created_at,
-                'invitation_pending' => $user->hasPendingInvitation(),
-                'invitation_sent_at' => $user->invitation_sent_at,
-            ];
-        });
-
         return response()->json([
-            'data' => $users,
+            'data' => $listUsers(),
         ]);
     }
 
     /**
      * Get all available global roles
      */
-    public function roles()
+    public function roles(): JsonResponse
     {
         $this->authorize('viewAny', User::class);
 
@@ -63,7 +49,7 @@ class AdminUserController extends Controller
     /**
      * Create a new user with a role and send invitation email
      */
-    public function store(Request $request)
+    public function store(Request $request, CreateUser $createUser): JsonResponse
     {
         $this->authorize('create', User::class);
 
@@ -73,31 +59,15 @@ class AdminUserController extends Controller
             'name' => 'nullable|string|max:255',
         ]);
 
-        // Generate invitation token
-        $invitationToken = Str::random(64);
-
-        // Create user with temporary password (will be set by user during registration)
-        $user = User::create([
-            'name' => $validated['name'] ?? explode('@', $validated['email'])[0],
-            'email' => $validated['email'],
-            'password' => Hash::make(Str::random(32)), // Temporary unusable password
-            'invitation_token' => $invitationToken,
-            'invitation_sent_at' => now(),
-        ]);
-
-        // Assign the role
-        $user->roles()->attach($validated['role_id']);
-
-        // Send invitation email
-        $invitationUrl = url('/register/invitation/' . $invitationToken);
-        Mail::to($user->email)->send(new UserInvitation($user, $invitationUrl));
+        $result = $createUser($validated);
+        $user = $result['user'];
 
         return response()->json([
             'data' => [
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
-                'roles' => $user->roles->map(fn($role) => [
+                'roles' => $user->roles->map(fn ($role) => [
                     'id' => $role->id,
                     'name' => $role->name,
                     'slug' => $role->slug,
@@ -105,33 +75,18 @@ class AdminUserController extends Controller
                 'created_at' => $user->created_at,
                 'invitation_pending' => true,
             ],
-            'message' => 'Utilisateur créé et invitation envoyée',
+            'message' => $result['message'],
         ], 201);
     }
 
     /**
      * Resend invitation email
      */
-    public function resendInvitation(User $user)
+    public function resendInvitation(User $user, ResendInvitation $resendInvitation): JsonResponse
     {
         $this->authorize('update', $user);
 
-        if (!$user->hasPendingInvitation()) {
-            return response()->json([
-                'message' => 'Cet utilisateur a déjà complété son inscription',
-            ], 422);
-        }
-
-        // Generate new token
-        $invitationToken = Str::random(64);
-        $user->update([
-            'invitation_token' => $invitationToken,
-            'invitation_sent_at' => now(),
-        ]);
-
-        // Send invitation email
-        $invitationUrl = url('/register/invitation/' . $invitationToken);
-        Mail::to($user->email)->send(new UserInvitation($user, $invitationUrl));
+        $resendInvitation($user);
 
         return response()->json([
             'message' => 'Invitation renvoyée avec succès',
@@ -141,7 +96,7 @@ class AdminUserController extends Controller
     /**
      * Update user's role
      */
-    public function updateRole(Request $request, User $user)
+    public function updateRole(Request $request, User $user, UpdateUserRole $updateUserRole): JsonResponse
     {
         $this->authorize('manageRoles', User::class);
 
@@ -149,25 +104,14 @@ class AdminUserController extends Controller
             'role_id' => 'required|exists:roles,id',
         ]);
 
-        // Only allow global roles (admin, client)
-        $role = Role::find($validated['role_id']);
-        if (!$role->isGlobalRole()) {
-            return response()->json([
-                'message' => 'Seuls les rôles globaux peuvent être assignés',
-            ], 422);
-        }
-
-        // Remove existing global roles and assign new one
-        $globalRoleIds = Role::whereIn('slug', ['admin', 'client'])->pluck('id');
-        $user->roles()->detach($globalRoleIds);
-        $user->roles()->attach($validated['role_id']);
+        $user = $updateUserRole($user, $validated['role_id']);
 
         return response()->json([
             'data' => [
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
-                'roles' => $user->fresh()->roles->map(fn($role) => [
+                'roles' => $user->roles->map(fn ($role) => [
                     'id' => $role->id,
                     'name' => $role->name,
                     'slug' => $role->slug,
@@ -180,11 +124,11 @@ class AdminUserController extends Controller
     /**
      * Delete a user
      */
-    public function destroy(User $user)
+    public function destroy(User $user, DeleteUser $deleteUser): Response
     {
         $this->authorize('delete', $user);
 
-        $user->delete();
+        $deleteUser($user);
 
         return response()->noContent();
     }

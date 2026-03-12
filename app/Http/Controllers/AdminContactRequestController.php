@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Admin\DeleteContactRequest;
+use App\Actions\Admin\ListContactRequests;
+use App\Actions\Admin\UpdateContactRequest;
 use App\Http\Resources\ContactRequestResource;
 use App\Models\ContactRequest;
 use Illuminate\Http\Request;
@@ -32,40 +35,21 @@ class AdminContactRequestController extends Controller
     /**
      * List all contact requests
      *
-     * Get a paginated list of all contact requests. Admin only.
-     *
      * @authenticated
      *
-     * @queryParam status string Filter by status (received, in_process, refused, validated). Example: received
-     * @queryParam search string Search by name, email, or company. Example: john
-     * @queryParam per_page integer Items per page. Example: 20
-     *
      * @apiResourceCollection App\Http\Resources\ContactRequestResource
+     *
      * @apiResourceModel App\Models\ContactRequest
      */
-    public function list(Request $request): AnonymousResourceCollection
+    public function list(Request $request, ListContactRequests $listContactRequests): AnonymousResourceCollection
     {
         $this->authorize('viewAny', ContactRequest::class);
 
-        $query = ContactRequest::query()->orderBy('created_at', 'desc');
-
-        // Filter by status
-        if ($request->has('status') && in_array($request->status, ['received', 'in_process', 'refused', 'validated'])) {
-            $query->where('status', $request->status);
-        }
-
-        // Search by name, email, or company
-        if ($request->has('search') && !empty($request->search)) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%")
-                    ->orWhere('company', 'like', "%{$search}%");
-            });
-        }
-
-        $perPage = $request->input('per_page', 15);
-        $contactRequests = $query->paginate($perPage);
+        $contactRequests = $listContactRequests(
+            $request->input('status'),
+            $request->input('search'),
+            (int) $request->input('per_page', 15),
+        );
 
         return ContactRequestResource::collection($contactRequests);
     }
@@ -75,12 +59,11 @@ class AdminContactRequestController extends Controller
      *
      * @authenticated
      *
-     * @urlParam slug string required The contact request slug. Example: 550e8400-e29b-41d4-a716-446655440000
-     *
      * @apiResource App\Http\Resources\ContactRequestResource
+     *
      * @apiResourceModel App\Models\ContactRequest
      */
-    public function show(ContactRequest $contactRequest)
+    public function show(ContactRequest $contactRequest): ContactRequestResource
     {
         $this->authorize('view', $contactRequest);
 
@@ -92,14 +75,11 @@ class AdminContactRequestController extends Controller
      *
      * @authenticated
      *
-     * @urlParam slug string required The contact request slug. Example: 550e8400-e29b-41d4-a716-446655440000
-     * @bodyParam status string required New status (received, in_process, refused, validated). Example: in_process
-     * @bodyParam admin_notes string Admin notes about this request. Example: Called the client, waiting for more details.
-     *
      * @apiResource App\Http\Resources\ContactRequestResource
+     *
      * @apiResourceModel App\Models\ContactRequest
      */
-    public function update(Request $request, ContactRequest $contactRequest)
+    public function update(Request $request, ContactRequest $contactRequest, UpdateContactRequest $updateContactRequest): ContactRequestResource
     {
         $this->authorize('update', $contactRequest);
 
@@ -108,7 +88,7 @@ class AdminContactRequestController extends Controller
             'admin_notes' => 'nullable|string|max:5000',
         ]);
 
-        $contactRequest->update($validated);
+        $contactRequest = $updateContactRequest($contactRequest, $validated);
 
         return new ContactRequestResource($contactRequest);
     }
@@ -118,15 +98,13 @@ class AdminContactRequestController extends Controller
      *
      * @authenticated
      *
-     * @urlParam slug string required The contact request slug. Example: 550e8400-e29b-41d4-a716-446655440000
-     *
      * @response 204
      */
-    public function destroy(ContactRequest $contactRequest): Response
+    public function destroy(ContactRequest $contactRequest, DeleteContactRequest $deleteContactRequest): Response
     {
         $this->authorize('delete', $contactRequest);
 
-        $contactRequest->delete();
+        $deleteContactRequest($contactRequest);
 
         return response()->noContent();
     }

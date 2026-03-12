@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Image\DeleteImage;
+use App\Actions\Image\ListImages;
+use App\Actions\Image\StoreImage;
+use App\Actions\Image\UpdateImage;
 use App\Http\Requests\StoreImageRequest;
 use App\Http\Requests\UpdateImageRequest;
 use App\Http\Resources\ImageResource;
 use App\Models\Image;
-use App\Models\Project;
 use App\Models\Scene;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
@@ -23,64 +26,39 @@ class ImageController extends Controller
     /**
      * List scene images
      *
-     * Get a paginated list of all images for a specific scene.
-     *
      * @authenticated
-     *
-     * @urlParam project string required The slug of the project. Example: 550e8400-e29b-41d4-a716-446655440000
-     * @urlParam scene string required The slug of the scene. Example: 660e8400-e29b-41d4-a716-446655440000
      *
      * @apiResourceCollection App\Http\Resources\ImageResource
      *
      * @apiResourceModel App\Models\Image with=hotspotsFrom.toImage,hotspotsTo.fromImage
      */
-    public function index(Scene $scene): AnonymousResourceCollection
+    public function index(Scene $scene, ListImages $listImages): AnonymousResourceCollection
     {
         $this->authorize('view', $scene->project);
         $this->authorize('view', $scene);
 
-        $images = $scene->images()
-            ->with(['hotspotsFrom.toImage', 'hotspotsTo.fromImage'])
-            ->paginate(15);
-
-        return ImageResource::collection($images);
+        return ImageResource::collection($listImages($scene));
     }
 
     /**
      * Upload an image
      *
-     * Upload a new panoramic image to a scene.
-     *
      * @authenticated
-     *
-     * @urlParam project string required The slug of the project. Example: 550e8400-e29b-41d4-a716-446655440000
-     * @urlParam scene string required The slug of the scene. Example: 660e8400-e29b-41d4-a716-446655440000
-     *
-     * @bodyParam image file required The panoramic image file (max 20MB). Example: public/pano/pano1.jpeg
-     * @bodyParam name string The name of the image. Example: Living Room View
      *
      * @apiResource 201 App\Http\Resources\ImageResource
      *
      * @apiResourceModel App\Models\Image
      */
-    public function store(StoreImageRequest $request, Scene $scene): ImageResource
+    public function store(StoreImageRequest $request, Scene $scene, StoreImage $storeImage): ImageResource
     {
         $this->authorize('update', $scene->project);
 
-        $stagingKey = $request->input('key');
-        $disk = Storage::disk('s3');
-
-        // Move file from staging to permanent storage
-        $filename = basename($stagingKey);
-        $permanentPath = 'images/'.$filename;
-        $disk->copy($stagingKey, $permanentPath);
-        $disk->delete($stagingKey);
-
-        $image = $scene->images()->create([
-            'name' => $request->input('name', $filename),
-            'path' => $permanentPath,
-            'size' => $request->input('size'),
-        ]);
+        $image = $storeImage(
+            $scene,
+            $request->input('key'),
+            $request->input('name'),
+            $request->input('size'),
+        );
 
         return new ImageResource($image);
     }
@@ -88,13 +66,7 @@ class ImageController extends Controller
     /**
      * Get an image
      *
-     * Get a single image with its details and hotspots.
-     *
      * @authenticated
-     *
-     * @urlParam project string required The slug of the project. Example: 550e8400-e29b-41d4-a716-446655440000
-     * @urlParam scene string required The slug of the scene. Example: 660e8400-e29b-41d4-a716-446655440000
-     * @urlParam image string required The slug of the image. Example: 770e8400-e29b-41d4-a716-446655440000
      *
      * @apiResource App\Http\Resources\ImageResource
      *
@@ -114,19 +86,10 @@ class ImageController extends Controller
     /**
      * Download an image
      *
-     * Download the actual image file.
-     *
-     * @authenticated
-     *
-     * @urlParam project string required The slug of the project. Example: 550e8400-e29b-41d4-a716-446655440000
-     * @urlParam scene string required The slug of the scene. Example: 660e8400-e29b-41d4-a716-446655440000
-     * @urlParam image string required The slug of the image. Example: 770e8400-e29b-41d4-a716-446655440000
-     *
      * @response 200 <binary>
      */
     public function download(Image $image): StreamedResponse
     {
-        // Allow public project images, otherwise require authorization
         if (! $image->scene->project->is_public) {
             $this->authorize('view', $image);
         }
@@ -145,45 +108,22 @@ class ImageController extends Controller
     /**
      * Update an image
      *
-     * Replace an existing image with a new file or update its name.
-     *
      * @authenticated
-     *
-     * @urlParam project string required The slug of the project. Example: 550e8400-e29b-41d4-a716-446655440000
-     * @urlParam scene string required The slug of the scene. Example: 660e8400-e29b-41d4-a716-446655440000
-     * @urlParam image string required The slug of the image. Example: 770e8400-e29b-41d4-a716-446655440000
-     *
-     * @bodyParam image file The new image file (max 20MB). Example: public/pano/pano2.jpeg
-     * @bodyParam name string The name of the image. Example: Updated Living Room View
      *
      * @apiResource App\Http\Resources\ImageResource
      *
      * @apiResourceModel App\Models\Image
      */
-    public function update(UpdateImageRequest $request, Image $image): ImageResource
+    public function update(UpdateImageRequest $request, Image $image, UpdateImage $updateImage): ImageResource
     {
         $this->authorize('update', $image->scene->project);
         $this->authorize('update', $image);
 
-        $updateData = [];
-
-        if ($request->has('name')) {
-            $updateData['name'] = $request->input('name');
-        }
-
-        if ($request->hasFile('image')) {
-            Storage::disk('s3')->delete($image->path);
-
-            $file = $request->file('image');
-            $path = $file->store('images', 's3');
-
-            $updateData['path'] = $path;
-            $updateData['size'] = $file->getSize();
-        }
-
-        if (! empty($updateData)) {
-            $image->update($updateData);
-        }
+        $image = $updateImage(
+            $image,
+            $request->validated(),
+            $request->file('image'),
+        );
 
         return new ImageResource($image);
     }
@@ -191,23 +131,16 @@ class ImageController extends Controller
     /**
      * Delete an image
      *
-     * Delete an image and its file from storage.
-     *
      * @authenticated
-     *
-     * @urlParam project string required The slug of the project. Example: 550e8400-e29b-41d4-a716-446655440000
-     * @urlParam scene string required The slug of the scene. Example: 660e8400-e29b-41d4-a716-446655440000
-     * @urlParam image string required The slug of the image. Example: 770e8400-e29b-41d4-a716-446655440000
      *
      * @response 204
      */
-    public function destroy(Image $image): Response
+    public function destroy(Image $image, DeleteImage $deleteImage): Response
     {
         $this->authorize('update', $image->scene->project);
         $this->authorize('delete', $image);
 
-        Storage::disk('s3')->delete($image->path);
-        $image->delete();
+        $deleteImage($image);
 
         return response()->noContent();
     }

@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\ProjectUser\AssignProjectUser;
+use App\Actions\ProjectUser\ListProjectUsers;
+use App\Actions\ProjectUser\RemoveProjectUser;
 use App\Http\Requests\AssignProjectUserRequest;
 use App\Models\Project;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
@@ -18,77 +22,47 @@ class ProjectUserController extends Controller
     /**
      * List users assigned to a project
      */
-    public function index(Project $project): JsonResponse
+    public function index(Project $project, ListProjectUsers $listProjectUsers): JsonResponse
     {
         $this->authorize('view', $project);
 
-        $users = $project->assignedUsers()
-            ->with('roles')
-            ->get()
-            ->map(function ($user) {
-                return [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'role_id' => $user->pivot->role_id,
-                    'assigned_at' => $user->pivot->created_at,
-                ];
-            });
-
-        return response()->json($users);
+        return response()->json($listProjectUsers($project));
     }
 
     /**
      * Assign a user to a project with a role
      */
-    public function store(AssignProjectUserRequest $request, Project $project): JsonResponse
+    public function store(AssignProjectUserRequest $request, Project $project, AssignProjectUser $assignProjectUser): JsonResponse
     {
         $this->authorize('assignUsers', $project);
 
         $data = $request->validated();
+        $result = $assignProjectUser($project, $data['user_id'], $data['role_id']);
 
-        $existingAssignment = $project->assignedUsers()
-            ->where('user_id', $data['user_id'])
-            ->first();
-
-        if ($existingAssignment) {
-            $project->assignedUsers()->updateExistingPivot($data['user_id'], [
-                'role_id' => $data['role_id'],
-            ]);
-
-            return response()->json([
-                'message' => 'User role updated successfully',
-            ]);
-        }
-
-        $project->assignedUsers()->attach($data['user_id'], [
-            'role_id' => $data['role_id'],
-        ]);
-
-        return response()->json([
-            'message' => 'User assigned to project successfully',
-        ], 201);
+        return response()->json(
+            ['message' => $result['message']],
+            $result['created'] ? 201 : 200,
+        );
     }
 
     /**
      * Remove a user from a project
      */
-    public function destroy(Project $project, User $user): Response
+    public function destroy(Project $project, User $user, RemoveProjectUser $removeProjectUser): Response
     {
         $this->authorize('assignUsers', $project);
 
-        $project->assignedUsers()->detach($user->id);
+        $removeProjectUser($project, $user);
 
         return response()->noContent();
     }
 
     /**
      * Get non-admin users (for assignment dropdown)
-     * Admins are excluded since they already have access to all projects
      */
     public function availableUsers(): JsonResponse
     {
-        $adminRoleId = \App\Models\Role::where('slug', 'admin')->value('id');
+        $adminRoleId = Role::where('slug', 'admin')->value('id');
 
         $users = User::select('users.id', 'users.name', 'users.email')
             ->whereDoesntHave('roles', function ($query) use ($adminRoleId) {
@@ -104,8 +78,7 @@ class ProjectUserController extends Controller
      */
     public function availableRoles(): JsonResponse
     {
-        // Only return project-level roles (owner, viewer), not global roles (admin, client)
-        $roles = \App\Models\Role::select('id', 'name', 'description')
+        $roles = Role::select('id', 'name', 'description')
             ->whereIn('slug', ['owner', 'viewer'])
             ->get();
 

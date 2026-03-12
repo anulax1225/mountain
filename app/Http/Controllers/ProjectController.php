@@ -2,20 +2,26 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Project\CreateProject;
+use App\Actions\Project\DeleteProject;
+use App\Actions\Project\GetProjectImages;
+use App\Actions\Project\ListProjects;
+use App\Actions\Project\MakeProjectPublic;
+use App\Actions\Project\UpdateProject;
 use App\Http\Requests\MakeProjectPublicRequest;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Http\Resources\ProjectResource;
-use App\Models\Image;
 use App\Models\Project;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 /**
  * @group Projects
- * 
+ *
  * APIs for managing projects
  */
 class ProjectController extends Controller
@@ -26,28 +32,14 @@ class ProjectController extends Controller
      * Admin sees all projects, others see only their own + assigned projects.
      *
      * @authenticated
+     *
      * @apiResourceCollection App\Http\Resources\ProjectResource
+     *
      * @apiResourceModel App\Models\Project
      */
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(Request $request, ListProjects $listProjects): AnonymousResourceCollection
     {
-        $user = $request->user();
-
-        if ($user->isAdmin()) {
-            // Admin sees all projects
-            $projects = Project::with('scenes')->paginate(15);
-        } else {
-            // Get own projects + assigned projects
-            $ownProjectIds = $user->projects()->pluck('id');
-            $assignedProjectIds = $user->projectAccess()->pluck('projects.id');
-            $allProjectIds = $ownProjectIds->merge($assignedProjectIds)->unique();
-
-            $projects = Project::whereIn('id', $allProjectIds)
-                ->with('scenes')
-                ->paginate(15);
-        }
-
-        return ProjectResource::collection($projects);
+        return ProjectResource::collection($listProjects($request->user()));
     }
 
     /**
@@ -56,24 +48,20 @@ class ProjectController extends Controller
      * Only Admin users can create projects.
      *
      * @authenticated
+     *
      * @apiResource 201 App\Http\Resources\ProjectResource
+     *
      * @apiResourceModel App\Models\Project
      */
-    public function store(StoreProjectRequest $request): ProjectResource
+    public function store(StoreProjectRequest $request, CreateProject $createProject): ProjectResource
     {
         $this->authorize('create', Project::class);
 
-        $data = $request->validated();
-        $data['user_id'] = $request->user()->id;
-
-        // Handle photo upload if present
-        if ($request->hasFile('photo')) {
-            $path = $request->file('photo')->store('project-photos', 's3');
-            $data['picture_path'] = $path;
-            unset($data['photo']);
-        }
-        
-        $project = Project::create($data);
+        $project = $createProject(
+            $request->validated(),
+            $request->user(),
+            $request->file('photo'),
+        );
 
         return new ProjectResource($project);
     }
@@ -82,15 +70,17 @@ class ProjectController extends Controller
      * Get a project
      *
      * @authenticated
+     *
      * @apiResource App\Http\Resources\ProjectResource
+     *
      * @apiResourceModel App\Models\Project with=scenes,startImage
      */
     public function show(Project $project): ProjectResource
     {
         $this->authorize('view', $project);
-        
+
         $project->load(['scenes', 'startImage']);
-        
+
         return new ProjectResource($project);
     }
 
@@ -98,28 +88,20 @@ class ProjectController extends Controller
      * Update a project
      *
      * @authenticated
+     *
      * @apiResource App\Http\Resources\ProjectResource
+     *
      * @apiResourceModel App\Models\Project
      */
-    public function update(UpdateProjectRequest $request, Project $project): ProjectResource
+    public function update(UpdateProjectRequest $request, Project $project, UpdateProject $updateProject): ProjectResource
     {
         $this->authorize('update', $project);
 
-        $data = $request->validated();
-
-        // Handle photo upload if present
-        if ($request->hasFile('photo')) {
-            // Delete old photo if exists
-            if ($project->picture_path && Storage::disk('s3')->exists($project->picture_path)) {
-                Storage::disk('s3')->delete($project->picture_path);
-            }
-
-            $path = $request->file('photo')->store('project-photos', 's3');
-            $data['picture_path'] = $path;
-            unset($data['photo']);
-        }
-
-        $project->update($data);
+        $project = $updateProject(
+            $project,
+            $request->validated(),
+            $request->file('photo'),
+        );
 
         return new ProjectResource($project);
     }
@@ -127,11 +109,11 @@ class ProjectController extends Controller
     /**
      * Delete a project
      */
-    public function destroy(Project $project): Response
+    public function destroy(Project $project, DeleteProject $deleteProject): Response
     {
         $this->authorize('delete', $project);
 
-        $project->delete();
+        $deleteProject($project);
 
         return response()->noContent();
     }
@@ -140,30 +122,16 @@ class ProjectController extends Controller
      * Make a project public or private
      *
      * @authenticated
+     *
      * @apiResource App\Http\Resources\ProjectResource
+     *
      * @apiResourceModel App\Models\Project
      */
-    public function makePublic(MakeProjectPublicRequest $request, Project $project): ProjectResource
+    public function makePublic(MakeProjectPublicRequest $request, Project $project, MakeProjectPublic $makeProjectPublic): ProjectResource
     {
         $this->authorize('makePublic', $project);
 
-        $data = $request->validated();
-        $image = Image::where('slug', $data['start_image_id'])->first();
-        if ($data['is_public'] && $image) {
-            $project->update([
-                'is_public' => true,
-                'start_image_id' => $image->id,
-            ]);
-        } elseif ($data['is_public']) {
-            $project->update([
-                'is_public' => true,
-            ]);
-        } else {
-            $project->update([
-                'is_public' => false,
-                'start_image_id' => null,
-            ]);
-        }
+        $project = $makeProjectPublic($project, $request->validated());
 
         return new ProjectResource($project);
     }
@@ -171,24 +139,11 @@ class ProjectController extends Controller
     /**
      * Get project images for start image selection
      */
-    public function getImages(Project $project)
+    public function getImages(Project $project, GetProjectImages $getProjectImages): JsonResponse
     {
         $this->authorize('view', $project);
 
-        $images = $project->scenes()->with('images')->get()
-            ->flatMap(function ($scene) {
-                return $scene->images->map(function ($image) use ($scene) {
-                    // Add scene info to each image for grouping in frontend
-                    $imageArray = $image->toArray();
-                    $imageArray['scene'] = [
-                        'slug' => $scene->slug,
-                        'name' => $scene->name,
-                    ];
-                    return $imageArray;
-                });
-            });
-
-        return response()->json($images);
+        return response()->json($getProjectImages($project));
     }
 
     /**
@@ -196,12 +151,11 @@ class ProjectController extends Controller
      */
     public function downloadPicture(Project $project)
     {
-        // Allow access if project is public or user has view permission
-        if (!$project->is_public) {
+        if (! $project->is_public) {
             $this->authorize('view', $project);
         }
 
-        if (!$project->picture_path) {
+        if (! $project->picture_path) {
             abort(404, 'No picture available for this project');
         }
 
@@ -212,7 +166,7 @@ class ProjectController extends Controller
             fclose($stream);
         }, 200, [
             'Content-Type' => 'image/jpeg',
-            'Content-Disposition' => 'inline; filename="' . basename($project->picture_path) . '"',
+            'Content-Disposition' => 'inline; filename="'.basename($project->picture_path).'"',
         ]);
     }
 }

@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ContactRequest;
-use Illuminate\Http\Request;
+use App\Actions\Contact\SubmitContactRequest;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
@@ -32,15 +32,11 @@ class ContactRequestController extends Controller
      * @bodyParam email string required Contact email address. Example: john@example.com
      * @bodyParam phone string Phone number. Example: +33 6 12 34 56 78
      * @bodyParam company string Company name. Example: Acme Corp
-     * @bodyParam message string required Message content. Example: I'm interested in your virtual tour services.
+     * @bodyParam message string required Message content.
      *
-     * @response 201 {
-     *   "message": "Votre demande a été envoyée avec succès. Nous vous contacterons bientôt.",
-     *   "slug": "550e8400-e29b-41d4-a716-446655440000"
-     * }
-     * @response 422 {"message": "The given data was invalid.", "errors": {"email": ["The email field is required."]}}
+     * @response 201 {"message": "...", "slug": "..."}
      */
-    public function store(Request $request): JsonResponse
+    public function store(Request $request, SubmitContactRequest $submitContactRequest): JsonResponse
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -50,7 +46,7 @@ class ContactRequestController extends Controller
             'message' => 'required|string|max:5000',
         ]);
 
-        $contactRequest = ContactRequest::create($validated);
+        $contactRequest = $submitContactRequest($validated);
 
         return response()->json([
             'message' => 'Votre demande a été envoyée avec succès. Nous vous contacterons bientôt.',

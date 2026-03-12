@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Sticker\CreateSticker;
+use App\Actions\Sticker\DeleteSticker;
+use App\Actions\Sticker\ListStickers;
+use App\Actions\Sticker\UpdateSticker;
 use App\Http\Requests\StoreStickerRequest;
 use App\Http\Requests\UpdateStickerRequest;
 use App\Http\Resources\StickerResource;
@@ -12,7 +16,7 @@ use Illuminate\Http\Response;
 
 /**
  * @group Stickers
- * 
+ *
  * APIs for managing stickers (emojis, images, text) within images
  */
 class StickerController extends Controller
@@ -20,94 +24,86 @@ class StickerController extends Controller
     /**
      * List image stickers
      *
-     * Get a paginated list of all stickers for a specific image.
-     *
      * @authenticated
      *
      * @apiResourceCollection App\Http\Resources\StickerResource
+     *
      * @apiResourceModel App\Models\Sticker
      */
-    public function index(Image $image): AnonymousResourceCollection
+    public function index(Image $image, ListStickers $listStickers): AnonymousResourceCollection
     {
         $this->authorize('view', $image->scene->project);
         $this->authorize('view', $image->scene);
-        
-        $stickers = $image->stickers()->paginate(50);
-        
-        return StickerResource::collection($stickers);
+
+        return StickerResource::collection($listStickers($image));
     }
 
     /**
      * Create a sticker
      *
-     * Create a new sticker within an image.
-     *
      * @authenticated
      *
      * @apiResource 201 App\Http\Resources\StickerResource
+     *
      * @apiResourceModel App\Models\Sticker
      */
-    public function store(StoreStickerRequest $request, Image $image): StickerResource
+    public function store(StoreStickerRequest $request, Image $image, CreateSticker $createSticker): StickerResource
     {
         $this->authorize('update', $image->scene->project);
 
-        $sticker = $image->stickers()->create($request->validated());
-        
+        $sticker = $createSticker($image, $request->validated());
+
         return new StickerResource($sticker);
     }
 
     /**
      * Get a sticker
      *
-     * Get a single sticker by its slug.
-     *
      * @authenticated
      *
      * @apiResource App\Http\Resources\StickerResource
+     *
      * @apiResourceModel App\Models\Sticker
      */
     public function show(Sticker $sticker): StickerResource
     {
         $this->authorize('view', $sticker->image->scene->project);
         $this->authorize('view', $sticker->image->scene);
-        
+
         return new StickerResource($sticker);
     }
 
     /**
      * Update a sticker
      *
-     * Update an existing sticker.
-     *
      * @authenticated
      *
      * @apiResource App\Http\Resources\StickerResource
+     *
      * @apiResourceModel App\Models\Sticker
      */
-    public function update(UpdateStickerRequest $request, Sticker $sticker): StickerResource
+    public function update(UpdateStickerRequest $request, Sticker $sticker, UpdateSticker $updateSticker): StickerResource
     {
         $this->authorize('update', $sticker->image->scene->project);
         $this->authorize('update', $sticker);
 
-        $sticker->update($request->validated());
-        
+        $sticker = $updateSticker($sticker, $request->validated());
+
         return new StickerResource($sticker);
     }
 
     /**
      * Delete a sticker
-     * 
-     * Delete a sticker.
-     * 
+     *
      * @authenticated
      */
-    public function destroy(Sticker $sticker): Response
+    public function destroy(Sticker $sticker, DeleteSticker $deleteSticker): Response
     {
         $this->authorize('update', $sticker->image->scene->project);
         $this->authorize('delete', $sticker);
 
-        $sticker->delete();
-        
+        $deleteSticker($sticker);
+
         return response()->noContent();
     }
 }
