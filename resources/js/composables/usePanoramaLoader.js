@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { ref, shallowRef } from 'vue'
 import * as THREE from 'three'
 import { SPHERE, TRANSITION } from '@/lib/editorConstants.js'
 import { applyCameraRotation } from '@/lib/spatialMath.js'
@@ -16,7 +16,7 @@ export function usePanoramaLoader(sceneRef, textureLoaderRef, options = {}) {
         transitionStep = TRANSITION.FADE_STEP
     } = options
 
-    const currentMesh = ref(null)
+    const currentMesh = shallowRef(null)
     const isTransitioning = ref(false)
 
     /**
@@ -85,6 +85,7 @@ export function usePanoramaLoader(sceneRef, textureLoaderRef, options = {}) {
                 fullTexture.colorSpace = THREE.SRGBColorSpace
                 fullTexture.minFilter = THREE.LinearFilter
                 fullTexture.magFilter = THREE.LinearFilter
+                fullTexture.needsUpdate = true
 
                 // Only swap if this mesh is still the current one
                 if (currentMesh.value === mesh) {
@@ -95,6 +96,8 @@ export function usePanoramaLoader(sceneRef, textureLoaderRef, options = {}) {
                 } else {
                     fullTexture.dispose()
                 }
+            }).catch(err => {
+                console.warn('Failed to load full-res texture:', err)
             })
         }
 
