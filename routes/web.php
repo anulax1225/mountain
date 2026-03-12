@@ -15,6 +15,7 @@ use App\Http\Controllers\ProjectUserController;
 use App\Http\Controllers\SceneController;
 use App\Http\Controllers\StickerController;
 use App\Http\Controllers\Web\DashboardController as WebDashboardController;
+use App\Http\Controllers\Web\EditorController as WebEditorController;
 use App\Http\Controllers\Web\ProjectController as WebProjectController;
 use App\Http\Controllers\Web\SceneController as WebSceneController;
 use Illuminate\Support\Facades\Route;
@@ -81,7 +82,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard/projects/{project:slug}/analytics', [DashboardController::class, 'showProjectAnalytics'])->name('dashboard.project.analytics');
     Route::get('/dashboard/scenes/{scene:slug}', [WebSceneController::class, 'show'])->name('dashboard.scene');
     Route::delete('/dashboard/images/{image:slug}', [WebSceneController::class, 'destroyImage'])->name('web.images.destroy');
-    Route::get('/dashboard/editor/{project:slug}', [DashboardController::class, 'showEditor'])->name('dashboard.editor');
+    Route::get('/dashboard/editor/{project:slug}', [WebEditorController::class, 'show'])->name('dashboard.editor');
 });
 
 // Protected routes

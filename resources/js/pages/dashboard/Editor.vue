@@ -1,9 +1,8 @@
 <script setup>
-import { ref, onMounted, computed, onUnmounted, nextTick } from 'vue'
-import { Link } from '@inertiajs/vue3'
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
+import { Link, router } from '@inertiajs/vue3'
 import DashboardLayout from '@/layouts/DashboardLayout.vue'
 import { Button } from '@/components/ui/button'
-import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
 import EditorCanvas from '@/components/dashboard/editor/EditorCanvas.vue'
 import EditorTopBar from '@/components/dashboard/editor/EditorTopBar.vue'
@@ -28,14 +27,27 @@ import { useHeaderVisibility } from '@/composables'
 
 const props = defineProps({
     auth: Object,
-    projectSlug: String,
+    project: Object,
+    scenes: Array,
 })
 
-const project = ref(null)
-const scenes = ref([])
-const images = ref([])
+// Flatten images from scenes into a single array for navigation
+const images = computed(() => {
+    if (!props.scenes) return []
+    const flat = []
+    for (const scene of props.scenes) {
+        for (const image of (scene.images || [])) {
+            flat.push({
+                ...image,
+                sceneName: scene.name,
+                sceneSlug: scene.slug,
+            })
+        }
+    }
+    return flat
+})
+
 const currentImageIndex = ref(0)
-const loading = ref(true)
 const mode = ref('view')
 const isCreatingHotspot = ref(false)
 const isCreatingSticker = ref(false)
@@ -72,11 +84,11 @@ const interaction = useEditorInteraction()
 // Hotspot hover position (calculated on demand)
 const hotspotHoverPosition = ref(null)
 const { isVisible: headerVisible } = useHeaderVisibility('dashboardHeaderVisible', true)
+
 // Computed: get the currently hovered hotspot data from images
 const hoveredHotspot = computed(() => {
     if (!interaction.hoveredHotspotSlug.value) return null
 
-    // Find the hotspot by slug in current image's hotspots
     const hotspot = currentImage.value?.hotspots_from?.find(
         h => h.slug === interaction.hoveredHotspotSlug.value
     )
@@ -89,77 +101,23 @@ const currentImage = computed(() => images.value[currentImageIndex.value])
 const currentImageSceneSlug = computed(() => {
     const image = currentImage.value
     if (!image) return null
-    const scene = scenes.value.find(s => s.images?.some(img => img.id === image.id))
+    const scene = props.scenes?.find(s => s.images?.some(img => img.id === image.id))
     return scene?.slug || null
 })
 
-const loadProject = async () => {
-    try {
-        loading.value = true
-        const response = await owl.projects.get(props.projectSlug)
-        project.value = response
-        await loadScenesWithImages()
-    } catch (error) {
-        console.error('Failed to load project:', error)
-    } finally {
-        loading.value = false
+// Reload scenes data from server after API mutations
+const reloadImages = () => {
+    router.reload({ only: ['scenes'], preserveState: true })
+}
+
+// Re-display sprites when scenes prop changes
+watch(() => props.scenes, async () => {
+    await nextTick()
+    if (editorCanvasRef.value) {
+        editorCanvasRef.value.displayHotspots()
+        editorCanvasRef.value.displayStickers()
     }
-}
-
-const loadScenesWithImages = async () => {
-    try {
-        const response = await owl.scenes.list(props.projectSlug)
-        const loadedScenes = response.data || []
-
-        // Load images for each scene
-        for (const scene of loadedScenes) {
-            const imagesResponse = await owl.images.list(scene.slug)
-            scene.images = imagesResponse.data || []
-
-            // Load stickers for each image
-            for (const image of scene.images) {
-                try {
-                    const stickersResponse = await owl.stickers.list(image.slug)
-                    image.stickers = stickersResponse.data || []
-                } catch (error) {
-                    console.error(`Failed to load stickers for image ${image.slug}:`, error)
-                    image.stickers = []
-                }
-            }
-        }
-
-        scenes.value = loadedScenes
-
-        // Flatten images from all scenes into a single array for navigation
-        // Keep track of scene info for each image
-        const flatImages = []
-        for (const scene of loadedScenes) {
-            for (const image of scene.images) {
-                flatImages.push({
-                    ...image,
-                    sceneName: scene.name,
-                    sceneSlug: scene.slug
-                })
-            }
-        }
-        images.value = flatImages
-
-        console.log('Loaded scenes with images:', scenes.value)
-        console.log('Flattened images:', images.value)
-
-        await nextTick()
-        if (editorCanvasRef.value) {
-            editorCanvasRef.value.displayHotspots()
-            editorCanvasRef.value.displayStickers()
-        }
-    } catch (error) {
-        console.error('Failed to load scenes with images:', error)
-    }
-}
-
-const reloadImages = async () => {
-    await loadScenesWithImages()
-}
+}, { deep: true })
 
 const startCreatingHotspot = () => {
     isCreatingHotspot.value = true
@@ -228,32 +186,24 @@ const handleHotspotCustomized = async (customization) => {
         }
 
         if (editingHotspot.value) {
-            console.log('Updating hotspot:', editingHotspot.value.slug)
             await owl.hotspots.update(editingHotspot.value.slug, hotspotData)
             editingHotspot.value = null
         } else {
-            // Create hotspot under the scene of the current (from) image
             const fromImageSceneSlug = currentImageSceneSlug.value
             if (!fromImageSceneSlug) {
                 console.error('Could not determine scene for current image')
                 return
             }
 
-            console.log('Creating new hotspot in scene:', fromImageSceneSlug)
             await owl.hotspots.create(fromImageSceneSlug, hotspotData)
 
             if (pendingBidirectional.value && pendingReturnPosition.value) {
-                console.log('Checking for existing return hotspot')
-
-                // Check if return hotspot already exists
                 const existingReturnHotspot = images.value
                     .find(img => img.id === pendingTargetImage.value.id)
                     ?.hotspots_from
                     ?.find(h => h.to_image_id === currentImage.value.id)
 
                 if (!existingReturnHotspot) {
-                    console.log('Creating return hotspot')
-
                     const returnRotation = calculateReturnRotation(
                         pendingHotspotPosition.value,
                         pendingRotation.value
@@ -272,14 +222,11 @@ const handleHotspotCustomized = async (customization) => {
                         custom_color: customization.color,
                     }
 
-                    // Create return hotspot under the scene of the target (to) image
                     const targetImage = images.value.find(img => img.id === pendingTargetImage.value.id)
                     const targetSceneSlug = targetImage?.sceneSlug
                     if (targetSceneSlug) {
                         await owl.hotspots.create(targetSceneSlug, returnHotspotData)
                     }
-                } else {
-                    console.log('Return hotspot already exists, skipping creation')
                 }
             }
         }
@@ -291,8 +238,7 @@ const handleHotspotCustomized = async (customization) => {
         pendingReturnPosition.value = null
         pendingBidirectional.value = false
 
-        await reloadImages()
-        console.log('Images reloaded after hotspot creation/update')
+        reloadImages()
     } catch (error) {
         console.error('Failed to save hotspot:', error)
     }
@@ -302,14 +248,12 @@ const handleStickerSaved = async (stickerData) => {
     if (!currentImage.value) return
 
     try {
-        console.log('Creating sticker:', stickerData)
         await owl.stickers.create(currentImage.value.slug, stickerData)
 
         stickerDialogOpen.value = false
         pendingStickerPosition.value = null
 
-        await reloadImages()
-        console.log('Images reloaded after sticker creation')
+        reloadImages()
     } catch (error) {
         console.error('Failed to create sticker:', error)
     }
@@ -319,14 +263,13 @@ const handleStickerClick = ({ sticker, position }) => {
     editingSticker.value = sticker
     stickerContextMenuPosition.value = position
     stickerContextMenuVisible.value = true
-    // Ensure the selected state is set (in case select event wasn't emitted)
     interaction.setSelectedSticker(sticker?.slug)
 }
 
 const handleEditSticker = (sticker) => {
     editingSticker.value = sticker
     stickerContextMenuVisible.value = false
-    interaction.setSelectedSticker(null) // Clear selection when opening edit dialog
+    interaction.setSelectedSticker(null)
     stickerEditDialogOpen.value = true
 }
 
@@ -334,14 +277,12 @@ const handleStickerEdited = async (updatedData) => {
     if (!editingSticker.value) return
 
     try {
-        console.log('Updating sticker:', editingSticker.value.slug, updatedData)
         await owl.stickers.update(editingSticker.value.slug, updatedData)
 
         stickerEditDialogOpen.value = false
         editingSticker.value = null
 
-        await reloadImages()
-        console.log('Images reloaded after sticker update')
+        reloadImages()
     } catch (error) {
         handleError(error, { context: 'Updating sticker', showToast: true })
     }
@@ -349,7 +290,7 @@ const handleStickerEdited = async (updatedData) => {
 
 const handleContextMenuDeleteSticker = async (sticker) => {
     stickerContextMenuVisible.value = false
-    interaction.setSelectedSticker(null) // Clear selection
+    interaction.setSelectedSticker(null)
 
     const confirmed = await confirmDelete('ce sticker')
     if (!confirmed) return
@@ -359,13 +300,11 @@ const handleContextMenuDeleteSticker = async (sticker) => {
 
 const handleDeleteSticker = async (sticker) => {
     try {
-        console.log('Deleting sticker:', sticker.slug)
         await owl.stickers.delete(sticker.slug)
 
         editingSticker.value = null
 
-        await reloadImages()
-        console.log('Images reloaded after sticker delete')
+        reloadImages()
     } catch (error) {
         handleError(error, { context: 'Deleting sticker', showToast: true })
     }
@@ -376,7 +315,6 @@ const handleHotspotClick = async (hotspot) => {
     if (targetIndex !== -1) {
         const hasRotation = hotspot.target_rotation_x !== null && hotspot.target_rotation_y !== null
 
-        // Always load panorama directly to ensure it completes before reloading images
         if (editorCanvasRef.value) {
             if (hasRotation) {
                 await editorCanvasRef.value.loadPanorama(targetIndex, true, {
@@ -389,16 +327,13 @@ const handleHotspotClick = async (hotspot) => {
             }
         }
 
-        // Update index after panorama loads
         currentImageIndex.value = targetIndex
 
-        // Reload images to get fresh hotspot data
-        await reloadImages()
+        reloadImages()
     }
 }
 
 const handleHotspotClickEdit = ({ hotspot, position }) => {
-    // Reuse existing hover mechanism to show popover in edit mode
     interaction.setHoveredHotspot(hotspot?.slug)
     hotspotHoverPosition.value = position
 }
@@ -425,7 +360,6 @@ const handlePopoverMouseLeave = () => {
     hotspotHoverPosition.value = null
 }
 
-// Sticker interaction handlers
 const handleStickerHoverStart = ({ slug }) => {
     interaction.setHoveredSticker(slug)
 }
@@ -457,14 +391,12 @@ const handleDeleteHotspot = async (hotspot) => {
     if (!confirmed) return
 
     try {
-        console.log('Deleting hotspot:', hotspot.slug)
         await owl.hotspots.delete(hotspot.slug)
 
         interaction.clearHoverStates()
         hotspotHoverPosition.value = null
 
-        await reloadImages()
-        console.log('Images reloaded after hotspot delete')
+        reloadImages()
     } catch (error) {
         handleError(error, { context: 'Deleting hotspot', showToast: true })
     }
@@ -472,8 +404,6 @@ const handleDeleteHotspot = async (hotspot) => {
 
 const handleSpriteDragEnd = async ({ type, data, newPosition, originalPosition }) => {
     try {
-        console.log(`Updating ${type} position:`, data.slug, newPosition)
-
         if (type === 'hotspot') {
             await owl.hotspots.patch(data.slug, {
                 position_x: newPosition.x,
@@ -488,13 +418,11 @@ const handleSpriteDragEnd = async ({ type, data, newPosition, originalPosition }
             })
         }
 
-        await reloadImages()
-        console.log(`Images reloaded after ${type} position update`)
+        reloadImages()
     } catch (error) {
         handleError(error, { context: 'Updating position', showToast: true })
 
-        // Revert position on error by reloading
-        await reloadImages()
+        reloadImages()
     }
 }
 
@@ -502,10 +430,8 @@ const toggleMode = () => {
     mode.value = mode.value === 'view' ? 'edit' : 'view'
     isCreatingHotspot.value = false
     isCreatingSticker.value = false
-    // Clear all interaction state when switching modes
     interaction.clearAllStates()
     hotspotHoverPosition.value = null
-    // Exit immersion mode when switching to edit mode
     if (mode.value === 'edit') {
         isImmersive.value = false
     }
@@ -528,16 +454,14 @@ const handleFullscreenChange = () => {
 }
 
 const handleCameraMove = () => {
-    // Close all popovers and context menus when camera moves or when clicking empty space
     interaction.clearHoverStates()
     hotspotHoverPosition.value = null
     stickerContextMenuVisible.value = false
     isPopoverHovered.value = false
-    interaction.setSelectedSticker(null) // Clear sticker selection as well
+    interaction.setSelectedSticker(null)
 }
 
 onMounted(() => {
-    loadProject()
     document.addEventListener('fullscreenchange', handleFullscreenChange)
 })
 
@@ -552,11 +476,9 @@ onUnmounted(() => {
             'relative -m-6 w-[calc(100%+3rem)]',
             isFullscreen || !headerVisible ? 'h-screen' : 'h-[calc(100vh-4rem)]'
         ]">
-            <LoadingSpinner v-if="loading" class="absolute inset-0 bg-zinc-950" />
-
-            <EmptyState v-else-if="images.length === 0" title="Aucune image dans ce projet"
+            <EmptyState v-if="images.length === 0" title="Aucune image dans ce projet"
                 class="absolute inset-0 bg-zinc-950 text-white">
-                <Link :href="`/dashboard/projects/${projectSlug}`">
+                <Link :href="`/dashboard/projects/${project?.slug}`">
                     <Button>Ajouter des images</Button>
                 </Link>
             </EmptyState>
@@ -625,7 +547,7 @@ onUnmounted(() => {
                     <EditorTopBar
                         v-show="!isImmersive"
                         :project-name="project?.name"
-                        :project-slug="projectSlug"
+                        :project-slug="project?.slug"
                         :current-scene-name="currentImage?.sceneName"
                         :mode="mode"
                         @create-hotspot="startCreatingHotspot"
