@@ -203,10 +203,24 @@ export function usePanoramaLoader(sceneRef, textureLoaderRef, options = {}) {
         }
     }
 
+    /**
+     * Preload an image into the cache without creating a mesh
+     * @param {string} imageUrl - URL to preload
+     */
+    const preloadImage = (imageUrl) => {
+        if (imageCache.has(imageUrl) || !textureLoaderRef.value) return
+
+        textureLoaderRef.value.loadAsync(imageUrl).then(texture => {
+            imageCache.set(imageUrl, texture.image)
+            texture.dispose()
+        }).catch(() => {})
+    }
+
     return {
         currentMesh,
         isTransitioning,
         loadPanorama,
+        preloadImage,
         clear,
         fadeIn,
         fadeOut

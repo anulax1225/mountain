@@ -151,7 +151,8 @@ const {
 const {
     currentMesh,
     isTransitioning,
-    loadPanorama: loadPanoramaBase
+    loadPanorama: loadPanoramaBase,
+    preloadImage
 } = usePanoramaLoader(threeScene, textureLoader)
 
 // Mouse down handler for drag start
@@ -562,6 +563,13 @@ const loadPanorama = async (index, transition = true, rotation = null, skipWatch
     // Display sprites AFTER transition completes
     displayHotspots()
     displayStickers()
+
+    // Preload hotspot target images in background
+    currentHotspots.value.forEach(hotspot => {
+        if (hotspot.to_image?.slug) {
+            preloadImage(`/images/${hotspot.to_image.slug}/download`)
+        }
+    })
 
     // Clear loading flag
     isLoadingPanorama.value = false
