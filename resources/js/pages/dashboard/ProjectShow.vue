@@ -1,10 +1,10 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, computed } from 'vue'
+import { useForm, router } from '@inertiajs/vue3'
 import DashboardLayout from '@/layouts/DashboardLayout.vue'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, Settings, Users, Edit, Share2, Globe, BarChart3 } from 'lucide-vue-next'
 import { Link } from '@inertiajs/vue3'
-import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import SceneCard from '@/components/dashboard/SceneCard.vue'
 import CreateSceneCard from '@/components/dashboard/CreateSceneCard.vue'
 import SceneFormSheet from '@/components/dashboard/SceneFormSheet.vue'
@@ -12,87 +12,64 @@ import ProjectSettingsDialog from '@/components/dashboard/ProjectSettingsDialog.
 import ProjectUsersDialog from '@/components/dashboard/ProjectUsersDialog.vue'
 import ProjectEditDialog from '@/components/dashboard/ProjectEditDialog.vue'
 import ProjectShareDialog from '@/components/dashboard/ProjectShareDialog.vue'
-import owl from '@/owl-sdk.js'
-import { useConfirm, useApiError } from '@/composables'
+import { useConfirm } from '@/composables'
 
 const props = defineProps({
   auth: Object,
-  projectSlug: String,
+  project: Object,
+  scenes: Object,
+  projectImages: Array,
+  assignedUsers: Array,
+  availableUsers: Array,
+  availableRoles: Array,
 })
 
 const { confirmDelete } = useConfirm()
-const { handleError } = useApiError()
 
-const project = ref(null)
-const scenes = ref([])
-const loading = ref(true)
 const sceneSheetOpen = ref(false)
 const settingsDialogOpen = ref(false)
 const usersDialogOpen = ref(false)
 const editDialogOpen = ref(false)
 const shareDialogOpen = ref(false)
 const editingScene = ref(null)
-const sceneForm = ref({ name: '' })
+
+const sceneForm = useForm({ name: '' })
 
 // Permission helpers
-const canEdit = computed(() => project.value?.permissions?.can_edit ?? false)
-const canDelete = computed(() => project.value?.permissions?.can_delete ?? false)
-const canManageUsers = computed(() => project.value?.permissions?.can_manage_users ?? false)
-const canManageSettings = computed(() => project.value?.permissions?.can_manage_settings ?? false)
-const isOwner = computed(() => project.value?.permissions?.is_owner ?? false)
-
-const loadProject = async () => {
-  try {
-    loading.value = true
-    const response = await owl.projects.get(props.projectSlug)
-    project.value = response
-    await loadScenes()
-  } catch (error) {
-    handleError(error, { context: 'Chargement du projet', showToast: true })
-  } finally {
-    loading.value = false
-  }
-}
-
-const loadScenes = async () => {
-  try {
-    const response = await owl.scenes.list(props.projectSlug)
-    scenes.value = response.data || []
-
-    for (const scene of scenes.value) {
-      const imagesResponse = await owl.images.list(scene.slug)
-      scene.images = imagesResponse.data || []
-    }
-  } catch (error) {
-    handleError(error, { context: 'Chargement des scènes', showToast: true })
-  }
-}
+const canEdit = computed(() => props.project?.permissions?.can_edit ?? false)
+const canDelete = computed(() => props.project?.permissions?.can_delete ?? false)
+const canManageUsers = computed(() => props.project?.permissions?.can_manage_users ?? false)
+const canManageSettings = computed(() => props.project?.permissions?.can_manage_settings ?? false)
+const isOwner = computed(() => props.project?.permissions?.is_owner ?? false)
 
 const openCreateScene = () => {
   editingScene.value = null
-  sceneForm.value = { name: '' }
+  sceneForm.name = ''
   sceneSheetOpen.value = true
 }
 
 const openEditScene = (scene) => {
   editingScene.value = scene
-  sceneForm.value = { name: scene.name || '' }
+  sceneForm.name = scene.name || ''
   sceneSheetOpen.value = true
 }
 
-const saveScene = async () => {
-  try {
-    if (editingScene.value) {
-      await owl.scenes.update(editingScene.value.slug, sceneForm.value)
-    } else {
-      await owl.scenes.create(props.projectSlug, sceneForm.value)
-    }
-    sceneSheetOpen.value = false
-    sceneForm.value = { name: '' }
-    editingScene.value = null
-    await loadScenes()
-  } catch (error) {
-    handleError(error, { context: 'Enregistrement de la scène', showToast: true })
+const saveScene = () => {
+  if (editingScene.value) {
+    sceneForm.post(`/dashboard/scenes/${editingScene.value.slug}/edit`, {
+      onSuccess: () => {
+        sceneSheetOpen.value = false
+        editingScene.value = null
+        sceneForm.reset()
+      },
+    })
+  } else {
+    sceneForm.post(`/dashboard/projects/${props.project.slug}/scenes`, {
+      onSuccess: () => {
+        sceneSheetOpen.value = false
+        sceneForm.reset()
+      },
+    })
   }
 }
 
@@ -100,25 +77,8 @@ const deleteScene = async (sceneSlug) => {
   const confirmed = await confirmDelete('cette scène et toutes ses images')
   if (!confirmed) return
 
-  try {
-    await owl.scenes.delete(sceneSlug)
-    await loadScenes()
-  } catch (error) {
-    handleError(error, { context: 'Suppression de la scène', showToast: true })
-  }
+  router.delete(`/dashboard/scenes/${sceneSlug}`)
 }
-
-const handleSettingsSaved = () => {
-  loadProject()
-}
-
-const handleEditSaved = () => {
-  loadProject()
-}
-
-onMounted(() => {
-  loadProject()
-})
 </script>
 
 <template>
@@ -131,7 +91,7 @@ onMounted(() => {
           </Button>
         </Link>
         <div class="flex-1">
-          <h1 class="font-bold text-foreground text-3xl">{{ project?.name || 'Loading...' }}</h1>
+          <h1 class="font-bold text-foreground text-3xl">{{ project?.name }}</h1>
           <p class="mt-1 text-muted-foreground">{{ project?.description || 'No description' }}</p>
         </div>
         <div class="flex gap-2">
@@ -178,15 +138,13 @@ onMounted(() => {
         </div>
       </div>
 
-      <LoadingSpinner v-if="loading" />
-
-      <div v-else>
+      <div>
         <div class="mb-6">
           <h2 class="mb-4 font-semibold text-foreground text-xl">Scènes</h2>
 
           <div class="gap-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             <SceneCard
-              v-for="scene in scenes"
+              v-for="scene in scenes.data"
               :key="scene.slug"
               :scene="scene"
               :can-edit="canEdit"
@@ -203,25 +161,27 @@ onMounted(() => {
         v-model:open="sceneSheetOpen"
         :editing-scene="editingScene"
         :form="sceneForm"
-        @update:form="sceneForm = $event"
+        @update:form="Object.assign(sceneForm, $event)"
         @submit="saveScene"
       />
 
       <ProjectSettingsDialog
         v-model:open="settingsDialogOpen"
         :project="project"
-        @saved="handleSettingsSaved"
+        :images="projectImages"
       />
 
       <ProjectUsersDialog
         v-model:open="usersDialogOpen"
         :project="project"
+        :assigned-users="assignedUsers"
+        :available-users="availableUsers"
+        :available-roles="availableRoles"
       />
 
       <ProjectEditDialog
         v-model:open="editDialogOpen"
         :project="project"
-        @saved="handleEditSaved"
       />
 
       <ProjectShareDialog

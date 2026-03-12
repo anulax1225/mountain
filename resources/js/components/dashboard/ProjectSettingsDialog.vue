@@ -1,34 +1,34 @@
 <script setup>
 import { ref, watch, computed } from 'vue'
+import { useForm } from '@inertiajs/vue3'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Badge } from '@/components/ui/badge'
-import { useApiError } from '@/composables'
-import { projects } from '@/owl-sdk'
 
 const props = defineProps({
     open: Boolean,
-    project: Object
+    project: Object,
+    images: Array,
 })
 
-const emit = defineEmits(['update:open', 'saved'])
+const emit = defineEmits(['update:open'])
 
-const { handleError } = useApiError()
+const isPublic = ref(props.project?.is_public || false)
+const startImageId = ref(props.project?.start_image?.slug || null)
 
-const isPublic = ref(props.project?.is_public || false);
-const startImageId = ref(props.project?.start_image?.slug || null);
-const images = ref([])
-const loading = ref(false)
-const saving = ref(false)
+const form = useForm({
+    is_public: false,
+    start_image_id: null,
+})
 
 const currentImageId = computed(() => props.project?.start_image?.id || null)
 
 const groupedImages = computed(() => {
-    if (!images.value) return [];
-    return images.value.reduce((acc, image) => {
+    if (!props.images) return []
+    return props.images.reduce((acc, image) => {
         const scene = image.scene || { slug: 'unknown', name: 'Inconnu' }
         let group = acc.find(g => g.scene.slug === scene.slug)
         if (!group) {
@@ -41,44 +41,24 @@ const groupedImages = computed(() => {
 })
 
 const selectImage = (image) => {
-    startImageId.value = image.slug;
+    startImageId.value = image.slug
 }
 
-const loadImages = async () => {
-    if (!props.project?.slug) return
+const saveSettings = () => {
+    form.is_public = isPublic.value
+    form.start_image_id = startImageId.value
 
-    try {
-        loading.value = true
-        const response = await projects.getImages(props.project.slug)
-        images.value = response || []
-    } catch (error) {
-        handleError(error, { context: 'Loading images', showToast: true })
-    } finally {
-        loading.value = false
-    }
-}
-
-const saveSettings = async () => {
-    try {
-        saving.value = true
-        await projects.makePublic(props.project.slug, {
-            is_public: isPublic.value,
-            start_image_id: startImageId.value
-        })
-        emit('saved')
-        emit('update:open', false)
-    } catch (error) {
-        handleError(error, { context: 'Saving settings', showToast: true })
-    } finally {
-        saving.value = false
-    }
+    form.post(`/dashboard/projects/${props.project.slug}/make-public`, {
+        onSuccess: () => {
+            emit('update:open', false)
+        },
+    })
 }
 
 watch(() => props.open, (newValue) => {
     if (newValue) {
         isPublic.value = props.project?.is_public || false
         startImageId.value = props.project?.start_image?.slug || null
-        loadImages()
     }
 })
 
@@ -157,26 +137,18 @@ watch(() => isPublic.value, (newValue) => {
                             </div>
                         </div>
                     </ScrollArea>
-                    <!-- <select v-model="startImageId"
-                        class="w-full px-3 py-2 border rounded-md bg-card border-border">
-                        <option :value="null">-- Sélectionnez une image --</option>
-                        <option v-for="image in images" :key="image.id" :value="image.slug">
-                            <img :src="`/images/${image.slug}/download`" :alt="image.name">
-                            {{ image.name || `Image ${image.slug.slice(0, 5)}...` }}
-                        </option>
-                    </select> -->
 
-                    <p v-if="images.length === 0 && !loading" class="text-sm text-amber-600">
+                    <p v-if="(!images || images.length === 0)" class="text-sm text-amber-600">
                         Aucune image disponible. Ajoutez des images panoramiques à vos scènes d'abord.
                     </p>
                 </div>
 
                 <div class="flex justify-end gap-2">
-                    <Button variant="outline" @click="emit('update:open', false)" :disabled="saving">
+                    <Button variant="outline" @click="emit('update:open', false)" :disabled="form.processing">
                         Annuler
                     </Button>
-                    <Button @click="saveSettings" :disabled="saving || (isPublic && !startImageId)">
-                        {{ saving ? 'Enregistrement...' : 'Enregistrer' }}
+                    <Button @click="saveSettings" :disabled="form.processing || (isPublic && !startImageId)">
+                        {{ form.processing ? 'Enregistrement...' : 'Enregistrer' }}
                     </Button>
                 </div>
             </div>

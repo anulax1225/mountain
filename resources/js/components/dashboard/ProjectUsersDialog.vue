@@ -1,60 +1,32 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
+import { useForm, router } from '@inertiajs/vue3'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Trash2, UserPlus } from 'lucide-vue-next'
-import { useApiError, useConfirm } from '@/composables'
-import { projectUsers } from '@/owl-sdk'
+import { useConfirm } from '@/composables'
 
 const props = defineProps({
   open: Boolean,
-  project: Object
+  project: Object,
+  assignedUsers: Array,
+  availableUsers: Array,
+  availableRoles: Array,
 })
 
 const emit = defineEmits(['update:open'])
 
-const { handleError } = useApiError()
 const { confirmDelete } = useConfirm()
 
-const assignedUsers = ref([])
-const availableUsers = ref([])
-const availableRoles = ref([])
-const loading = ref(false)
-const selectedUserId = ref(null)
-const selectedRoleId = ref(null)
-const adding = ref(false)
-
-const loadAssignedUsers = async () => {
-  if (!props.project?.slug) return
-
-  try {
-    loading.value = true
-    const response = await projectUsers.list(props.project.slug)
-    assignedUsers.value = response || []
-  } catch (error) {
-    handleError(error, { context: 'Loading assigned users', showToast: true })
-  } finally {
-    loading.value = false
-  }
-}
-
-const loadAvailableData = async () => {
-  try {
-    const [usersRes, rolesRes] = await Promise.all([
-      projectUsers.availableUsers(),
-      projectUsers.availableRoles()
-    ])
-    availableUsers.value = usersRes || []
-    availableRoles.value = rolesRes || []
-  } catch (error) {
-    handleError(error, { context: 'Loading available data', showToast: true })
-  }
-}
+const form = useForm({
+  user_id: null,
+  role_id: null,
+})
 
 const getRoleName = (roleId) => {
-  const role = availableRoles.value.find(r => r.id === roleId)
+  const role = props.availableRoles?.find(r => r.id === roleId)
   return role?.name || 'Unknown'
 }
 
@@ -65,44 +37,26 @@ const getRoleVariant = (roleId) => {
   return 'outline'
 }
 
-const assignUser = async () => {
-  if (!selectedUserId.value || !selectedRoleId.value) return
+const assignUser = () => {
+  if (!form.user_id || !form.role_id) return
 
-  try {
-    adding.value = true
-    await projectUsers.assign(props.project.slug, {
-      user_id: selectedUserId.value,
-      role_id: selectedRoleId.value
-    })
-    selectedUserId.value = null
-    selectedRoleId.value = null
-    await loadAssignedUsers()
-  } catch (error) {
-    handleError(error, { context: 'Assigning user', showToast: true })
-  } finally {
-    adding.value = false
-  }
+  form.post(`/dashboard/projects/${props.project.slug}/users`, {
+    preserveScroll: true,
+    onSuccess: () => {
+      form.reset()
+    },
+  })
 }
 
 const removeUser = async (userId) => {
-  const user = assignedUsers.value.find(u => u.id === userId)
+  const user = props.assignedUsers?.find(u => u.id === userId)
   const confirmed = await confirmDelete(user?.name || user?.email || 'cet utilisateur')
   if (!confirmed) return
 
-  try {
-    await projectUsers.remove(props.project.slug, userId)
-    await loadAssignedUsers()
-  } catch (error) {
-    handleError(error, { context: 'Removing user', showToast: true })
-  }
+  router.delete(`/dashboard/projects/${props.project.slug}/users/${userId}`, {
+    preserveScroll: true,
+  })
 }
-
-watch(() => props.open, (newValue) => {
-  if (newValue) {
-    loadAssignedUsers()
-    loadAvailableData()
-  }
-})
 </script>
 
 <template>
@@ -127,7 +81,7 @@ watch(() => props.open, (newValue) => {
             <div class="space-y-2">
               <Label>Utilisateur</Label>
               <select
-                v-model="selectedUserId"
+                v-model="form.user_id"
                 class="w-full px-3 py-2 border rounded-md bg-card border-border"
               >
                 <option :value="null">-- Sélectionner --</option>
@@ -140,7 +94,7 @@ watch(() => props.open, (newValue) => {
             <div class="space-y-2">
               <Label>Rôle</Label>
               <select
-                v-model="selectedRoleId"
+                v-model="form.role_id"
                 class="w-full px-3 py-2 border rounded-md bg-card border-border"
               >
                 <option :value="null">-- Sélectionner --</option>
@@ -158,22 +112,18 @@ watch(() => props.open, (newValue) => {
 
           <Button
             @click="assignUser"
-            :disabled="!selectedUserId || !selectedRoleId || adding"
+            :disabled="!form.user_id || !form.role_id || form.processing"
             class="w-full"
           >
-            {{ adding ? 'Ajout...' : 'Ajouter' }}
+            {{ form.processing ? 'Ajout...' : 'Ajouter' }}
           </Button>
         </div>
 
         <!-- Assigned Users List -->
         <div class="space-y-3">
-          <h3 class="font-medium">Utilisateurs assignés ({{ assignedUsers.length }})</h3>
+          <h3 class="font-medium">Utilisateurs assignés ({{ assignedUsers?.length || 0 }})</h3>
 
-          <div v-if="loading" class="text-center py-4 text-muted-foreground">
-            Chargement...
-          </div>
-
-          <div v-else-if="assignedUsers.length === 0" class="text-center py-8 text-muted-foreground">
+          <div v-if="!assignedUsers || assignedUsers.length === 0" class="text-center py-8 text-muted-foreground">
             Aucun utilisateur assigné à ce projet
           </div>
 

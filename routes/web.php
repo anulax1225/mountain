@@ -15,6 +15,7 @@ use App\Http\Controllers\ProjectUserController;
 use App\Http\Controllers\SceneController;
 use App\Http\Controllers\StickerController;
 use App\Http\Controllers\Web\DashboardController as WebDashboardController;
+use App\Http\Controllers\Web\ProjectController as WebProjectController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -63,10 +64,19 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/dashboard/projects/{project:slug}', [WebDashboardController::class, 'updateProject'])->name('web.projects.update');
     Route::delete('/dashboard/projects/{project:slug}', [WebDashboardController::class, 'destroyProject'])->name('web.projects.destroy');
 
+    // Web project routes (Inertia with props)
+    Route::get('/dashboard/projects/{project:slug}', [WebProjectController::class, 'show'])->name('dashboard.project');
+    Route::post('/dashboard/projects/{project:slug}/edit', [WebProjectController::class, 'update'])->name('web.project.update');
+    Route::post('/dashboard/projects/{project:slug}/make-public', [WebProjectController::class, 'makePublic'])->name('web.project.make-public');
+    Route::post('/dashboard/projects/{project:slug}/scenes', [WebProjectController::class, 'storeScene'])->name('web.project.scenes.store');
+    Route::post('/dashboard/scenes/{scene:slug}/edit', [WebProjectController::class, 'updateScene'])->name('web.scenes.update');
+    Route::delete('/dashboard/scenes/{scene:slug}', [WebProjectController::class, 'destroyScene'])->name('web.scenes.destroy');
+    Route::post('/dashboard/projects/{project:slug}/users', [WebProjectController::class, 'assignUser'])->name('web.project.users.store');
+    Route::delete('/dashboard/projects/{project:slug}/users/{user}', [WebProjectController::class, 'removeUser'])->name('web.project.users.destroy');
+
     // Legacy dashboard routes (still using old controller until converted)
     Route::get('/dashboard/admin/users', [DashboardController::class, 'adminUsers'])->name('dashboard.admin.users');
     Route::get('/dashboard/admin/contact-requests', [AdminContactRequestController::class, 'index'])->name('dashboard.admin.contact-requests');
-    Route::get('/dashboard/projects/{project:slug}', [DashboardController::class, 'showProject'])->name('dashboard.project');
     Route::get('/dashboard/projects/{project:slug}/analytics', [DashboardController::class, 'showProjectAnalytics'])->name('dashboard.project.analytics');
     Route::get('/dashboard/scenes/{scene:slug}', [DashboardController::class, 'showScene'])->name('dashboard.scene');
     Route::get('/dashboard/editor/{project:slug}', [DashboardController::class, 'showEditor'])->name('dashboard.editor');
