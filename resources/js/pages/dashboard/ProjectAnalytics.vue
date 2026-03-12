@@ -1,28 +1,25 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { Link } from '@inertiajs/vue3'
+import { computed } from 'vue'
+import { Link, router } from '@inertiajs/vue3'
 import DashboardLayout from '@/layouts/DashboardLayout.vue'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import { ArrowLeft, TrendingUp, Users, Clock, Eye, MousePointer } from 'lucide-vue-next'
-import owl from '@/owl-sdk.js'
-import { useDateTime, useApiError } from '@/composables'
+import { useDateTime } from '@/composables'
 
 const props = defineProps({
   auth: Object,
-  projectSlug: String,
+  project: Object,
+  analytics: Object,
+  selectedPeriod: {
+    type: Number,
+    default: 30,
+  },
 })
 
 const { formatDate } = useDateTime()
-const { handleError } = useApiError()
-
-const project = ref(null)
-const analytics = ref(null)
-const loading = ref(true)
-const selectedPeriod = ref(30)
 
 const periods = [
   { value: 7, label: '7 jours' },
@@ -30,25 +27,11 @@ const periods = [
   { value: 90, label: '90 jours' },
 ]
 
-const loadProject = async () => {
-  try {
-    const response = await owl.projects.get(props.projectSlug)
-    project.value = response
-  } catch (error) {
-    handleError(error, { context: 'Chargement du projet', showToast: true })
-  }
-}
-
-const loadAnalytics = async () => {
-  try {
-    loading.value = true
-    const response = await owl.analytics.getProjectAnalytics(props.projectSlug, selectedPeriod.value)
-    analytics.value = response
-  } catch (error) {
-    handleError(error, { context: 'Chargement des statistiques', showToast: true })
-  } finally {
-    loading.value = false
-  }
+const changePeriod = (days) => {
+  router.get(`/dashboard/projects/${props.project.slug}/analytics`, { days }, {
+    preserveState: true,
+    preserveScroll: true,
+  })
 }
 
 const formatDuration = (seconds) => {
@@ -64,16 +47,11 @@ const formatChartDate = (dateString) => {
 
 // Compute max value for chart scaling
 const maxViews = computed(() => {
-  if (!analytics.value?.views_over_time) return 0
-  return Math.max(...analytics.value.views_over_time.map(d => d.views), 1)
+  if (!props.analytics?.views_over_time) return 0
+  return Math.max(...props.analytics.views_over_time.map(d => d.views), 1)
 })
 
 const chartHeight = 200
-
-onMounted(async () => {
-  await loadProject()
-  await loadAnalytics()
-})
 </script>
 
 <template>
@@ -81,14 +59,14 @@ onMounted(async () => {
     <div class="mx-auto max-w-7xl">
       <!-- Header -->
       <div class="flex items-center gap-4 mb-8">
-        <Link :href="`/dashboard/projects/${projectSlug}`">
+        <Link :href="`/dashboard/projects/${project?.slug}`">
           <Button variant="ghost" size="icon">
             <ArrowLeft class="w-5 h-5" />
           </Button>
         </Link>
         <div class="flex-1">
           <h1 class="font-bold text-foreground text-3xl">Statistiques</h1>
-          <p class="mt-1 text-muted-foreground">{{ project?.name || 'Chargement...' }}</p>
+          <p class="mt-1 text-muted-foreground">{{ project?.name }}</p>
         </div>
         <div class="flex gap-2">
           <Button
@@ -96,7 +74,7 @@ onMounted(async () => {
             :key="period.value"
             :variant="selectedPeriod === period.value ? 'default' : 'outline'"
             size="sm"
-            @click="selectedPeriod = period.value; loadAnalytics()"
+            @click="changePeriod(period.value)"
           >
             {{ period.label }}
           </Button>
@@ -110,9 +88,7 @@ onMounted(async () => {
         </p>
       </div>
 
-      <LoadingSpinner v-if="loading" />
-
-      <div v-else-if="analytics">
+      <div v-if="analytics">
         <!-- Overview Cards -->
         <div class="gap-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 mb-8">
           <Card>
