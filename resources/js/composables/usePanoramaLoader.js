@@ -1,10 +1,16 @@
 import { ref, shallowRef } from 'vue'
 import * as THREE from 'three'
-import { SPHERE, TRANSITION } from '@/lib/editorConstants.js'
+import { SPHERE, TRANSITION, PRELOAD } from '@/lib/editorConstants.js'
 import { applyCameraRotation } from '@/lib/spatialMath.js'
 
 // Module-level cache: persists across component instances until page reload
 const imageCache = new Map() // url → HTMLImageElement
+
+// Module-level preload state
+let preloadGeneration = 0
+let preloadQueue = []
+let activePreloads = 0
+let activePreloadImages = [] // Track Image elements for abort
 
 /**
  * Create a configured THREE.Texture from a cached HTMLImageElement
@@ -16,6 +22,41 @@ function createTextureFromCache(image) {
     texture.magFilter = THREE.LinearFilter
     texture.needsUpdate = true
     return texture
+}
+
+/**
+ * Process next item in the preload queue
+ */
+function processPreloadQueue(generation, concurrency) {
+    if (generation !== preloadGeneration || preloadQueue.length === 0) return
+    if (activePreloads >= concurrency) return
+
+    const url = preloadQueue.shift()
+    if (imageCache.has(url)) {
+        processPreloadQueue(generation, concurrency)
+        return
+    }
+
+    activePreloads++
+    const img = new Image()
+    activePreloadImages.push(img)
+
+    img.onload = () => {
+        activePreloads--
+        activePreloadImages = activePreloadImages.filter(i => i !== img)
+        if (generation === preloadGeneration) {
+            imageCache.set(url, img)
+            processPreloadQueue(generation, concurrency)
+        }
+    }
+    img.onerror = () => {
+        activePreloads--
+        activePreloadImages = activePreloadImages.filter(i => i !== img)
+        if (generation === preloadGeneration) {
+            processPreloadQueue(generation, concurrency)
+        }
+    }
+    img.src = url
 }
 
 /**
@@ -204,23 +245,36 @@ export function usePanoramaLoader(sceneRef, textureLoaderRef, options = {}) {
     }
 
     /**
-     * Preload an image into the cache without creating a mesh
-     * @param {string} imageUrl - URL to preload
+     * Queue multiple images for sequential background preloading
+     * @param {string[]} urls - URLs to preload
+     * @param {number} concurrency - Max simultaneous downloads
      */
-    const preloadImage = (imageUrl) => {
-        if (imageCache.has(imageUrl) || !textureLoaderRef.value) return
+    const preloadImages = (urls, concurrency = PRELOAD.MAX_CONCURRENT) => {
+        cancelPreloads()
+        preloadQueue = urls.filter(url => !imageCache.has(url))
 
-        textureLoaderRef.value.loadAsync(imageUrl).then(texture => {
-            imageCache.set(imageUrl, texture.image)
-            texture.dispose()
-        }).catch(() => {})
+        for (let i = 0; i < concurrency; i++) {
+            processPreloadQueue(preloadGeneration, concurrency)
+        }
+    }
+
+    /**
+     * Cancel all pending and in-progress preloads
+     */
+    const cancelPreloads = () => {
+        preloadGeneration++
+        preloadQueue = []
+        activePreloadImages.forEach(img => { img.src = '' })
+        activePreloadImages = []
+        activePreloads = 0
     }
 
     return {
         currentMesh,
         isTransitioning,
         loadPanorama,
-        preloadImage,
+        preloadImages,
+        cancelPreloads,
         clear,
         fadeIn,
         fadeOut
