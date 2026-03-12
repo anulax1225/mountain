@@ -113,7 +113,9 @@ watch(() => isPublic.value, (newValue) => {
                                             'relative aspect-video rounded-lg overflow-hidden transition-all',
                                             image.id === currentImageId
                                                 ? 'opacity-50 cursor-not-allowed'
-                                                : 'hover:scale-105 hover:shadow-xl cursor-pointer'
+                                                : image.slug === startImageId
+                                                    ? 'ring-2 ring-primary ring-offset-2 scale-105 shadow-xl cursor-pointer'
+                                                    : 'hover:scale-105 hover:shadow-xl cursor-pointer'
                                         ]">
                                         <img :src="`/images/${image.slug}/download`" :alt="image.name || 'Image'"
                                             class="w-full h-full object-cover" />
