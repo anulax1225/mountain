@@ -71,7 +71,7 @@ watch(() => isPublic.value, (newValue) => {
 
 <template>
     <Dialog :open="open" @update:open="emit('update:open', $event)">
-        <DialogContent class="max-w-md">
+        <DialogContent class="max-w-xl">
             <DialogHeader>
                 <DialogTitle>Paramètres du projet</DialogTitle>
                 <DialogDescription>
@@ -95,8 +95,8 @@ watch(() => isPublic.value, (newValue) => {
                     <p class="text-xs text-muted-foreground mb-2">
                         Sélectionnez l'image panoramique par laquelle les visiteurs commenceront
                     </p>
-                    <ScrollArea class="pr-4 max-h-[60vh]">
-                        <div class="space-y-6">
+                    <ScrollArea class="max-h-[60vh]">
+                        <div class="space-y-6 p-2">
                             <div v-for="group in groupedImages" :key="group.scene.slug" class="space-y-3">
                                 <div class="flex items-center gap-2">
                                     <h3 class="font-semibold text-foreground">
