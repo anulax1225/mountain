@@ -16,6 +16,7 @@ use App\Http\Controllers\SceneController;
 use App\Http\Controllers\StickerController;
 use App\Http\Controllers\Web\DashboardController as WebDashboardController;
 use App\Http\Controllers\Web\ProjectController as WebProjectController;
+use App\Http\Controllers\Web\SceneController as WebSceneController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -78,7 +79,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard/admin/users', [DashboardController::class, 'adminUsers'])->name('dashboard.admin.users');
     Route::get('/dashboard/admin/contact-requests', [AdminContactRequestController::class, 'index'])->name('dashboard.admin.contact-requests');
     Route::get('/dashboard/projects/{project:slug}/analytics', [DashboardController::class, 'showProjectAnalytics'])->name('dashboard.project.analytics');
-    Route::get('/dashboard/scenes/{scene:slug}', [DashboardController::class, 'showScene'])->name('dashboard.scene');
+    Route::get('/dashboard/scenes/{scene:slug}', [WebSceneController::class, 'show'])->name('dashboard.scene');
+    Route::delete('/dashboard/images/{image:slug}', [WebSceneController::class, 'destroyImage'])->name('web.images.destroy');
     Route::get('/dashboard/editor/{project:slug}', [DashboardController::class, 'showEditor'])->name('dashboard.editor');
 });
 

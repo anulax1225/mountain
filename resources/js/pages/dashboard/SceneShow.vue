@@ -1,9 +1,8 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { Link } from '@inertiajs/vue3'
+import { ref, computed } from 'vue'
+import { Link, router } from '@inertiajs/vue3'
 import DashboardLayout from '@/layouts/DashboardLayout.vue'
 import { Button } from '@/components/ui/button'
-import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
 import ImageCard from '@/components/dashboard/scene/ImageCard.vue'
 import ImageListItem from '@/components/dashboard/scene/ImageListItem.vue'
@@ -21,13 +20,12 @@ import { useViewMode } from '@/composables/useViewMode'
 
 const props = defineProps({
   auth: Object,
-  sceneSlug: String,
+  scene: Object,
 })
 
-const scene = ref(null)
-const project = ref(null)
-const images = ref([])
-const loading = ref(true)
+const project = computed(() => props.scene?.project || null)
+const images = computed(() => props.scene?.images || [])
+
 const currentSlideIndex = ref(0)
 const uploadSheetOpen = ref(false)
 const detailsSheetOpen = ref(false)
@@ -42,38 +40,18 @@ const { confirmDelete } = useConfirm()
 const { downloadBlob } = useFileDownload()
 const { viewMode } = useViewMode('sceneViewMode', 'grid', ['grid', 'list', 'slider'])
 
-const loadScene = async () => {
-  try {
-    loading.value = true
-    const response = await owl.scenes.get(props.sceneSlug)
-    console.log(response);
-    scene.value = response
-    if (scene.value?.project) {
-      project.value = scene.value.project
-      images.value = scene.value.images || []
-    }
-  } catch (error) {
-    console.error('Failed to load scene:', error)
-  } finally {
-    loading.value = false
-  }
-}
-
-const handleUploadComplete = async () => {
+const handleUploadComplete = () => {
   uploadSheetOpen.value = false
-  await loadScene()
+  router.reload()
 }
 
 const deleteImage = async (imageSlug) => {
   const confirmed = await confirmDelete('cette image')
   if (!confirmed) return
 
-  try {
-    await owl.images.delete(imageSlug)
-    await loadScene()
-  } catch (error) {
-    console.error('Failed to delete image:', error)
-  }
+  router.delete(`/dashboard/images/${imageSlug}`, {
+    preserveScroll: true,
+  })
 }
 
 const downloadImage = async (imageSlug, imagePath) => {
@@ -91,16 +69,9 @@ const viewImage = (image) => {
   detailsSheetOpen.value = true
 }
 
-const handleImageReplaced = async (imageSlug) => {
-  // Reload scene data to get updated image
-  await loadScene()
-
-  console.log('Image replaced, scene reloaded')
+const handleImageReplaced = () => {
+  router.reload()
 }
-
-onMounted(() => {
-  loadScene()
-})
 </script>
 
 <template>
@@ -113,7 +84,7 @@ onMounted(() => {
           </Button>
         </Link>
         <div class="flex-1">
-          <h1 class="font-bold text-foreground text-3xl">{{ scene?.name || 'Loading...' }}</h1>
+          <h1 class="font-bold text-foreground text-3xl">{{ scene?.name }}</h1>
           <p class="mt-1 text-muted-foreground">{{ images.length }} image(s)</p>
         </div>
         <div class="flex items-center gap-2">
@@ -133,69 +104,65 @@ onMounted(() => {
         </div>
       </div>
 
-      <LoadingSpinner v-if="loading" />
-
-      <div v-else>
-        <div v-if="viewMode === 'slider' && images.length > 0" class="space-y-4">
-          <ImageSlider
-            :images="images"
-            v-model:current-index="currentSlideIndex"
-            :scene-name="scene.name"
-            :can-edit="canEdit"
-            @download="downloadImage"
-            @delete="deleteImage"
-            @fullscreen="fullscreenOpen = true"
-          />
-          <ImageThumbnails
-            :images="images"
-            :current-index="currentSlideIndex"
-            :scene-name="scene.name"
-            @select="currentSlideIndex = $event"
-          />
-        </div>
-
-        <div v-else-if="viewMode === 'grid'" class="gap-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-          <ImageCard
-            v-for="image in images"
-            :key="image.slug"
-            :image="image"
-            :scene-name="scene.name"
-            :can-edit="canEdit"
-            @view="viewImage"
-            @download="downloadImage"
-            @delete="deleteImage"
-          />
-        </div>
-
-        <div v-else-if="viewMode === 'list'" class="space-y-4">
-          <ImageListItem
-            v-for="image in images"
-            :key="image.slug"
-            :image="image"
-            :scene-name="scene.name"
-            :can-edit="canEdit"
-            @view="viewImage"
-            @download="downloadImage"
-            @delete="deleteImage"
-          />
-        </div>
-
-        <EmptyState
-          v-if="images.length === 0"
-          :icon="Upload"
-          title="Aucune image"
-          :description="canEdit ? 'Commencez par ajouter des images panoramiques à cette scène' : 'Cette scène ne contient pas encore d\'images'"
-        >
-          <Button v-if="canEdit" @click="uploadSheetOpen = true">
-            <Upload class="mr-2 w-4 h-4" />
-            Ajouter des images
-          </Button>
-        </EmptyState>
+      <div v-if="viewMode === 'slider' && images.length > 0" class="space-y-4">
+        <ImageSlider
+          :images="images"
+          v-model:current-index="currentSlideIndex"
+          :scene-name="scene.name"
+          :can-edit="canEdit"
+          @download="downloadImage"
+          @delete="deleteImage"
+          @fullscreen="fullscreenOpen = true"
+        />
+        <ImageThumbnails
+          :images="images"
+          :current-index="currentSlideIndex"
+          :scene-name="scene.name"
+          @select="currentSlideIndex = $event"
+        />
       </div>
+
+      <div v-else-if="viewMode === 'grid'" class="gap-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        <ImageCard
+          v-for="image in images"
+          :key="image.slug"
+          :image="image"
+          :scene-name="scene.name"
+          :can-edit="canEdit"
+          @view="viewImage"
+          @download="downloadImage"
+          @delete="deleteImage"
+        />
+      </div>
+
+      <div v-else-if="viewMode === 'list'" class="space-y-4">
+        <ImageListItem
+          v-for="image in images"
+          :key="image.slug"
+          :image="image"
+          :scene-name="scene.name"
+          :can-edit="canEdit"
+          @view="viewImage"
+          @download="downloadImage"
+          @delete="deleteImage"
+        />
+      </div>
+
+      <EmptyState
+        v-if="images.length === 0"
+        :icon="Upload"
+        title="Aucune image"
+        :description="canEdit ? 'Commencez par ajouter des images panoramiques à cette scène' : 'Cette scène ne contient pas encore d\'images'"
+      >
+        <Button v-if="canEdit" @click="uploadSheetOpen = true">
+          <Upload class="mr-2 w-4 h-4" />
+          Ajouter des images
+        </Button>
+      </EmptyState>
 
       <ImageUploadSheet
         v-model:open="uploadSheetOpen"
-        :scene-slug="sceneSlug"
+        :scene-slug="scene?.slug"
         @upload-complete="handleUploadComplete"
       />
 
