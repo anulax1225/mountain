@@ -1,20 +1,20 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
+import { useForm, router } from '@inertiajs/vue3'
 import DashboardLayout from '@/layouts/DashboardLayout.vue'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import ProjectCard from '@/components/dashboard/ProjectCard.vue'
 import CreateProjectCard from '@/components/dashboard/CreateProjectCard.vue'
 import DropzoneUpload from '@/components/dashboard/scene/DropzoneUpload.vue'
 import { useConfirm } from '@/composables'
-import owl from '@/owl-sdk.js'
 
 const props = defineProps({
   auth: Object,
+  projects: Object,
 })
 
 const canCreateProjects = computed(() => props.auth?.user?.can_create_projects ?? false)
@@ -23,110 +23,63 @@ const { confirmDelete } = useConfirm()
 
 const sheetOpen = ref(false)
 const editSheetOpen = ref(false)
-const projects = ref([])
-const loading = ref(true)
 const editingProject = ref(null)
-const submitting = ref(false)
 
-const form = ref({
+const createForm = useForm({
   name: '',
   description: '',
-  photo: null
+  photo: null,
 })
 
-const editForm = ref({
+const editForm = useForm({
   name: '',
   description: '',
-  photo: null
+  photo: null,
+  _method: 'PUT',
 })
 
-const loadProjects = async () => {
-  try {
-    loading.value = true
-    const response = await owl.projects.list()
-    projects.value = response.data || []
-  } catch (error) {
-    console.error('Failed to load projects:', error)
-  } finally {
-    loading.value = false
-  }
-}
-
-const createProject = async () => {
-  try {
-    const formData = new FormData()
-    formData.append('name', form.value.name)
-    if (form.value.description) {
-      formData.append('description', form.value.description)
-    }
-    if (form.value.photo) {
-      formData.append('photo', form.value.photo)
-    }
-
-    await owl.projects.create(formData)
-    sheetOpen.value = false
-    form.value = { name: '', description: '', photo: null }
-    await loadProjects()
-  } catch (error) {
-    console.error('Failed to create project:', error)
-  }
+const createProject = () => {
+  createForm.post('/dashboard/projects', {
+    onSuccess: () => {
+      sheetOpen.value = false
+      createForm.reset()
+    },
+    forceFormData: true,
+  })
 }
 
 const openCreateSheet = () => {
-  form.value = { name: '', description: '', photo: null }
+  createForm.reset()
   sheetOpen.value = true
 }
 
 const openEditSheet = (project) => {
   editingProject.value = project
-  editForm.value = {
-    name: project.name,
-    description: project.description || '',
-    photo: null
-  }
+  editForm.name = project.name
+  editForm.description = project.description || ''
+  editForm.photo = null
   editSheetOpen.value = true
 }
 
-const updateProject = async () => {
-  if (!editingProject.value || submitting.value) return
+const updateProject = () => {
+  if (!editingProject.value) return
 
-  try {
-    submitting.value = true
-    const formData = new FormData()
-    formData.append('name', editForm.value.name)
-    formData.append('description', editForm.value.description || '')
-    if (editForm.value.photo) {
-      formData.append('photo', editForm.value.photo)
-    }
-    formData.append('_method', 'PUT')
-
-    await owl.projects.update(editingProject.value.slug, formData)
-    editSheetOpen.value = false
-    editingProject.value = null
-    editForm.value = { name: '', description: '', photo: null }
-    await loadProjects()
-  } catch (error) {
-    console.error('Failed to update project:', error)
-  } finally {
-    submitting.value = false
-  }
+  editForm.post(`/dashboard/projects/${editingProject.value.slug}`, {
+    onSuccess: () => {
+      editSheetOpen.value = false
+      editingProject.value = null
+      editForm.reset()
+    },
+    forceFormData: true,
+  })
 }
 
 const handleDeleteProject = async (project) => {
   const confirmed = await confirmDelete(project.name)
   if (!confirmed) return
 
-  try {
-    await owl.projects.delete(project.slug)
-    await loadProjects()
-  } catch (error) {
-    console.error('Failed to delete project:', error)
-  }
+  router.delete(`/dashboard/projects/${project.slug}`)
 }
-
-onMounted(() => {
-  loadProjects()
-})
 </script>
 
 <template>
@@ -137,11 +90,9 @@ onMounted(() => {
         <p class="mt-1 text-muted-foreground">Gérez vos projets de visite virtuelle</p>
       </div>
 
-      <LoadingSpinner v-if="loading" />
-
-      <div v-else class="gap-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+      <div class="gap-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         <ProjectCard
-          v-for="project in projects"
+          v-for="project in projects.data"
           :key="project.slug"
           :project="project"
           @edit="openEditSheet"
@@ -164,16 +115,17 @@ onMounted(() => {
               <Label for="name">Nom du projet</Label>
               <Input
                 id="name"
-                v-model="form.name"
+                v-model="createForm.name"
                 placeholder="Mon projet"
                 required
               />
+              <p v-if="createForm.errors.name" class="text-red-500 text-sm">{{ createForm.errors.name }}</p>
             </div>
             <div class="space-y-2">
               <Label for="description">Description</Label>
               <Textarea
                 id="description"
-                v-model="form.description"
+                v-model="createForm.description"
                 placeholder="Description du projet (optionnel)"
                 rows="3"
               />
@@ -184,11 +136,11 @@ onMounted(() => {
                 :multiple="false"
                 mode="select"
                 allowed-formats="JPG, PNG, WebP"
-                @file-selected="(file) => form.photo = file"
+                @file-selected="(file) => createForm.photo = file"
               />
             </div>
-            <Button type="submit" class="w-full">
-              Créer le projet
+            <Button type="submit" class="w-full" :disabled="createForm.processing">
+              {{ createForm.processing ? 'Création...' : 'Créer le projet' }}
             </Button>
           </form>
         </SheetContent>
@@ -211,6 +163,7 @@ onMounted(() => {
                 placeholder="Mon projet"
                 required
               />
+              <p v-if="editForm.errors.name" class="text-red-500 text-sm">{{ editForm.errors.name }}</p>
             </div>
             <div class="space-y-2">
               <Label for="edit-description">Description</Label>
@@ -230,8 +183,8 @@ onMounted(() => {
                 @file-selected="(file) => editForm.photo = file"
               />
             </div>
-            <Button type="submit" class="w-full" :disabled="submitting">
-              {{ submitting ? 'Enregistrement...' : 'Enregistrer les modifications' }}
+            <Button type="submit" class="w-full" :disabled="editForm.processing">
+              {{ editForm.processing ? 'Enregistrement...' : 'Enregistrer les modifications' }}
             </Button>
           </form>
         </SheetContent>

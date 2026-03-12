@@ -14,6 +14,7 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectUserController;
 use App\Http\Controllers\SceneController;
 use App\Http\Controllers\StickerController;
+use App\Http\Controllers\Web\DashboardController as WebDashboardController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -55,8 +56,14 @@ Route::get('/gallery/{project:slug}', [GalleryController::class, 'show'])
 Route::post('/analytics/track', [AnalyticsController::class, 'track']);
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/dashboard/settings', [DashboardController::class, 'settings'])->name('dashboard.settings');
+    // Web dashboard routes (Inertia with props)
+    Route::get('/dashboard', [WebDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/settings', [WebDashboardController::class, 'settings'])->name('dashboard.settings');
+    Route::post('/dashboard/projects', [WebDashboardController::class, 'storeProject'])->name('web.projects.store');
+    Route::post('/dashboard/projects/{project:slug}', [WebDashboardController::class, 'updateProject'])->name('web.projects.update');
+    Route::delete('/dashboard/projects/{project:slug}', [WebDashboardController::class, 'destroyProject'])->name('web.projects.destroy');
+
+    // Legacy dashboard routes (still using old controller until converted)
     Route::get('/dashboard/admin/users', [DashboardController::class, 'adminUsers'])->name('dashboard.admin.users');
     Route::get('/dashboard/admin/contact-requests', [AdminContactRequestController::class, 'index'])->name('dashboard.admin.contact-requests');
     Route::get('/dashboard/projects/{project:slug}', [DashboardController::class, 'showProject'])->name('dashboard.project');
