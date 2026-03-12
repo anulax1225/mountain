@@ -40,7 +40,7 @@ class StickerFactory extends Factory
         $emojis = ['🎯', '⭐', '📍', '🏠', '🚪', '🪟', '🛋️', '🖼️', '💡', '🔑'];
 
         return [
-            'image_id' => \App\Models\Image::factory(),
+            'image_id' => \App\Models\Image::factory()->fake(),
             'type' => $type,
             'content' => $type === 'emoji'
                 ? fake()->randomElement($emojis)
@@ -62,8 +62,7 @@ class StickerFactory extends Factory
     /**
      * Create an emoji sticker.
      *
-     * @param string|null $emoji Specific emoji to use
-     * @return static
+     * @param  string|null  $emoji  Specific emoji to use
      */
     public function emoji(?string $emoji = null): static
     {
@@ -80,8 +79,7 @@ class StickerFactory extends Factory
     /**
      * Create a text sticker.
      *
-     * @param string|null $text Specific text to use
-     * @return static
+     * @param  string|null  $text  Specific text to use
      */
     public function text(?string $text = null): static
     {
@@ -96,10 +94,9 @@ class StickerFactory extends Factory
     /**
      * Create a sticker at a specific position.
      *
-     * @param float $x X coordinate
-     * @param float $y Y coordinate
-     * @param float $z Z coordinate
-     * @return static
+     * @param  float  $x  X coordinate
+     * @param  float  $y  Y coordinate
+     * @param  float  $z  Z coordinate
      */
     public function atPosition(float $x, float $y, float $z): static
     {
@@ -113,8 +110,7 @@ class StickerFactory extends Factory
     /**
      * Create a sticker with a specific scale.
      *
-     * @param float $scale Scale value
-     * @return static
+     * @param  float  $scale  Scale value
      */
     public function withScale(float $scale): static
     {

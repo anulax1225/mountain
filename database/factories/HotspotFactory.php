@@ -41,8 +41,8 @@ class HotspotFactory extends Factory
 
         return [
             'scene_id' => \App\Models\Scene::factory(),
-            'from_image_id' => \App\Models\Image::factory(),
-            'to_image_id' => \App\Models\Image::factory(),
+            'from_image_id' => \App\Models\Image::factory()->fake(),
+            'to_image_id' => \App\Models\Image::factory()->fake(),
             'position_x' => $x,
             'position_y' => $y,
             'position_z' => $z,
@@ -57,10 +57,9 @@ class HotspotFactory extends Factory
     /**
      * Create a hotspot with a specific 3D position.
      *
-     * @param float $x X coordinate
-     * @param float $y Y coordinate
-     * @param float $z Z coordinate
-     * @return static
+     * @param  float  $x  X coordinate
+     * @param  float  $y  Y coordinate
+     * @param  float  $z  Z coordinate
      */
     public function atPosition(float $x, float $y, float $z): static
     {
@@ -74,10 +73,9 @@ class HotspotFactory extends Factory
     /**
      * Create a hotspot with a specific target rotation.
      *
-     * @param float $x Rotation X
-     * @param float $y Rotation Y
-     * @param float $z Rotation Z
-     * @return static
+     * @param  float  $x  Rotation X
+     * @param  float  $y  Rotation Y
+     * @param  float  $z  Rotation Z
      */
     public function withTargetRotation(float $x, float $y, float $z = 0): static
     {
@@ -91,8 +89,7 @@ class HotspotFactory extends Factory
     /**
      * Create a hotspot with a custom color.
      *
-     * @param string $color Hex color code
-     * @return static
+     * @param  string  $color  Hex color code
      */
     public function withColor(string $color): static
     {
