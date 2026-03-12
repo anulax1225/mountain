@@ -24,6 +24,8 @@ const images = ref([])
 const loading = ref(false)
 const saving = ref(false)
 
+const currentImageId = computed(() => props.project?.start_image?.id || null)
+
 const groupedImages = computed(() => {
     if (!images.value) return [];
     return images.value.reduce((acc, image) => {
@@ -59,7 +61,7 @@ const loadImages = async () => {
 const saveSettings = async () => {
     try {
         saving.value = true
-        await projects.patch(props.project.slug, {
+        await projects.makePublic(props.project.slug, {
             is_public: isPublic.value,
             start_image_id: startImageId.value
         })
@@ -74,8 +76,8 @@ const saveSettings = async () => {
 
 watch(() => props.open, (newValue) => {
     if (newValue) {
-        // isPublic.value = props.project?.is_public || false
-        // startImageId.value = props.project?.start_image_id || null
+        isPublic.value = props.project?.is_public || false
+        startImageId.value = props.project?.start_image?.slug || null
         loadImages()
     }
 })

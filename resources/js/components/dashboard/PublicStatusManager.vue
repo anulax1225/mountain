@@ -32,7 +32,7 @@ const canMakePublic = computed(() => {
 });
 
 function submit() {
-  form.put(`/projects/${props.projectSlug}/public-status`);
+  form.post(`/projects/${props.projectSlug}/make-public`);
 }
 </script>
 

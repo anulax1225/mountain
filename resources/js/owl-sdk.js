@@ -452,6 +452,21 @@ class ProjectsAPI {
     }
 
     /**
+     * Make a project public or private
+     * @param {string} slug - Project slug
+     * @param {Object} data
+     * @param {boolean} data.is_public - Whether the project should be public
+     * @param {string|null} [data.start_image_id] - Start image slug
+     * @returns {Promise<Object>}
+     */
+    async makePublic(slug, data) {
+        return await this.client.request(`/projects/${slug}/make-public`, {
+            method: 'POST',
+            body: data,
+        });
+    }
+
+    /**
      * Get all images for a project across all scenes
      * @param {string} slug - Project slug
      * @returns {Promise<Array>}
