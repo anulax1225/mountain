@@ -85,6 +85,7 @@ export const INTERACTION = {
     HOVER_SCALE: 1.15, // Scale multiplier when hovering over sprite
     SELECTED_SCALE: 1.25, // Scale multiplier when sprite is selected
     DRAG_THRESHOLD_PX: 5, // Minimum pixels to move before drag starts
+    HOVER_DISTANCE_PX: 40, // Max screen-space distance to maintain hover
 }
 
 // Zoom

@@ -49,6 +49,7 @@ const emit = defineEmits([
 
 const renderView = ref(null)
 const hideHoverTimeout = ref(null)
+const hoveredSprite = ref(null) // Track hovered sprite for distance-based unhover
 const skipNextWatch = ref(false)
 const isLoadingPanorama = ref(false)
 
@@ -229,13 +230,13 @@ const onMouseDown = (event) => {
     }
 }
 
-// Helper function to clear hover timeout immediately
+// Helper function to clear hover state immediately
 const clearHoverTimeout = () => {
     if (hideHoverTimeout.value) {
         clearTimeout(hideHoverTimeout.value)
         hideHoverTimeout.value = null
     }
-
+    hoveredSprite.value = null
 }
 
 // Canvas click handler
@@ -376,38 +377,58 @@ const onMouseMove = (event) => {
         return
     }
 
-    // View mode - hotspot hover
+    // View mode - hotspot hover (distance-based unhover to prevent raycaster oscillation)
     if (props.mode === 'view' && hotspotManager) {
-        const intersects = raycaster.value.intersectObjects(hotspotManager.getAll())
+        // If already hovering, use screen-space distance to decide unhover
+        if (props.hoveredHotspotSlug && hoveredSprite.value) {
+            const screenPos = hoveredSprite.value.position.clone()
+            screenPos.project(camera.value)
+            const spriteX = (screenPos.x * 0.5 + 0.5) * renderView.value.clientWidth
+            const spriteY = (screenPos.y * -0.5 + 0.5) * renderView.value.clientHeight
 
-        if (intersects.length > 0) {
-            const sprite = intersects[0].object
-            const hotspot = sprite.userData.hotspot
+            const dx = mouseX - spriteX
+            const dy = mouseY - spriteY
+            const distance = Math.sqrt(dx * dx + dy * dy)
 
-            // Emit hover-start if different hotspot (compare by slug)
-            if (hotspot?.slug !== props.hoveredHotspotSlug) {
-                const screenPosition = sprite.position.clone()
-                screenPosition.project(camera.value)
-
-                const x = (screenPosition.x * 0.5 + 0.5) * renderView.value.clientWidth
-                const y = (screenPosition.y * -0.5 + 0.5) * renderView.value.clientHeight
-
-                emit('hotspot-hover-start', {
-                    slug: hotspot?.slug,
-                    hotspot,
-                    position: { x, y }
-                })
-            }
-
-            if (hideHoverTimeout.value) {
-                clearTimeout(hideHoverTimeout.value)
-                hideHoverTimeout.value = null
-            }
-        } else {
-            if (props.hoveredHotspotSlug && !hideHoverTimeout.value) {
+            if (distance <= INTERACTION.HOVER_DISTANCE_PX) {
+                if (hideHoverTimeout.value) {
+                    clearTimeout(hideHoverTimeout.value)
+                    hideHoverTimeout.value = null
+                }
+            } else if (!hideHoverTimeout.value) {
                 hideHoverTimeout.value = setTimeout(() => {
+                    hoveredSprite.value = null
                     emit('hotspot-hover-end')
                 }, TIMING.HOVER_HIDE_DELAY_MS)
+            }
+        } else {
+            // Not hovering — use raycaster for initial detection
+            const intersects = raycaster.value.intersectObjects(hotspotManager.getAll())
+
+            if (intersects.length > 0) {
+                const sprite = intersects[0].object
+                const hotspot = sprite.userData.hotspot
+
+                if (hotspot?.slug !== props.hoveredHotspotSlug) {
+                    const screenPosition = sprite.position.clone()
+                    screenPosition.project(camera.value)
+
+                    const x = (screenPosition.x * 0.5 + 0.5) * renderView.value.clientWidth
+                    const y = (screenPosition.y * -0.5 + 0.5) * renderView.value.clientHeight
+
+                    hoveredSprite.value = sprite
+
+                    emit('hotspot-hover-start', {
+                        slug: hotspot?.slug,
+                        hotspot,
+                        position: { x, y }
+                    })
+                }
+
+                if (hideHoverTimeout.value) {
+                    clearTimeout(hideHoverTimeout.value)
+                    hideHoverTimeout.value = null
+                }
             }
         }
     }
