@@ -22,7 +22,10 @@ const images = ref(props.project.scenes.reduce((acc, scene) => {
     }))
     return acc.concat(imagesWithScene)
 }, []))
-const currentImageIndex = ref(images.value.findIndex(img => img.id === props.project.start_image.id) || 0)
+const startImageIndex = props.project.start_image
+    ? images.value.findIndex(img => img.id === props.project.start_image.id)
+    : -1
+const currentImageIndex = ref(startImageIndex !== -1 ? startImageIndex : 0)
 const mode = ref('view')
 const isCreatingHotspot = ref(false)
 const targetDialogOpen = ref(false)

@@ -29,10 +29,16 @@ onMounted(() => {
 
         <Head :title="project.name" />
         <EditorViewer
-            v-if="project"
+            v-if="project && project.scenes?.some(s => s.images?.length > 0)"
             :project="project"
             :on-track-image-view="trackImageView"
             :on-track-hotspot-click="trackHotspotClick"
             />
+
+        <div v-else class="flex items-center justify-center h-full">
+            <p class="text-muted-foreground text-lg">
+                Ce projet ne contient aucune image.
+            </p>
+        </div>
     </div>
 </template>
