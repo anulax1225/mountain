@@ -556,7 +556,7 @@ const loadPanorama = async (index, transition = true, rotation = null, skipWatch
     // Load panorama (includes fade out/in transition)
     const image = props.images[index]
     const previewUrl = image.preview_path ? getImagePreview(image) : null
-    await loadPanoramaBase(
+    const { fullResReady } = await loadPanoramaBase(
         `/images/${image.slug}/download`,
         transition,
         rotation,
@@ -568,16 +568,18 @@ const loadPanorama = async (index, transition = true, rotation = null, skipWatch
     displayHotspots()
     displayStickers()
 
-    // Preload hotspot target images sequentially in background
+    // Clear loading flag
+    isLoadingPanorama.value = false
+
+    // Wait for full-res to finish before preloading hotspot targets
+    await fullResReady
+
     const preloadUrls = currentHotspots.value
         .filter(hotspot => hotspot.to_image?.slug)
         .map(hotspot => `/images/${hotspot.to_image.slug}/download`)
     if (preloadUrls.length > 0) {
         preloadImages(preloadUrls)
     }
-
-    // Clear loading flag
-    isLoadingPanorama.value = false
 }
 
 // Display hotspot sprites

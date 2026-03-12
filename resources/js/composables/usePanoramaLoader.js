@@ -148,8 +148,9 @@ export function usePanoramaLoader(sceneRef, textureLoaderRef, options = {}) {
         }
 
         // If preview was used and not cached, preload full-res in background and swap
+        let fullResReady = Promise.resolve()
         if (previewUrl && !isCached) {
-            textureLoaderRef.value.loadAsync(imageUrl).then(fullTexture => {
+            fullResReady = textureLoaderRef.value.loadAsync(imageUrl).then(fullTexture => {
                 fullTexture.colorSpace = THREE.SRGBColorSpace
                 fullTexture.minFilter = THREE.LinearFilter
                 fullTexture.magFilter = THREE.LinearFilter
@@ -172,7 +173,7 @@ export function usePanoramaLoader(sceneRef, textureLoaderRef, options = {}) {
             })
         }
 
-        return mesh
+        return { mesh, fullResReady }
     }
 
     /**
