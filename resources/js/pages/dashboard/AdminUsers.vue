@@ -1,5 +1,6 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
+import { useForm, router } from '@inertiajs/vue3'
 import DashboardLayout from '@/layouts/DashboardLayout.vue'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Input } from '@/components/ui/input'
@@ -8,127 +9,78 @@ import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
-import { useConfirm, useDateTime, useApiError } from '@/composables'
+import { useConfirm, useDateTime } from '@/composables'
 import { UserPlus, Shield, Trash2, Edit, RefreshCw, Clock, CheckCircle } from 'lucide-vue-next'
-import { admin } from '@/owl-sdk'
 
-defineProps({
+const props = defineProps({
   auth: Object,
+  users: Array,
+  roles: Array,
 })
 
 const { confirmDelete } = useConfirm()
 const { formatSmartDate } = useDateTime('fr-FR')
-const { handleError } = useApiError()
 
-const users = ref([])
-const roles = ref([])
-const loading = ref(true)
 const createSheetOpen = ref(false)
 const editSheetOpen = ref(false)
 const editingUser = ref(null)
-const submitting = ref(false)
 
-const form = ref({
+const createForm = useForm({
   email: '',
   name: '',
   role_id: '',
 })
 
-const editForm = ref({
+const editForm = useForm({
   role_id: '',
 })
 
-const loadUsers = async () => {
-  try {
-    loading.value = true
-    const response = await admin.listUsers()
-    users.value = response.data || []
-  } catch (error) {
-    handleError(error, { context: 'Loading users', showToast: true })
-  } finally {
-    loading.value = false
-  }
-}
-
-const loadRoles = async () => {
-  try {
-    const response = await admin.getRoles()
-    roles.value = response.data || []
-  } catch (error) {
-    handleError(error, { context: 'Loading roles', showToast: true })
-  }
-}
-
-const createUser = async () => {
-  if (submitting.value) return
-
-  try {
-    submitting.value = true
-    await admin.createUser({
-      email: form.value.email,
-      name: form.value.name || undefined,
-      role_id: parseInt(form.value.role_id),
-    })
-    createSheetOpen.value = false
-    form.value = { email: '', name: '', role_id: '' }
-    await loadUsers()
-  } catch (error) {
-    handleError(error, { context: 'Creating user', showToast: true })
-  } finally {
-    submitting.value = false
-  }
+const createUser = () => {
+  createForm.post('/dashboard/admin/users', {
+    onSuccess: () => {
+      createSheetOpen.value = false
+      createForm.reset()
+    },
+  })
 }
 
 const openEditSheet = (user) => {
   editingUser.value = user
   const globalRole = user.roles.find(r => r.slug === 'admin' || r.slug === 'client')
-  editForm.value.role_id = globalRole ? String(globalRole.id) : ''
+  editForm.role_id = globalRole ? String(globalRole.id) : ''
   editSheetOpen.value = true
 }
 
-const updateUserRole = async () => {
-  if (!editingUser.value || submitting.value) return
+const updateUserRole = () => {
+  if (!editingUser.value) return
 
-  try {
-    submitting.value = true
-    await admin.updateUserRole(editingUser.value.id, parseInt(editForm.value.role_id))
-    editSheetOpen.value = false
-    editingUser.value = null
-    await loadUsers()
-  } catch (error) {
-    handleError(error, { context: 'Updating user role', showToast: true })
-  } finally {
-    submitting.value = false
-  }
+  editForm.put(`/dashboard/admin/users/${editingUser.value.id}/role`, {
+    onSuccess: () => {
+      editSheetOpen.value = false
+      editingUser.value = null
+    },
+  })
 }
 
 const deleteUser = async (user) => {
   const confirmed = await confirmDelete(user.name || user.email)
   if (!confirmed) return
 
-  try {
-    await admin.deleteUser(user.id)
-    await loadUsers()
-  } catch (error) {
-    handleError(error, { context: 'Deleting user', showToast: true })
-  }
+  router.delete(`/dashboard/admin/users/${user.id}`)
 }
 
 const resendingInvitation = ref(null)
 
-const resendInvitation = async (user) => {
+const resendInvitation = (user) => {
   if (resendingInvitation.value) return
 
-  try {
-    resendingInvitation.value = user.id
-    await admin.resendInvitation(user.id)
-    await loadUsers()
-  } catch (error) {
-    handleError(error, { context: 'Resending invitation', showToast: true })
-  } finally {
-    resendingInvitation.value = null
-  }
+  resendingInvitation.value = user.id
+  router.post(`/dashboard/admin/users/${user.id}/resend-invitation`, {}, {
+    preserveScroll: true,
+    onFinish: () => {
+      resendingInvitation.value = null
+    },
+  })
 }
 
 const getRoleBadgeVariant = (role) => {
@@ -140,11 +92,6 @@ const getRoleBadgeVariant = (role) => {
 const getUserGlobalRole = (user) => {
   return user.roles.find(r => r.slug === 'admin' || r.slug === 'client')
 }
-
-onMounted(() => {
-  loadUsers()
-  loadRoles()
-})
 </script>
 
 <template>
@@ -161,9 +108,7 @@ onMounted(() => {
         </Button>
       </div>
 
-      <LoadingSpinner v-if="loading" />
-
-      <div v-else class="bg-card border border-border rounded-lg overflow-hidden">
+      <div class="bg-card border border-border rounded-lg overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
@@ -244,23 +189,24 @@ onMounted(() => {
               <Label for="email">Email</Label>
               <Input
                 id="email"
-                v-model="form.email"
+                v-model="createForm.email"
                 type="email"
                 placeholder="utilisateur@exemple.com"
                 required
               />
+              <p v-if="createForm.errors.email" class="text-sm text-red-500">{{ createForm.errors.email }}</p>
             </div>
             <div class="space-y-2">
               <Label for="name">Nom (optionnel)</Label>
               <Input
                 id="name"
-                v-model="form.name"
+                v-model="createForm.name"
                 placeholder="Nom de l'utilisateur"
               />
             </div>
             <div class="space-y-2">
               <Label for="role">Rôle</Label>
-              <Select v-model="form.role_id">
+              <Select v-model="createForm.role_id">
                 <SelectTrigger>
                   <SelectValue placeholder="Sélectionner un rôle" />
                 </SelectTrigger>
@@ -270,9 +216,10 @@ onMounted(() => {
                   </SelectItem>
                 </SelectContent>
               </Select>
+              <p v-if="createForm.errors.role_id" class="text-sm text-red-500">{{ createForm.errors.role_id }}</p>
             </div>
-            <Button type="submit" class="w-full" :disabled="submitting || !form.role_id">
-              {{ submitting ? 'Création...' : 'Créer l\'utilisateur' }}
+            <Button type="submit" class="w-full" :disabled="createForm.processing || !createForm.role_id">
+              {{ createForm.processing ? 'Création...' : 'Créer l\'utilisateur' }}
             </Button>
           </form>
         </SheetContent>
@@ -301,8 +248,8 @@ onMounted(() => {
                 </SelectContent>
               </Select>
             </div>
-            <Button type="submit" class="w-full" :disabled="submitting || !editForm.role_id">
-              {{ submitting ? 'Enregistrement...' : 'Enregistrer' }}
+            <Button type="submit" class="w-full" :disabled="editForm.processing || !editForm.role_id">
+              {{ editForm.processing ? 'Enregistrement...' : 'Enregistrer' }}
             </Button>
           </form>
         </SheetContent>

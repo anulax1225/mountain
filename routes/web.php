@@ -14,6 +14,7 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectUserController;
 use App\Http\Controllers\SceneController;
 use App\Http\Controllers\StickerController;
+use App\Http\Controllers\Web\AdminUserController as WebAdminUserController;
 use App\Http\Controllers\Web\DashboardController as WebDashboardController;
 use App\Http\Controllers\Web\EditorController as WebEditorController;
 use App\Http\Controllers\Web\ProjectController as WebProjectController;
@@ -77,7 +78,11 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/dashboard/projects/{project:slug}/users/{user}', [WebProjectController::class, 'removeUser'])->name('web.project.users.destroy');
 
     // Legacy dashboard routes (still using old controller until converted)
-    Route::get('/dashboard/admin/users', [DashboardController::class, 'adminUsers'])->name('dashboard.admin.users');
+    Route::get('/dashboard/admin/users', [WebAdminUserController::class, 'index'])->name('dashboard.admin.users');
+    Route::post('/dashboard/admin/users', [WebAdminUserController::class, 'store'])->name('web.admin.users.store');
+    Route::put('/dashboard/admin/users/{user}/role', [WebAdminUserController::class, 'updateRole'])->name('web.admin.users.update-role');
+    Route::post('/dashboard/admin/users/{user}/resend-invitation', [WebAdminUserController::class, 'resendInvitation'])->name('web.admin.users.resend-invitation');
+    Route::delete('/dashboard/admin/users/{user}', [WebAdminUserController::class, 'destroy'])->name('web.admin.users.destroy');
     Route::get('/dashboard/admin/contact-requests', [AdminContactRequestController::class, 'index'])->name('dashboard.admin.contact-requests');
     Route::get('/dashboard/projects/{project:slug}/analytics', [DashboardController::class, 'showProjectAnalytics'])->name('dashboard.project.analytics');
     Route::get('/dashboard/scenes/{scene:slug}', [WebSceneController::class, 'show'])->name('dashboard.scene');
