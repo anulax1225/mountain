@@ -1,5 +1,14 @@
 <?php
 
+pest()->extend(Tests\DuskTestCase::class)
+    ->use(Illuminate\Foundation\Testing\DatabaseTruncation::class)
+    ->beforeAll(function () {
+        // Skip migrate:fresh — the Octane-served app already has the schema.
+        // Dropping tables would crash the running RoadRunner workers.
+        Illuminate\Foundation\Testing\RefreshDatabaseState::$migrated = true;
+    })
+    ->in('Browser');
+
 use App\Models\Project;
 use App\Models\Role;
 use App\Models\User;

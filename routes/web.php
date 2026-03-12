@@ -24,6 +24,16 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 // ==========================================================================
+// Dusk testing routes (Octane workers need these in the route file directly)
+// ==========================================================================
+
+if (! app()->environment('production') && class_exists(\Laravel\Dusk\DuskServiceProvider::class)) {
+    Route::get('/_dusk/login/{userId}/{guard?}', [\Laravel\Dusk\Http\Controllers\UserController::class, 'login'])->name('dusk.login');
+    Route::get('/_dusk/logout/{guard?}', [\Laravel\Dusk\Http\Controllers\UserController::class, 'logout'])->name('dusk.logout');
+    Route::get('/_dusk/user/{guard?}', [\Laravel\Dusk\Http\Controllers\UserController::class, 'user'])->name('dusk.user');
+}
+
+// ==========================================================================
 // Public pages
 // ==========================================================================
 
