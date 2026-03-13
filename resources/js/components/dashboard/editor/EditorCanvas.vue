@@ -705,12 +705,22 @@ onMounted(() => {
         renderView.value.addEventListener('mousemove', onMouseMove)
         renderView.value.addEventListener('wheel', onWheel, { passive: false })
 
-        // Listen for camera movement to close panels
+        // Listen for user-initiated camera movement to close panels
         if (controls.value) {
-            controls.value.addEventListener('change', () => {
-                // Clear hover timeout to prevent delayed popover appearance
+            let isControlsActive = false
+            controls.value.addEventListener('start', () => {
+                isControlsActive = true
                 clearHoverTimeout()
                 emit('camera-move')
+            })
+            controls.value.addEventListener('end', () => {
+                isControlsActive = false
+            })
+            controls.value.addEventListener('change', () => {
+                if (isControlsActive) {
+                    clearHoverTimeout()
+                    emit('camera-move')
+                }
             })
         }
 
