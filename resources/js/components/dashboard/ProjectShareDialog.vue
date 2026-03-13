@@ -1,11 +1,11 @@
 <script setup>
-import { ref, computed, watch, nextTick } from 'vue'
+import { computed } from 'vue'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import { Copy, Download, Link, Code } from 'lucide-vue-next'
+import { Copy, Link, Code } from 'lucide-vue-next'
 import { useToast } from '@/components/ui/toast'
-import QRCode from 'qrcode'
+import QrCodeCustomizer from '@/components/dashboard/QrCodeCustomizer.vue'
 
 const props = defineProps({
     open: Boolean,
@@ -15,7 +15,6 @@ const props = defineProps({
 const emit = defineEmits(['update:open'])
 
 const { toast } = useToast()
-const qrCanvas = ref(null)
 
 const galleryUrl = computed(() => {
     if (!props.project?.slug) return ''
@@ -27,45 +26,7 @@ const iframeCode = computed(() => {
     return `<iframe src="${galleryUrl.value}" width="100%" height="600" frameborder="0" style="border-radius: 8px;" allowfullscreen></iframe>`
 })
 
-const generateQRCode = async () => {
-    if (qrCanvas.value && galleryUrl.value) {
-        try {
-            await QRCode.toCanvas(qrCanvas.value, galleryUrl.value, {
-                width: 200,
-                margin: 2,
-                errorCorrectionLevel: 'H',
-                color: {
-                    dark: '#18181b',
-                    light: '#ffffff'
-                }
-            })
-
-            const canvas = qrCanvas.value
-            const ctx = canvas.getContext('2d')
-            const logo = new Image()
-            logo.src = '/owl-logo.png'
-
-            await new Promise((resolve, reject) => {
-                logo.onload = resolve
-                logo.onerror = reject
-            })
-
-            const logoSize = canvas.width * 0.25
-            const x = (canvas.width - logoSize) / 2
-            const y = (canvas.height - logoSize) / 2
-            const padding = 4
-
-            ctx.fillStyle = '#ffffff'
-            ctx.beginPath()
-            ctx.roundRect(x - padding, y - padding, logoSize + padding * 2, logoSize + padding * 2, 6)
-            ctx.fill()
-
-            ctx.drawImage(logo, x, y, logoSize, logoSize)
-        } catch (error) {
-            console.error('Failed to generate QR code:', error)
-        }
-    }
-}
+const qrDownloadName = computed(() => `${props.project?.name || 'qrcode'}-qr`)
 
 const copyToClipboard = async (text, label) => {
     try {
@@ -82,27 +43,11 @@ const copyToClipboard = async (text, label) => {
         })
     }
 }
-
-const downloadQRCode = () => {
-    if (qrCanvas.value) {
-        const link = document.createElement('a')
-        link.download = `${props.project?.name || 'qrcode'}-qr.png`
-        link.href = qrCanvas.value.toDataURL('image/png')
-        link.click()
-    }
-}
-
-watch(() => props.open, async (newValue) => {
-    if (newValue) {
-        await nextTick()
-        generateQRCode()
-    }
-})
 </script>
 
 <template>
     <Dialog :open="open" @update:open="emit('update:open', $event)">
-        <DialogContent>
+        <DialogContent class="sm:max-w-lg">
             <DialogHeader>
                 <DialogTitle>Partager le projet</DialogTitle>
                 <DialogDescription>
@@ -153,20 +98,11 @@ watch(() => props.open, async (newValue) => {
 
                 <div class="space-y-3">
                     <Label>QR Code</Label>
-                    <div class="flex flex-col items-center gap-4">
-                        <div class="p-4 bg-white rounded-lg shadow-sm border border-border">
-                            <canvas ref="qrCanvas"></canvas>
-                        </div>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            @click="downloadQRCode"
-                            class="gap-2"
-                        >
-                            <Download class="w-4 h-4" />
-                            Télécharger
-                        </Button>
-                    </div>
+                    <QrCodeCustomizer
+                        v-if="galleryUrl"
+                        :url="galleryUrl"
+                        :download-name="qrDownloadName"
+                    />
                 </div>
 
                 <div class="flex justify-end pt-2">
