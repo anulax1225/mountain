@@ -28,16 +28,10 @@ import { ArrowRight } from 'lucide-vue-next'
                 </p>
 
                 <div class="flex sm:flex-row flex-col justify-center items-center gap-4">
-                    <Link href="/login">
-                        <Button size="lg"
-                            class="bg-primary hover:bg-primary/90 px-8 h-12 text-primary-foreground text-base">
-                            Se connecter
-                            <ArrowRight class="ml-2 w-5 h-5" />
-                        </Button>
-                    </Link>
                     <Link href="/gallery">
-                        <Button size="lg" variant="outline" class="px-8 h-12 text-base">
+                        <Button size="lg" class="bg-primary hover:bg-primary/90 px-8 h-12 text-primary-foreground text-base">
                             Voir la galerie
+                            <ArrowRight class="ml-2 w-5 h-5" />
                         </Button>
                     </Link>
                 </div>
