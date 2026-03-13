@@ -1,6 +1,6 @@
 <script setup>
     import { computed } from 'vue'
-    import { ScrollArea } from '@/components/ui/scroll-area'
+    import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
     import { useImagePath } from '@/composables/useImagePath'
 
     const props = defineProps({
@@ -85,6 +85,7 @@
                 </div>
               </template>
             </div>
+            <ScrollBar orientation="horizontal" />
           </ScrollArea>
         </div>
       </div>
