@@ -8,6 +8,7 @@ import { useCanvasCursor } from '@/composables/useCanvasCursor.js'
 import { useSpriteDrag } from '@/composables/useSpriteDrag.js'
 import { useHoverDetection } from '@/composables/useHoverDetection.js'
 import { useCanvasClick } from '@/composables/useCanvasClick.js'
+import { usePinchZoom } from '@/composables/usePinchZoom.js'
 import { ZOOM } from '@/lib/editorConstants.js'
 import { useImagePath } from '@/composables/useImagePath.js'
 
@@ -35,6 +36,7 @@ const emit = defineEmits([
 const renderView = ref(null)
 const skipNextWatch = ref(false)
 const isLoadingPanorama = ref(false)
+const lastPointerType = ref('mouse')
 
 const { getImagePreview } = useImagePath()
 const interaction = useInjectedEditorInteraction()
@@ -66,6 +68,9 @@ const { setCursor, resetCursor } = useCanvasCursor(renderView, {
     isCreatingSticker: () => props.isCreatingSticker,
 })
 
+// --- Pinch zoom ---
+const pinch = usePinchZoom({ camera })
+
 // --- Drag ---
 const drag = useSpriteDrag({
     containerRef: renderView,
@@ -80,6 +85,7 @@ const drag = useSpriteDrag({
     isCreatingSticker: () => props.isCreatingSticker,
     onDragEnd: (payload) => emit('sprite-drag-end', payload),
     setCursor,
+    pinchActive: pinch.isActive,
 })
 
 // --- Hover detection ---
@@ -95,6 +101,7 @@ const hover = useHoverDetection({
     justFinishedDrag: drag.justFinishedDrag,
     setCursor,
     resetCursor,
+    lastPointerType,
 })
 
 // --- Click handling ---
@@ -117,9 +124,19 @@ const click = useCanvasClick({
     onStickerPositionSelected: (pos) => emit('sticker-position-selected', pos),
 })
 
-// --- Mouse move orchestrator ---
-const onMouseMove = (event) => {
+// --- Pointer event orchestrators ---
+const onPointerDown = (event) => {
+    lastPointerType.value = event.pointerType
+    pinch.onPointerDown(event)
+    drag.onPointerDown(event)
+}
+
+const onPointerMove = (event) => {
+    lastPointerType.value = event.pointerType
     if (!raycaster.value || !camera.value) return
+
+    // Pinch zoom takes priority
+    if (pinch.onPointerMove(event)) return
 
     const rect = renderView.value.getBoundingClientRect()
     const mouseX = event.clientX - rect.left
@@ -130,10 +147,15 @@ const onMouseMove = (event) => {
     raycaster.value.setFromCamera(mouse.value, camera.value)
 
     // Drag takes priority
-    if (drag.onMouseMove(event)) return
+    if (drag.onPointerMove(event)) return
 
     // Hover detection
     hover.onMouseMove(mouseX, mouseY)
+}
+
+const onPointerUp = (event) => {
+    pinch.onPointerUp(event)
+    drag.onPointerUp(event)
 }
 
 // --- Wheel zoom (FOV-based) ---
@@ -215,10 +237,11 @@ onMounted(() => {
     if (initialized && threeScene.value) {
         sprites.init(threeScene.value)
 
-        renderView.value.addEventListener('mousedown', drag.onMouseDown)
-        renderView.value.addEventListener('mouseup', drag.onMouseUp)
+        renderView.value.addEventListener('pointerdown', onPointerDown)
+        renderView.value.addEventListener('pointermove', onPointerMove)
+        renderView.value.addEventListener('pointerup', onPointerUp)
+        renderView.value.addEventListener('pointercancel', onPointerUp)
         renderView.value.addEventListener('click', click.onClick)
-        renderView.value.addEventListener('mousemove', onMouseMove)
         renderView.value.addEventListener('wheel', onWheel, { passive: false })
 
         if (controls.value) {
@@ -249,10 +272,11 @@ onMounted(() => {
 
 const cleanup = () => {
     if (renderView.value) {
-        renderView.value.removeEventListener('mousedown', drag.onMouseDown)
-        renderView.value.removeEventListener('mouseup', drag.onMouseUp)
+        renderView.value.removeEventListener('pointerdown', onPointerDown)
+        renderView.value.removeEventListener('pointermove', onPointerMove)
+        renderView.value.removeEventListener('pointerup', onPointerUp)
+        renderView.value.removeEventListener('pointercancel', onPointerUp)
         renderView.value.removeEventListener('click', click.onClick)
-        renderView.value.removeEventListener('mousemove', onMouseMove)
         renderView.value.removeEventListener('wheel', onWheel)
     }
     hover.clearHoverTimeout()
@@ -275,5 +299,5 @@ defineExpose({
 </script>
 
 <template>
-    <div ref="renderView" class="w-full h-full"></div>
+    <div ref="renderView" class="w-full h-full touch-none"></div>
 </template>

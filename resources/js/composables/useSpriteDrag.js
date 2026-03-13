@@ -3,6 +3,7 @@ import { SPRITE, TIMING, INTERACTION } from '@/lib/editorConstants.js'
 
 /**
  * Composable for sprite drag-and-drop in the 360° editor
+ * Uses Pointer Events API for unified mouse and touch support.
  *
  * @param {object} options
  * @param {import('vue').Ref} options.containerRef - Canvas container element ref
@@ -17,6 +18,7 @@ import { SPRITE, TIMING, INTERACTION } from '@/lib/editorConstants.js'
  * @param {import('vue').Ref<boolean>} options.isCreatingSticker
  * @param {Function} options.onDragEnd - Callback when drag completes
  * @param {Function} options.setCursor - Cursor setter from useCanvasCursor
+ * @param {import('vue').Ref<boolean>} options.pinchActive - Whether pinch zoom is active
  */
 export function useSpriteDrag({
     containerRef,
@@ -31,6 +33,7 @@ export function useSpriteDrag({
     isCreatingSticker,
     onDragEnd,
     setCursor,
+    pinchActive,
 }) {
     const isDragging = ref(false)
     const draggedSprite = ref(null)
@@ -38,10 +41,12 @@ export function useSpriteDrag({
     const dragStartMouse = ref(null)
     const hasDraggedBeyondThreshold = ref(false)
     const justFinishedDrag = ref(false)
+    let activePointerId = null
 
-    const onMouseDown = (event) => {
+    const onPointerDown = (event) => {
         if (toValue(mode) !== 'edit' || !raycaster.value || !camera.value) return
         if (toValue(isCreatingHotspot) || toValue(isCreatingSticker)) return
+        if (toValue(pinchActive)) return
 
         const rect = containerRef.value.getBoundingClientRect()
         const mouseX = event.clientX - rect.left
@@ -62,6 +67,7 @@ export function useSpriteDrag({
             if (!manager) continue
             const intersects = raycaster.value.intersectObjects(manager.getAll())
             if (intersects.length > 0) {
+                activePointerId = event.pointerId
                 draggedSprite.value = intersects[0].object
                 draggedData.value = {
                     type,
@@ -87,11 +93,16 @@ export function useSpriteDrag({
     }
 
     /**
-     * Handle mouse move during drag
+     * Handle pointer move during drag
      * @returns {boolean} true if drag consumed the event
      */
-    const onMouseMove = (event) => {
+    const onPointerMove = (event) => {
         if (!isDragging.value || !draggedSprite.value || !currentMesh.value) return false
+        if (event.pointerId !== activePointerId) return false
+        if (toValue(pinchActive)) {
+            resetDrag()
+            return false
+        }
 
         const rect = containerRef.value.getBoundingClientRect()
         const mouseX = event.clientX - rect.left
@@ -125,8 +136,27 @@ export function useSpriteDrag({
         return true
     }
 
-    const onMouseUp = () => {
+    const resetDrag = () => {
+        if (controls.value) {
+            controls.value.enabled = true
+        }
+
+        if (draggedSprite.value?.material) {
+            draggedSprite.value.material.opacity = 1.0
+        }
+
+        isDragging.value = false
+        draggedSprite.value = null
+        draggedData.value = null
+        dragStartMouse.value = null
+        hasDraggedBeyondThreshold.value = false
+        activePointerId = null
+        setCursor('default')
+    }
+
+    const onPointerUp = (event) => {
         if (!isDragging.value || !draggedSprite.value) return
+        if (event.pointerId !== activePointerId) return
 
         // Re-enable camera rotation
         if (controls.value) {
@@ -144,6 +174,7 @@ export function useSpriteDrag({
             draggedSprite.value = null
             draggedData.value = null
             dragStartMouse.value = null
+            activePointerId = null
             return
         }
 
@@ -179,14 +210,15 @@ export function useSpriteDrag({
         draggedData.value = null
         dragStartMouse.value = null
         hasDraggedBeyondThreshold.value = false
+        activePointerId = null
         setCursor('default')
     }
 
     return {
         isDragging,
         justFinishedDrag,
-        onMouseDown,
-        onMouseMove,
-        onMouseUp,
+        onPointerDown,
+        onPointerMove,
+        onPointerUp,
     }
 }

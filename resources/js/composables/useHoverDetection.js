@@ -19,6 +19,7 @@ import { INTERACTION, TIMING } from '@/lib/editorConstants.js'
  * @param {import('vue').Ref<boolean>} options.justFinishedDrag - From useSpriteDrag
  * @param {Function} options.setCursor - Cursor setter from useCanvasCursor
  * @param {Function} options.resetCursor - Cursor resetter from useCanvasCursor
+ * @param {import('vue').Ref<string>} options.lastPointerType - Last pointer event type ('mouse', 'touch', 'pen')
  */
 export function useHoverDetection({
     containerRef,
@@ -32,6 +33,7 @@ export function useHoverDetection({
     justFinishedDrag,
     setCursor,
     resetCursor,
+    lastPointerType,
 }) {
     const hideHoverTimeout = ref(null)
 
@@ -129,6 +131,9 @@ export function useHoverDetection({
      * Call this after drag handling has been checked
      */
     const onMouseMove = (mouseX, mouseY) => {
+        // Skip hover detection for touch — touch has no hover concept
+        if (toValue(lastPointerType) === 'touch') return
+
         // View mode - hotspot hover
         if (toValue(mode) === 'view' && spriteDisplay.hotspotManager.value) {
             detectHotspotHover(mouseX, mouseY)

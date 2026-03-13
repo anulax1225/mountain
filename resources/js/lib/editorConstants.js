@@ -11,7 +11,7 @@ export const SCENE = {
 // Camera Configuration
 export const CAMERA = {
     FOV: 75,
-    NEAR: 0.1,
+    NEAR: 0.01,
     FAR: 1500,
     DISTANCE: 0.1, // Default camera distance from origin
 }
@@ -85,12 +85,13 @@ export const INTERACTION = {
     DRAG_THRESHOLD_PX: 5, // Minimum pixels to move before drag starts
     HOVER_DISTANCE_PX: 40, // Max screen-space distance to maintain hover (leave threshold)
     HOVER_ENTER_DISTANCE_PX: 25, // Max screen-space distance to enter hover (enter threshold)
+    PINCH_ZOOM_SPEED: 0.5, // FOV degrees per pixel of pinch distance change
 }
 
 // Zoom (FOV-based — camera stays at origin, field of view narrows/widens)
 export const ZOOM = {
     MIN_FOV: 20, // Max zoom in (narrow FOV)
-    MAX_FOV: 90, // Max zoom out (wide FOV)
+    MAX_FOV: 150, // Max zoom out (wide FOV)
     DEFAULT_FOV: 75, // Default field of view (matches CAMERA.FOV)
     WHEEL_STEP: 3, // Degrees per scroll tick
     BUTTON_STEP: 10, // Degrees per button click

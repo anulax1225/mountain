@@ -70,6 +70,12 @@ export function useThreeScene(containerRef, options = {}) {
         if (enableControls) {
             controls.value = new OrbitControls(camera.value, renderer.value.domElement)
             Object.assign(controls.value, controlsConfig)
+
+            // Touch: 1-finger rotate only, disable 2-finger (pinch zoom handled separately)
+            controls.value.touches = {
+                ONE: THREE.TOUCH.ROTATE,
+                TWO: THREE.TOUCH.NONE,
+            }
         }
 
         // Create utilities
