@@ -571,8 +571,9 @@ const loadPanorama = async (index, transition = true, rotation = null, skipWatch
     )
 
     // Display sprites AFTER transition completes
-    displayHotspots()
-    displayStickers()
+    // Use target image directly since props.currentIndex may not have flushed yet
+    displayHotspots(image)
+    displayStickers(image)
 
     // Clear loading flag
     isLoadingPanorama.value = false
@@ -580,7 +581,8 @@ const loadPanorama = async (index, transition = true, rotation = null, skipWatch
     // Wait for full-res to finish before preloading hotspot targets
     await fullResReady
 
-    const preloadUrls = currentHotspots.value
+    const hotspots = image.hotspots_from || []
+    const preloadUrls = hotspots
         .filter(hotspot => hotspot.to_image?.slug)
         .map(hotspot => `/images/${hotspot.to_image.slug}/download`)
     if (preloadUrls.length > 0) {
@@ -589,14 +591,17 @@ const loadPanorama = async (index, transition = true, rotation = null, skipWatch
 }
 
 // Display hotspot sprites
-const displayHotspots = () => {
+// Optional image param allows bypassing currentHotspots when props.currentIndex hasn't flushed yet
+const displayHotspots = (image = null) => {
     if (!hotspotManager) return
 
     hotspotManager.clear()
 
-    console.log('Displaying hotspots:', currentHotspots.value)
+    const hotspots = image ? (image.hotspots_from || []) : currentHotspots.value
 
-    currentHotspots.value.forEach(hotspot => {
+    console.log('Displaying hotspots:', hotspots)
+
+    hotspots.forEach(hotspot => {
         console.log('Creating sprite for hotspot:', hotspot.slug, hotspot)
 
         const sprite = SpriteFactory.createHotspotSprite(hotspot)
@@ -616,14 +621,17 @@ const displayHotspots = () => {
 }
 
 // Display sticker sprites
-const displayStickers = () => {
+// Optional image param allows bypassing currentStickers when props.currentIndex hasn't flushed yet
+const displayStickers = (image = null) => {
     if (!stickerManager) return
 
     stickerManager.clear()
 
-    console.log('Displaying stickers:', currentStickers.value)
+    const stickers = image ? (image.stickers || []) : currentStickers.value
 
-    currentStickers.value.forEach(sticker => {
+    console.log('Displaying stickers:', stickers)
+
+    stickers.forEach(sticker => {
         console.log('Creating sprite for sticker:', sticker.slug, sticker)
 
         const sprite = SpriteFactory.createStickerSprite(sticker)
