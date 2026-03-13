@@ -74,6 +74,7 @@ export function usePanoramaLoader(sceneRef, textureLoaderRef, options = {}) {
 
     const currentMesh = shallowRef(null)
     const isTransitioning = ref(false)
+    let fullResAbortController = null
 
     /**
      * Load a panoramic image and create a sphere mesh
@@ -88,6 +89,12 @@ export function usePanoramaLoader(sceneRef, textureLoaderRef, options = {}) {
         if (!sceneRef.value || !textureLoaderRef.value) {
             console.warn('Scene or texture loader not available')
             return null
+        }
+
+        // Abort any in-flight full-res background load from previous image
+        if (fullResAbortController) {
+            fullResAbortController.abort()
+            fullResAbortController = null
         }
 
         // Fade out if transitioning
@@ -147,29 +154,51 @@ export function usePanoramaLoader(sceneRef, textureLoaderRef, options = {}) {
             applyCameraRotation(controls, rotation)
         }
 
-        // If preview was used and not cached, preload full-res in background and swap
+        // If preview was used and not cached, load full-res in background and swap
         let fullResReady = Promise.resolve()
         if (previewUrl && !isCached) {
-            fullResReady = textureLoaderRef.value.loadAsync(imageUrl).then(fullTexture => {
-                fullTexture.colorSpace = THREE.SRGBColorSpace
-                fullTexture.minFilter = THREE.LinearFilter
-                fullTexture.magFilter = THREE.LinearFilter
-                fullTexture.needsUpdate = true
+            fullResAbortController = new AbortController()
+            const signal = fullResAbortController.signal
 
-                // Cache the image data for future visits
-                imageCache.set(imageUrl, fullTexture.image)
+            fullResReady = new Promise((resolve) => {
+                const img = new Image()
 
-                // Only swap if this mesh is still the current one
-                if (currentMesh.value === mesh) {
-                    const oldTexture = mesh.material.map
-                    mesh.material.map = fullTexture
-                    mesh.material.needsUpdate = true
-                    oldTexture?.dispose()
-                } else {
-                    fullTexture.dispose()
+                signal.addEventListener('abort', () => {
+                    img.src = ''
+                    resolve()
+                })
+
+                img.onload = () => {
+                    if (signal.aborted) return
+                    fullResAbortController = null
+
+                    const fullTexture = new THREE.Texture(img)
+                    fullTexture.colorSpace = THREE.SRGBColorSpace
+                    fullTexture.minFilter = THREE.LinearFilter
+                    fullTexture.magFilter = THREE.LinearFilter
+                    fullTexture.needsUpdate = true
+
+                    imageCache.set(imageUrl, img)
+
+                    if (currentMesh.value === mesh) {
+                        const oldTexture = mesh.material.map
+                        mesh.material.map = fullTexture
+                        mesh.material.needsUpdate = true
+                        oldTexture?.dispose()
+                    } else {
+                        fullTexture.dispose()
+                    }
+                    resolve()
                 }
-            }).catch(err => {
-                console.warn('Failed to load full-res texture:', err)
+
+                img.onerror = (err) => {
+                    if (signal.aborted) return
+                    fullResAbortController = null
+                    console.warn('Failed to load full-res texture:', err)
+                    resolve()
+                }
+
+                img.src = imageUrl
             })
         }
 

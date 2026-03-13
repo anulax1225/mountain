@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { Button } from '@/components/ui/button'
-import { Maximize, Minimize, VenetianMask } from 'lucide-vue-next'
+import { Maximize, Minimize, VenetianMask, Hd, Loader2 } from 'lucide-vue-next'
 import EditorCanvas from '@/components/dashboard/editor/EditorCanvas.vue'
 import ImageThumbnailsPanel from '@/components/dashboard/editor/ImageThumbnailsPanel.vue'
 import HotspotPopover from '@/components/dashboard/editor/HotspotPopover.vue'
@@ -55,6 +55,14 @@ const handleHotspotClick = async (hotspot) => {
     if (targetIndex !== -1) {
         const hasRotation = hotspot.target_rotation_x !== null && hotspot.target_rotation_y !== null
 
+        // Update index BEFORE loading so UI updates immediately
+        currentImageIndex.value = targetIndex
+
+        const targetImage = images.value[targetIndex]
+        if (props.onTrackImageView && targetImage?.slug) {
+            props.onTrackImageView(targetImage.slug)
+        }
+
         if (editorCanvasRef.value) {
             if (hasRotation) {
                 await editorCanvasRef.value.loadPanorama(targetIndex, true, {
@@ -65,13 +73,6 @@ const handleHotspotClick = async (hotspot) => {
             } else {
                 await editorCanvasRef.value.loadPanorama(targetIndex, true, null, true)
             }
-        }
-
-        currentImageIndex.value = targetIndex
-
-        const targetImage = images.value[targetIndex]
-        if (props.onTrackImageView && targetImage?.slug) {
-            props.onTrackImageView(targetImage.slug)
         }
     }
 }
@@ -114,6 +115,14 @@ onUnmounted(() => {
     <div ref="viewerContainer" class="relative w-full h-full">
         <EditorCanvas ref="editorCanvasRef" :images="images" :current-index="currentImageIndex"
             @hotspot-click="handleHotspotClick" />
+
+        <!-- HD loading indicator -->
+        <Transition name="fade">
+            <div v-if="editorCanvasRef?.isLoadingFullRes" class="absolute top-4 left-4 z-40 flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-white backdrop-blur">
+                <Hd class="h-4 w-4" />
+                <Loader2 class="h-3.5 w-3.5 animate-spin" />
+            </div>
+        </Transition>
 
         <!-- Control buttons on right side (middle height to avoid overlap) -->
         <div class="absolute top-1/2 -translate-y-1/2 right-6 z-40 flex flex-col gap-2">

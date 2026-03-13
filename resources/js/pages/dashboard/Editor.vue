@@ -16,7 +16,7 @@ import StickerCreationDialog from '@/components/dashboard/editor/StickerCreation
 import StickerEditDialog from '@/components/dashboard/editor/StickerEditDialog.vue'
 import StickerContextMenu from '@/components/dashboard/editor/StickerContextMenu.vue'
 import EditorZoomControls from '@/components/dashboard/editor/EditorZoomControls.vue'
-import { Maximize, Minimize, VenetianMask } from 'lucide-vue-next'
+import { Maximize, Minimize, VenetianMask, Hd, Loader2 } from 'lucide-vue-next'
 import owl from '@/owl-sdk.js'
 import { calculateReturnRotation } from '@/lib/spatialMath.js'
 import { TIMING } from '@/lib/editorConstants.js'
@@ -450,6 +450,14 @@ onUnmounted(() => {
                     @hotspot-position-selected="handleHotspotPositionSelected"
                     @sticker-position-selected="handleStickerPositionSelected" @sticker-click="handleStickerClick"
                     @sprite-drag-end="handleSpriteDragEnd" />
+
+                <!-- HD loading indicator -->
+                <Transition name="fade">
+                    <div v-if="editorCanvasRef?.isLoadingFullRes" class="absolute top-16 left-4 z-40 flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-white backdrop-blur">
+                        <Hd class="h-4 w-4" />
+                        <Loader2 class="h-3.5 w-3.5 animate-spin" />
+                    </div>
+                </Transition>
 
                 <!-- Control buttons on right side (middle height to avoid overlap) -->
                 <div class="top-1/2 right-6 z-10 absolute flex flex-col gap-2 -translate-y-1/2">

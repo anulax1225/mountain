@@ -36,6 +36,7 @@ const emit = defineEmits([
 const renderView = ref(null)
 const skipNextWatch = ref(false)
 const isLoadingPanorama = ref(false)
+const isLoadingFullRes = ref(false)
 const lastPointerType = ref('mouse')
 
 const { getImagePreview } = useImagePath()
@@ -198,7 +199,11 @@ const loadPanorama = async (index, transition = true, rotation = null, skipWatch
 
     isLoadingPanorama.value = false
 
-    await fullResReady
+    if (previewUrl) {
+        isLoadingFullRes.value = true
+        await fullResReady
+        isLoadingFullRes.value = false
+    }
 
     const hotspots = image.hotspots_from || []
     const preloadUrls = hotspots
@@ -289,6 +294,7 @@ defineExpose({
     displayHotspots: (image) => sprites.displayHotspots(image ? (image.hotspots_from || []) : currentHotspots.value),
     displayStickers: (image) => sprites.displayStickers(image ? (image.stickers || []) : currentStickers.value),
     clearSprites: sprites.clearAll,
+    isLoadingFullRes,
     controls,
     camera,
     renderView,
