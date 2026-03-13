@@ -35,11 +35,9 @@ export const SPRITE = {
 export const CONTROLS = {
     ENABLE_DAMPING: false,
     DAMPING_FACTOR: 0.05,
-    ENABLE_ZOOM: true,
+    ENABLE_ZOOM: false, // Zoom handled via FOV, not OrbitControls distance
     ENABLE_PAN: false,
     ROTATE_SPEED: -0.5,
-    MIN_DISTANCE: 1,
-    MAX_DISTANCE: 400,
 }
 
 // Transition Effects
@@ -89,11 +87,13 @@ export const INTERACTION = {
     HOVER_ENTER_DISTANCE_PX: 25, // Max screen-space distance to enter hover (enter threshold)
 }
 
-// Zoom
+// Zoom (FOV-based — camera stays at origin, field of view narrows/widens)
 export const ZOOM = {
-    SPEED: 0.1, // Zoom speed for wheel events
-    IN_FACTOR: 0.7, // Multiplier for zoom in (smaller = closer)
-    OUT_FACTOR: 1.35, // Multiplier for zoom out (larger = farther)
+    MIN_FOV: 20, // Max zoom in (narrow FOV)
+    MAX_FOV: 90, // Max zoom out (wide FOV)
+    DEFAULT_FOV: 75, // Default field of view (matches CAMERA.FOV)
+    WHEEL_STEP: 3, // Degrees per scroll tick
+    BUTTON_STEP: 10, // Degrees per button click
 }
 
 export const PRELOAD = {

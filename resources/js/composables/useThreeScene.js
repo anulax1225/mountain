@@ -20,8 +20,6 @@ export function useThreeScene(containerRef, options = {}) {
             enableZoom: CONTROLS.ENABLE_ZOOM,
             enablePan: CONTROLS.ENABLE_PAN,
             rotateSpeed: CONTROLS.ROTATE_SPEED,
-            minDistance: CONTROLS.MIN_DISTANCE,
-            maxDistance: CONTROLS.MAX_DISTANCE
         },
         backgroundColor = SCENE.BACKGROUND_COLOR,
         onReady = null

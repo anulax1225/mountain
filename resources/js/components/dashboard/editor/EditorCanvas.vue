@@ -8,7 +8,7 @@ import { useCanvasCursor } from '@/composables/useCanvasCursor.js'
 import { useSpriteDrag } from '@/composables/useSpriteDrag.js'
 import { useHoverDetection } from '@/composables/useHoverDetection.js'
 import { useCanvasClick } from '@/composables/useCanvasClick.js'
-import { CONTROLS, ZOOM } from '@/lib/editorConstants.js'
+import { ZOOM } from '@/lib/editorConstants.js'
 import { useImagePath } from '@/composables/useImagePath.js'
 
 const props = defineProps({
@@ -136,20 +136,16 @@ const onMouseMove = (event) => {
     hover.onMouseMove(mouseX, mouseY)
 }
 
-// --- Wheel zoom ---
+// --- Wheel zoom (FOV-based) ---
 const onWheel = (event) => {
-    if (!camera.value || !controls.value) return
+    if (!camera.value) return
 
     event.preventDefault()
 
     const delta = event.deltaY > 0 ? 1 : -1
-    const currentDistance = camera.value.position.length()
-    const newDistance = delta > 0
-        ? Math.min(currentDistance * (1 + ZOOM.SPEED), CONTROLS.MAX_DISTANCE)
-        : Math.max(currentDistance * (1 - ZOOM.SPEED), CONTROLS.MIN_DISTANCE)
-
-    camera.value.position.normalize().multiplyScalar(newDistance)
-    controls.value.update()
+    const newFov = camera.value.fov + delta * ZOOM.WHEEL_STEP
+    camera.value.fov = Math.max(ZOOM.MIN_FOV, Math.min(ZOOM.MAX_FOV, newFov))
+    camera.value.updateProjectionMatrix()
 }
 
 // --- Panorama loading ---
