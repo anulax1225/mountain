@@ -1,5 +1,6 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { usePage } from '@inertiajs/vue3'
 import { useTheme } from '@/composables/useTheme'
 import { Moon, Sun, Monitor, Palette } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
@@ -12,6 +13,9 @@ import {
 import ThemePicker from './ThemePicker.vue'
 
 const { theme, setTheme } = useTheme()
+
+const page = usePage()
+const isAdmin = computed(() => !!page.props.auth?.user?.is_admin)
 
 const pickerOpen = ref(false)
 
@@ -26,8 +30,8 @@ const closePicker = () => {
 
 <template>
   <div class="flex items-center gap-1">
-    <!-- Theme Picker Toggle -->
-    <div class="relative">
+    <!-- Theme Picker Toggle (admin only) -->
+    <div v-if="isAdmin" class="relative">
       <Button variant="ghost" size="icon" @click="togglePicker" title="Personnaliser le thème">
         <Palette class="w-5 h-5" />
       </Button>
