@@ -60,10 +60,10 @@ const DEFAULTS = {
 
 const options = reactive({ ...DEFAULTS })
 
-function buildQrOptions() {
+function buildQrOptions(size = 240) {
     return {
-        width: 240,
-        height: 240,
+        width: size,
+        height: size,
         data: props.url,
         margin: 8,
         qrOptions: {
@@ -119,9 +119,10 @@ function resetOptions() {
     Object.assign(options, DEFAULTS)
 }
 
-function downloadQrCode() {
-    if (!qrInstance.value) return
-    qrInstance.value.download({
+async function downloadQrCode() {
+    const QRCodeStyling = await loadQRCodeStyling()
+    const downloadInstance = new QRCodeStyling(buildQrOptions(1024))
+    downloadInstance.download({
         name: props.downloadName,
         extension: 'png'
     })
@@ -147,12 +148,12 @@ onBeforeUnmount(() => {
 <template>
     <div class="space-y-4">
         <div class="flex flex-col items-center">
-            <div class="p-4 bg-white rounded-lg shadow-sm border border-border">
+            <div class="bg-white shadow-sm p-4 border border-border rounded-lg">
                 <div ref="containerRef" />
             </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-3">
+        <div class="gap-3 grid grid-cols-2">
             <div class="space-y-1.5">
                 <Label class="text-xs">Style des points</Label>
                 <Select v-model="options.dotStyle">
@@ -213,9 +214,9 @@ onBeforeUnmount(() => {
                     <input
                         v-model="options.dotColor"
                         type="color"
-                        class="h-8 w-8 cursor-pointer rounded border border-border bg-transparent p-0.5"
+                        class="bg-transparent p-0.5 border border-border rounded w-8 h-8 cursor-pointer"
                     >
-                    <span class="text-xs text-muted-foreground font-mono">{{ options.dotColor }}</span>
+                    <span class="font-mono text-muted-foreground text-xs">{{ options.dotColor }}</span>
                 </div>
             </div>
 
@@ -225,9 +226,9 @@ onBeforeUnmount(() => {
                     <input
                         v-model="options.backgroundColor"
                         type="color"
-                        class="h-8 w-8 cursor-pointer rounded border border-border bg-transparent p-0.5"
+                        class="bg-transparent p-0.5 border border-border rounded w-8 h-8 cursor-pointer"
                     >
-                    <span class="text-xs text-muted-foreground font-mono">{{ options.backgroundColor }}</span>
+                    <span class="font-mono text-muted-foreground text-xs">{{ options.backgroundColor }}</span>
                 </div>
             </div>
 
@@ -237,19 +238,19 @@ onBeforeUnmount(() => {
                     <input
                         v-model="options.cornerSquareColor"
                         type="color"
-                        class="h-8 w-8 cursor-pointer rounded border border-border bg-transparent p-0.5"
+                        class="bg-transparent p-0.5 border border-border rounded w-8 h-8 cursor-pointer"
                     >
-                    <span class="text-xs text-muted-foreground font-mono">{{ options.cornerSquareColor }}</span>
+                    <span class="font-mono text-muted-foreground text-xs">{{ options.cornerSquareColor }}</span>
                 </div>
             </div>
         </div>
 
-        <div class="flex items-center justify-between">
+        <div class="flex justify-between items-center">
             <Label class="text-xs">Afficher le logo</Label>
             <Switch v-model:checked="options.showLogo" />
         </div>
 
-        <div class="flex items-center justify-center gap-2">
+        <div class="flex justify-center items-center gap-2">
             <Button
                 variant="outline"
                 size="sm"
