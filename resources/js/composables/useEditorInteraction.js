@@ -1,4 +1,6 @@
-import { ref, computed } from 'vue'
+import { ref, computed, provide, inject } from 'vue'
+
+const EDITOR_INTERACTION_KEY = Symbol('editor-interaction')
 
 /**
  * Composable for managing sprite interaction state in the 360° editor
@@ -19,6 +21,12 @@ export function useEditorInteraction() {
 
     // Popover state
     const activePopover = ref(null) // { type: 'hotspot' | 'sticker', slug: string }
+
+    // Hotspot hover position (screen coordinates for popover placement)
+    const hotspotHoverPosition = ref(null)
+
+    // Whether the popover itself is being hovered (prevents closing on mouse leave)
+    const isPopoverHovered = ref(false)
 
     // Scale multipliers - idempotent values for computing display scale
     const HOVER_SCALE = 1.15
@@ -152,6 +160,8 @@ export function useEditorInteraction() {
     const clearHoverStates = () => {
         hoveredHotspotSlug.value = null
         hoveredStickerSlug.value = null
+        hotspotHoverPosition.value = null
+        isPopoverHovered.value = false
     }
 
     /**
@@ -164,6 +174,8 @@ export function useEditorInteraction() {
         draggedSpriteSlug.value = null
         draggedSpriteType.value = null
         activePopover.value = null
+        hotspotHoverPosition.value = null
+        isPopoverHovered.value = false
     }
 
     /**
@@ -175,6 +187,40 @@ export function useEditorInteraction() {
 
     const closePopover = () => {
         activePopover.value = null
+    }
+
+    /**
+     * Set hovered hotspot with screen position (for popover placement)
+     */
+    const setHoveredHotspotWithPosition = (slug, position) => {
+        hoveredHotspotSlug.value = slug
+        hotspotHoverPosition.value = position
+    }
+
+    /**
+     * Handle popover mouse enter (prevents hover state from clearing)
+     */
+    const handlePopoverMouseEnter = () => {
+        isPopoverHovered.value = true
+    }
+
+    /**
+     * Handle popover mouse leave (clears hover state)
+     */
+    const handlePopoverMouseLeave = () => {
+        isPopoverHovered.value = false
+        hoveredHotspotSlug.value = null
+        hotspotHoverPosition.value = null
+    }
+
+    /**
+     * Clear hotspot hover only if popover is not hovered
+     */
+    const clearHotspotHoverIfNotPopover = () => {
+        if (!isPopoverHovered.value) {
+            hoveredHotspotSlug.value = null
+            hotspotHoverPosition.value = null
+        }
     }
 
     // Computed helpers
@@ -191,6 +237,8 @@ export function useEditorInteraction() {
         draggedSpriteSlug,
         draggedSpriteType,
         activePopover,
+        hotspotHoverPosition,
+        isPopoverHovered,
 
         // Computed
         isHotspotHovered,
@@ -216,11 +264,37 @@ export function useEditorInteraction() {
         setHoveredSticker,
         setSelectedSticker,
         setDraggedSprite,
+        setHoveredHotspotWithPosition,
         clearHoverStates,
         clearAllStates,
+        clearHotspotHoverIfNotPopover,
 
         // Popover helpers
         openPopover,
-        closePopover
+        closePopover,
+        handlePopoverMouseEnter,
+        handlePopoverMouseLeave
     }
+}
+
+/**
+ * Provide an editor interaction instance to descendant components
+ * Call this in the top-level component (Editor.vue or EditorViewer.vue)
+ */
+export function provideEditorInteraction(instance = null) {
+    const interaction = instance || useEditorInteraction()
+    provide(EDITOR_INTERACTION_KEY, interaction)
+    return interaction
+}
+
+/**
+ * Inject the editor interaction instance from a parent component
+ * Call this in child components (EditorCanvas.vue, etc.)
+ */
+export function useInjectedEditorInteraction() {
+    const interaction = inject(EDITOR_INTERACTION_KEY)
+    if (!interaction) {
+        throw new Error('useInjectedEditorInteraction must be used within a component that calls provideEditorInteraction')
+    }
+    return interaction
 }

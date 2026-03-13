@@ -22,7 +22,7 @@ import { calculateReturnRotation } from '@/lib/spatialMath.js'
 import { TIMING } from '@/lib/editorConstants.js'
 import { useConfirm } from '@/composables/useConfirm'
 import { useApiError } from '@/composables/useApiError'
-import { useEditorInteraction } from '@/composables/useEditorInteraction'
+import { provideEditorInteraction } from '@/composables/useEditorInteraction'
 import { useHeaderVisibility } from '@/composables'
 
 const props = defineProps({
@@ -64,7 +64,6 @@ const pendingBidirectional = ref(false)
 const editingHotspot = ref(null)
 const isFullscreen = ref(false)
 const editorContainer = ref(null)
-const isPopoverHovered = ref(false)
 const editorCanvasRef = ref(null)
 
 // Sticker edit state
@@ -79,10 +78,8 @@ const isImmersive = ref(false)
 // Composables
 const { confirmDelete } = useConfirm()
 const { handleError } = useApiError()
-const interaction = useEditorInteraction()
+const interaction = provideEditorInteraction()
 
-// Hotspot hover position (calculated on demand)
-const hotspotHoverPosition = ref(null)
 const { isVisible: headerVisible } = useHeaderVisibility('dashboardHeaderVisible', true)
 
 // Computed: get the currently hovered hotspot data from images
@@ -335,42 +332,7 @@ const handleHotspotClick = async (hotspot) => {
 }
 
 const handleHotspotClickEdit = ({ hotspot, position }) => {
-    interaction.setHoveredHotspot(hotspot?.slug)
-    hotspotHoverPosition.value = position
-}
-
-const handleHotspotHoverStart = ({ slug, hotspot, position }) => {
-    interaction.setHoveredHotspot(slug)
-    hotspotHoverPosition.value = position
-}
-
-const handleHotspotHoverEnd = () => {
-    if (!isPopoverHovered.value) {
-        interaction.setHoveredHotspot(null)
-        hotspotHoverPosition.value = null
-    }
-}
-
-const handlePopoverMouseEnter = () => {
-    isPopoverHovered.value = true
-}
-
-const handlePopoverMouseLeave = () => {
-    isPopoverHovered.value = false
-    interaction.setHoveredHotspot(null)
-    hotspotHoverPosition.value = null
-}
-
-const handleStickerHoverStart = ({ slug }) => {
-    interaction.setHoveredSticker(slug)
-}
-
-const handleStickerHoverEnd = () => {
-    interaction.setHoveredSticker(null)
-}
-
-const handleStickerSelect = ({ slug }) => {
-    interaction.setSelectedSticker(slug)
+    interaction.setHoveredHotspotWithPosition(hotspot?.slug, position)
 }
 
 const handleImageSelect = (index) => {
@@ -395,7 +357,6 @@ const handleDeleteHotspot = async (hotspot) => {
         await owl.hotspots.delete(hotspot.slug)
 
         interaction.clearHoverStates()
-        hotspotHoverPosition.value = null
 
         reloadImages()
     } catch (error) {
@@ -432,7 +393,6 @@ const toggleMode = () => {
     isCreatingHotspot.value = false
     isCreatingSticker.value = false
     interaction.clearAllStates()
-    hotspotHoverPosition.value = null
     if (mode.value === 'edit') {
         isImmersive.value = false
     }
@@ -454,13 +414,12 @@ const handleFullscreenChange = () => {
     isFullscreen.value = !!document.fullscreenElement
 }
 
-const handleCameraMove = () => {
-    interaction.clearHoverStates()
-    hotspotHoverPosition.value = null
-    stickerContextMenuVisible.value = false
-    isPopoverHovered.value = false
-    interaction.setSelectedSticker(null)
-}
+// Close sticker context menu when interaction state is cleared (e.g. camera move)
+watch(interaction.selectedStickerSlug, (slug) => {
+    if (!slug) {
+        stickerContextMenuVisible.value = false
+    }
+})
 
 onMounted(() => {
     document.addEventListener('fullscreenchange', handleFullscreenChange)
@@ -487,16 +446,10 @@ onUnmounted(() => {
             <div v-else class="relative w-full h-full">
                 <EditorCanvas ref="editorCanvasRef" :images="images" :current-index="currentImageIndex" :mode="mode"
                     :is-creating-hotspot="isCreatingHotspot" :is-creating-sticker="isCreatingSticker"
-                    :hovered-hotspot-slug="interaction.hoveredHotspotSlug.value"
-                    :hovered-sticker-slug="interaction.hoveredStickerSlug.value"
-                    :selected-sticker-slug="interaction.selectedStickerSlug.value"
                     @hotspot-click="handleHotspotClick" @hotspot-click-edit="handleHotspotClickEdit"
                     @hotspot-position-selected="handleHotspotPositionSelected"
                     @sticker-position-selected="handleStickerPositionSelected" @sticker-click="handleStickerClick"
-                    @sticker-select="handleStickerSelect"
-                    @sticker-hover-start="handleStickerHoverStart" @sticker-hover-end="handleStickerHoverEnd"
-                    @sprite-drag-end="handleSpriteDragEnd" @camera-move="handleCameraMove"
-                    @hotspot-hover-start="handleHotspotHoverStart" @hotspot-hover-end="handleHotspotHoverEnd" />
+                    @sprite-drag-end="handleSpriteDragEnd" />
 
                 <!-- Control buttons on right side (middle height to avoid overlap) -->
                 <div class="top-1/2 right-6 z-10 absolute flex flex-col gap-2 -translate-y-1/2">
@@ -585,9 +538,9 @@ onUnmounted(() => {
                     />
                 </Transition>
 
-                <HotspotPopover :hotspot="hoveredHotspot" :position="hotspotHoverPosition" :mode="mode"
+                <HotspotPopover :hotspot="hoveredHotspot" :position="interaction.hotspotHoverPosition.value" :mode="mode"
                     :visible="!!hoveredHotspot" @edit="handleEditHotspot" @delete="handleDeleteHotspot"
-                    @mouseenter="handlePopoverMouseEnter" @mouseleave="handlePopoverMouseLeave" />
+                    @mouseenter="interaction.handlePopoverMouseEnter" @mouseleave="interaction.handlePopoverMouseLeave" />
 
                 <HotspotTargetDialog v-model:open="targetDialogOpen" :all-scenes="scenes"
                     :current-image-id="currentImage?.id" @select="handleTargetImageSelected" />

@@ -1,17 +1,21 @@
 <script setup>
-import { ref, onMounted, computed, onUnmounted, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Maximize, Minimize, VenetianMask } from 'lucide-vue-next'
 import EditorCanvas from '@/components/dashboard/editor/EditorCanvas.vue'
 import ImageThumbnailsPanel from '@/components/dashboard/editor/ImageThumbnailsPanel.vue'
 import HotspotPopover from '@/components/dashboard/editor/HotspotPopover.vue'
 import EditorZoomControls from './EditorZoomControls.vue'
+import { provideEditorInteraction } from '@/composables/useEditorInteraction.js'
 
 const props = defineProps({
     project: Object,
-    onTrackImageView: Function, // Optional tracking callback for image views
-    onTrackHotspotClick: Function, // Optional tracking callback for hotspot clicks
+    onTrackImageView: Function,
+    onTrackHotspotClick: Function,
 })
+
+// Provide shared interaction state for EditorCanvas and siblings
+const interaction = provideEditorInteraction()
 
 // Flatten images from all scenes, adding scene info for grouping in ImageThumbnailsPanel
 const images = ref(props.project.scenes.reduce((acc, scene) => {
@@ -26,30 +30,22 @@ const startImageIndex = props.project.start_image
     ? images.value.findIndex(img => img.id === props.project.start_image.id)
     : -1
 const currentImageIndex = ref(startImageIndex !== -1 ? startImageIndex : 0)
-const mode = ref('view')
-const isCreatingHotspot = ref(false)
-const targetDialogOpen = ref(false)
-const pendingHotspotPosition = ref(null)
-const hoveredHotspotSlug = ref(null) // Track by slug for proper state management
-const hoveredHotspot = ref(null)
-const hotspotHoverPosition = ref(null)
-const editingHotspot = ref(null)
-const isPopoverHovered = ref(false)
 const editorCanvasRef = ref(null)
 const isImmersive = ref(false)
 const isFullscreen = ref(false)
 const viewerContainer = ref(null)
 
-const handleHotspotPositionSelected = (position) => {
-    pendingHotspotPosition.value = position
-    isCreatingHotspot.value = false
-    editingHotspot.value = null
-    targetDialogOpen.value = true
-}
+const currentImage = computed(() => images.value[currentImageIndex.value])
+
+// Computed: get the currently hovered hotspot data from images
+const hoveredHotspot = computed(() => {
+    if (!interaction.hoveredHotspotSlug.value) return null
+    return currentImage.value?.hotspots_from?.find(
+        h => h.slug === interaction.hoveredHotspotSlug.value
+    ) || null
+})
 
 const handleHotspotClick = async (hotspot) => {
-    if (mode.value === 'edit') return
-
     // Track hotspot click for analytics
     if (props.onTrackHotspotClick && hotspot.slug) {
         props.onTrackHotspotClick(hotspot.slug)
@@ -59,7 +55,6 @@ const handleHotspotClick = async (hotspot) => {
     if (targetIndex !== -1) {
         const hasRotation = hotspot.target_rotation_x !== null && hotspot.target_rotation_y !== null
 
-        // Always load panorama directly to ensure it completes before reloading images
         if (editorCanvasRef.value) {
             if (hasRotation) {
                 await editorCanvasRef.value.loadPanorama(targetIndex, true, {
@@ -72,10 +67,8 @@ const handleHotspotClick = async (hotspot) => {
             }
         }
 
-        // Update index after panorama loads
         currentImageIndex.value = targetIndex
 
-        // Track image view for analytics
         const targetImage = images.value[targetIndex]
         if (props.onTrackImageView && targetImage?.slug) {
             props.onTrackImageView(targetImage.slug)
@@ -83,24 +76,9 @@ const handleHotspotClick = async (hotspot) => {
     }
 }
 
-const handleHotspotHoverStart = ({ slug, hotspot, position }) => {
-    hoveredHotspotSlug.value = slug
-    hoveredHotspot.value = hotspot
-    hotspotHoverPosition.value = position
-}
-
-const handleHotspotHoverEnd = () => {
-    if (!isPopoverHovered.value) {
-        hoveredHotspotSlug.value = null
-        hoveredHotspot.value = null
-        hotspotHoverPosition.value = null
-    }
-}
-
 const handleImageSelect = (index) => {
     currentImageIndex.value = index
 
-    // Track image view for analytics
     const selectedImage = images.value[index]
     if (props.onTrackImageView && selectedImage?.slug) {
         props.onTrackImageView(selectedImage.slug)
@@ -109,25 +87,6 @@ const handleImageSelect = (index) => {
 
 const toggleImmersion = () => {
     isImmersive.value = !isImmersive.value
-}
-
-const handlePopoverMouseEnter = () => {
-    isPopoverHovered.value = true
-}
-
-const handlePopoverMouseLeave = () => {
-    isPopoverHovered.value = false
-    hoveredHotspotSlug.value = null
-    hoveredHotspot.value = null
-    hotspotHoverPosition.value = null
-}
-
-const handleCameraMove = () => {
-    // Close popover when camera moves or when clicking empty space
-    hoveredHotspotSlug.value = null
-    hoveredHotspot.value = null
-    hotspotHoverPosition.value = null
-    isPopoverHovered.value = false
 }
 
 const toggleFullscreen = async () => {
@@ -153,11 +112,8 @@ onUnmounted(() => {
 </script>
 <template>
     <div ref="viewerContainer" class="relative w-full h-full">
-        <EditorCanvas ref="editorCanvasRef" :images="images" :current-index="currentImageIndex" :mode="mode"
-            :hovered-hotspot-slug="hoveredHotspotSlug"
-            @hotspot-click="handleHotspotClick" @hotspot-position-selected="handleHotspotPositionSelected"
-            @hotspot-hover-start="handleHotspotHoverStart" @hotspot-hover-end="handleHotspotHoverEnd"
-            @camera-move="handleCameraMove" />
+        <EditorCanvas ref="editorCanvasRef" :images="images" :current-index="currentImageIndex"
+            @hotspot-click="handleHotspotClick" />
 
         <!-- Control buttons on right side (middle height to avoid overlap) -->
         <div class="absolute top-1/2 -translate-y-1/2 right-6 z-40 flex flex-col gap-2">
@@ -199,8 +155,8 @@ onUnmounted(() => {
             <EditorZoomControls v-show="!isImmersive" :controls="editorCanvasRef?.controls" />
         </Transition>
 
-        <HotspotPopover :hotspot="hoveredHotspot" :position="hotspotHoverPosition" :mode="mode"
-            :visible="!!hoveredHotspot" @mouseenter="handlePopoverMouseEnter" @mouseleave="handlePopoverMouseLeave" />
+        <HotspotPopover :hotspot="hoveredHotspot" :position="interaction.hotspotHoverPosition.value" mode="view"
+            :visible="!!hoveredHotspot" @mouseenter="interaction.handlePopoverMouseEnter" @mouseleave="interaction.handlePopoverMouseLeave" />
     </div>
 </template>
 
