@@ -315,6 +315,9 @@ const handleHotspotClick = async (hotspot) => {
     if (targetIndex !== -1) {
         const hasRotation = hotspot.target_rotation_x !== null && hotspot.target_rotation_y !== null
 
+        // Update index BEFORE loading so displayHotspots() inside loadPanorama reads the correct image's hotspots
+        currentImageIndex.value = targetIndex
+
         if (editorCanvasRef.value) {
             if (hasRotation) {
                 await editorCanvasRef.value.loadPanorama(targetIndex, true, {
@@ -326,8 +329,6 @@ const handleHotspotClick = async (hotspot) => {
                 await editorCanvasRef.value.loadPanorama(targetIndex, true, null, true)
             }
         }
-
-        currentImageIndex.value = targetIndex
 
         reloadImages()
     }
