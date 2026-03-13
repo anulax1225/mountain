@@ -49,7 +49,6 @@ const emit = defineEmits([
 
 const renderView = ref(null)
 const hideHoverTimeout = ref(null)
-const hoveredSprite = ref(null) // Track hovered sprite for distance-based unhover
 const skipNextWatch = ref(false)
 const isLoadingPanorama = ref(false)
 
@@ -236,7 +235,6 @@ const clearHoverTimeout = () => {
         clearTimeout(hideHoverTimeout.value)
         hideHoverTimeout.value = null
     }
-    hoveredSprite.value = null
 }
 
 // Canvas click handler
@@ -377,58 +375,59 @@ const onMouseMove = (event) => {
         return
     }
 
-    // View mode - hotspot hover (distance-based unhover to prevent raycaster oscillation)
+    // View mode - hotspot hover (screen-space distance, no raycaster)
     if (props.mode === 'view' && hotspotManager) {
-        // If already hovering, use screen-space distance to decide unhover
-        if (props.hoveredHotspotSlug && hoveredSprite.value) {
-            const screenPos = hoveredSprite.value.position.clone()
+        const sprites = hotspotManager.getAll()
+        let closestSlug = null
+        let closestHotspot = null
+        let closestDistance = Infinity
+        let closestScreenPos = null
+
+        for (const sprite of sprites) {
+            const screenPos = sprite.position.clone()
             screenPos.project(camera.value)
-            const spriteX = (screenPos.x * 0.5 + 0.5) * renderView.value.clientWidth
-            const spriteY = (screenPos.y * -0.5 + 0.5) * renderView.value.clientHeight
 
-            const dx = mouseX - spriteX
-            const dy = mouseY - spriteY
-            const distance = Math.sqrt(dx * dx + dy * dy)
+            // Skip sprites behind the camera
+            if (screenPos.z > 1) continue
 
-            if (distance <= INTERACTION.HOVER_DISTANCE_PX) {
-                if (hideHoverTimeout.value) {
-                    clearTimeout(hideHoverTimeout.value)
-                    hideHoverTimeout.value = null
-                }
-            } else if (!hideHoverTimeout.value) {
-                hideHoverTimeout.value = setTimeout(() => {
-                    hoveredSprite.value = null
-                    emit('hotspot-hover-end')
-                }, TIMING.HOVER_HIDE_DELAY_MS)
+            const sx = (screenPos.x * 0.5 + 0.5) * renderView.value.clientWidth
+            const sy = (screenPos.y * -0.5 + 0.5) * renderView.value.clientHeight
+
+            const dx = mouseX - sx
+            const dy = mouseY - sy
+            const dist = Math.sqrt(dx * dx + dy * dy)
+
+            if (dist < closestDistance) {
+                closestDistance = dist
+                closestSlug = sprite.userData.hotspot?.slug
+                closestHotspot = sprite.userData.hotspot
+                closestScreenPos = { x: sx, y: sy }
+            }
+        }
+
+        // Hysteresis: smaller threshold to enter hover, larger to maintain
+        const isCurrentlyHovered = props.hoveredHotspotSlug && props.hoveredHotspotSlug === closestSlug
+        const threshold = isCurrentlyHovered
+            ? INTERACTION.HOVER_DISTANCE_PX
+            : INTERACTION.HOVER_ENTER_DISTANCE_PX
+
+        if (closestSlug && closestDistance <= threshold) {
+            if (closestSlug !== props.hoveredHotspotSlug) {
+                emit('hotspot-hover-start', {
+                    slug: closestSlug,
+                    hotspot: closestHotspot,
+                    position: closestScreenPos
+                })
+            }
+            if (hideHoverTimeout.value) {
+                clearTimeout(hideHoverTimeout.value)
+                hideHoverTimeout.value = null
             }
         } else {
-            // Not hovering — use raycaster for initial detection
-            const intersects = raycaster.value.intersectObjects(hotspotManager.getAll())
-
-            if (intersects.length > 0) {
-                const sprite = intersects[0].object
-                const hotspot = sprite.userData.hotspot
-
-                if (hotspot?.slug !== props.hoveredHotspotSlug) {
-                    const screenPosition = sprite.position.clone()
-                    screenPosition.project(camera.value)
-
-                    const x = (screenPosition.x * 0.5 + 0.5) * renderView.value.clientWidth
-                    const y = (screenPosition.y * -0.5 + 0.5) * renderView.value.clientHeight
-
-                    hoveredSprite.value = sprite
-
-                    emit('hotspot-hover-start', {
-                        slug: hotspot?.slug,
-                        hotspot,
-                        position: { x, y }
-                    })
-                }
-
-                if (hideHoverTimeout.value) {
-                    clearTimeout(hideHoverTimeout.value)
-                    hideHoverTimeout.value = null
-                }
+            if (props.hoveredHotspotSlug && !hideHoverTimeout.value) {
+                hideHoverTimeout.value = setTimeout(() => {
+                    emit('hotspot-hover-end')
+                }, TIMING.HOVER_HIDE_DELAY_MS)
             }
         }
     }
