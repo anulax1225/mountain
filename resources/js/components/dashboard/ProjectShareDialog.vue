@@ -33,11 +33,34 @@ const generateQRCode = async () => {
             await QRCode.toCanvas(qrCanvas.value, galleryUrl.value, {
                 width: 200,
                 margin: 2,
+                errorCorrectionLevel: 'H',
                 color: {
                     dark: '#18181b',
                     light: '#ffffff'
                 }
             })
+
+            const canvas = qrCanvas.value
+            const ctx = canvas.getContext('2d')
+            const logo = new Image()
+            logo.src = '/owl-logo.png'
+
+            await new Promise((resolve, reject) => {
+                logo.onload = resolve
+                logo.onerror = reject
+            })
+
+            const logoSize = canvas.width * 0.25
+            const x = (canvas.width - logoSize) / 2
+            const y = (canvas.height - logoSize) / 2
+            const padding = 4
+
+            ctx.fillStyle = '#ffffff'
+            ctx.beginPath()
+            ctx.roundRect(x - padding, y - padding, logoSize + padding * 2, logoSize + padding * 2, 6)
+            ctx.fill()
+
+            ctx.drawImage(logo, x, y, logoSize, logoSize)
         } catch (error) {
             console.error('Failed to generate QR code:', error)
         }
