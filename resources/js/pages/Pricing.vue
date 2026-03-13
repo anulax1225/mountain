@@ -76,6 +76,9 @@ const plans = [
           <p class="text-xl text-muted-foreground max-w-2xl mx-auto">
             Choisissez le plan qui correspond à vos besoins. Évoluez à tout moment.
           </p>
+          <p class="mt-4 text-sm text-muted-foreground/70 italic">
+            Cette page est un exemple fictif. Les tarifs ne sont pas encore disponibles.
+          </p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">

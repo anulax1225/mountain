@@ -40,6 +40,7 @@ if (! app()->environment('production') && class_exists(\Laravel\Dusk\DuskService
 Route::get('/', fn () => Inertia::render('Welcome'))->name('welcome');
 Route::get('/login', fn () => Inertia::render('auth/Login'))->name('login');
 Route::get('/pricing', fn () => Inertia::render('Pricing'))->name('pricing');
+Route::get('/about', fn () => Inertia::render('About'))->name('about');
 Route::get('/contact', [ContactRequestController::class, 'show'])->name('contact');
 Route::get('/docs', fn () => view('scribe.index'));
 

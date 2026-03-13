@@ -2,7 +2,7 @@
 import { Link } from '@inertiajs/vue3'
 import { Button } from '@/components/ui/button'
 import PlaceholderPattern from '@/components/PlaceholderPattern.vue'
-import { Zap, ArrowRight } from 'lucide-vue-next'
+import { ArrowRight } from 'lucide-vue-next'
 </script>
 
 <template>
@@ -17,12 +17,6 @@ import { Zap, ArrowRight } from 'lucide-vue-next'
 
         <div class="mx-auto max-w-7xl">
             <div class="mx-auto mb-16 max-w-4xl text-center">
-                <div
-                    class="inline-flex items-center gap-2 bg-muted mb-6 px-3 py-1 rounded-full text-muted-foreground text-sm">
-                    <Zap class="w-3 h-3" />
-                    <span>Propulsé par Three.js</span>
-                </div>
-
                 <h1
                     class="mb-6 font-bold text-foreground text-5xl sm:text-6xl lg:text-7xl tracking-tight">
                     Créez des visites virtuelles<br />immersives en 360°
@@ -43,7 +37,7 @@ import { Zap, ArrowRight } from 'lucide-vue-next'
                     </Link>
                     <Link href="/gallery">
                         <Button size="lg" variant="outline" class="px-8 h-12 text-base">
-                            Voir la démo
+                            Voir la galerie
                         </Button>
                     </Link>
                 </div>
