@@ -36,6 +36,155 @@ All use UUID slugs for routing.
 - If you experience problems with the testing database while running `sail artisan test`, **STOP IMMEDIATELY** and wait for the user's instructions.
 - Never delete the databases yourself. Commands such as `DROP DATABASE`, `sail artisan db:wipe`, and any other destructive operations on the database or its tables are **NOT ALLOWED**.
 
+=== .ai/testing rules ===
+
+## Testing
+
+This project uses **Pest** (backend), **Vitest** (frontend), and **Dusk** (E2E). All commands run through Laravel Sail.
+
+### Pest (Backend)
+
+```bash
+
+# Full suite
+
+vendor/bin/sail artisan test --compact
+
+# Single file
+
+vendor/bin/sail artisan test --compact tests/Feature/Api/ProjectControllerTest.php
+
+# Filter by test name
+
+vendor/bin/sail artisan test --compact --filter="admin can create a project"
+```
+
+- Config: `phpunit.xml` (sets `DB_DATABASE=testing`, array drivers for cache/session/mail).
+- Bootstrap: `tests/Pest.php` — extends `TestCase`, uses `RefreshDatabase`, defines helpers (`seedRoles`, `createAdmin`, `createClient`, `createProjectOwner`, `createProjectViewer`).
+- Write tests in **Pest syntax** (`test()`, `it()`, `expect()`), not PHPUnit classes.
+- Use **factories** with existing states. Use `fake()` for faker data.
+- Feature tests for Inertia pages use `assertInertia(fn (Assert $page) => ...)`.
+- Run `vendor/bin/sail bin pint --dirty --format agent` after writing PHP tests.
+- Never use or modify the main `laravel` database during tests.
+
+### Vitest (Frontend)
+
+```bash
+
+# Watch mode
+
+vendor/bin/sail npm run test
+
+# Single run (CI)
+
+vendor/bin/sail npm run test:run
+
+# Single file
+
+vendor/bin/sail npm run test:run -- resources/js/composables/__tests__/useForm.test.js
+
+# Filter by name
+
+vendor/bin/sail npm run test:run -- -t "validates required fields"
+```
+
+- Config: `vitest.config.ts` (jsdom, `@` alias to `resources/js`).
+- Setup: `resources/js/test/setup.ts` — mocks `@inertiajs/vue3` (usePage, router, Link, useForm).
+- Test files live in `__tests__/` directories next to the code they test.
+- Mount components with `@vue/test-utils` `mount()`, using `global.stubs` for child components.
+
+### Dusk (E2E)
+
+**Prerequisites:** Services must be running, frontend must be built, Octane reloaded.
+
+```bash
+vendor/bin/sail up -d
+vendor/bin/sail npm run build
+vendor/bin/sail artisan octane:reload
+
+# Full E2E suite
+
+vendor/bin/sail artisan dusk
+
+# Single file
+
+vendor/bin/sail artisan dusk tests/Browser/AuthenticationFlowTest.php
+
+# Filter by name
+
+vendor/bin/sail artisan dusk --filter="login with valid credentials"
+```
+
+- Config: `.env.dusk.local` (`APP_URL=http://laravel.test`, `DUSK_DRIVER_URL=http://selenium:4444/wd/hub`).
+- Uses `DatabaseTruncation` (not `RefreshDatabase`) — dropping tables crashes RoadRunner workers.
+- Use **Page Objects** (`tests/Browser/Pages/`) for selectors and reusable interactions.
+- Always `waitForText()` / `waitForLocation()` before asserting — the SPA needs hydration time.
+- Use `afterEach(function () { static::closeAll(); })` to avoid browser state pollution between tests.
+- Debug with `$browser->screenshot('name')` and `$browser->storeSource('name')`.
+
+### Troubleshooting
+
+| Symptom | Fix |
+|---------|-----|
+| Blank page in Dusk | `vendor/bin/sail artisan octane:reload` (Octane caches old Vite manifest) |
+| Dusk tests pass solo but fail in suite | Add `afterEach(fn () => static::closeAll())` |
+| Selenium connection refused | `vendor/bin/sail up -d` (selenium container not running) |
+| Element not found in Dusk | Add `waitForText()` or `pause()` before interaction |
+
+### Test structure
+
+```
+tests/
+├── Pest.php                      # Config, shared helpers
+
+├── TestCase.php                  # Base Laravel TestCase
+
+├── DuskTestCase.php              # Headless Chrome / Selenium config
+
+├── Unit/
+│   ├── Models/                   # Eloquent model tests
+
+│   ├── Policies/                 # Authorization policy tests
+
+│   ├── Requests/                 # Form request validation tests
+
+│   └── Services/                 # Service class tests
+
+├── Feature/
+│   ├── Auth/                     # Authentication flow tests
+
+│   ├── Public/                   # Public route tests
+
+│   ├── Web/                      # Inertia controller tests
+
+│   ├── Api/                      # JSON API controller tests
+
+│   ├── Middleware/                # Middleware tests
+
+│   └── Uploads/                  # Chunked upload tests
+
+└── Browser/
+    ├── Pages/                    # Page Objects
+
+    ├── *Test.php                 # E2E test files
+
+    ├── console/                  # Console logs (gitignored)
+
+    ├── screenshots/              # Failure screenshots (gitignored)
+
+    └── source/                   # Page source dumps (gitignored)
+
+resources/js/
+├── test/setup.ts                 # Global Inertia mocks
+
+├── composables/__tests__/        # Composable unit tests
+
+├── components/__tests__/         # Component tests
+
+└── pages/__tests__/              # Page-level tests
+
+```
+
 === .ai/workflow rules ===
 
 ## Workflow Requirements
@@ -76,10 +225,12 @@ This application is a Laravel application and its main Laravel ecosystems packag
 - laravel/telescope (TELESCOPE) - v5
 - laravel/wayfinder (WAYFINDER) - v0
 - laravel/boost (BOOST) - v2
+- laravel/dusk (DUSK) - v8
 - laravel/mcp (MCP) - v0
 - laravel/pail (PAIL) - v1
 - laravel/pint (PINT) - v1
 - laravel/sail (SAIL) - v1
+- pestphp/pest (PEST) - v3
 - phpunit/phpunit (PHPUNIT) - v11
 - @inertiajs/vue3 (INERTIA_VUE) - v2
 - tailwindcss (TAILWINDCSS) - v4
@@ -93,10 +244,10 @@ This application is a Laravel application and its main Laravel ecosystems packag
 This project has domain-specific skills available. You MUST activate the relevant skill whenever you work in that domain—don't wait until you're stuck.
 
 - `wayfinder-development` — Activates whenever referencing backend routes in frontend components. Use when importing from @/actions or @/routes, calling Laravel routes from TypeScript, or working with Wayfinder route functions.
+- `pest-testing` — Tests applications using the Pest 4 PHP framework. Activates when writing tests, creating unit or feature tests, adding assertions, testing Livewire components, browser testing, debugging test failures, working with datasets or mocking; or when the user mentions test, spec, TDD, expects, assertion, coverage, or needs to verify functionality works.
 - `inertia-vue-development` — Develops Inertia.js v2 Vue client-side applications. Activates when creating Vue pages, forms, or navigation; using &lt;Link&gt;, &lt;Form&gt;, useForm, or router; working with deferred props, prefetching, or polling; or when user mentions Vue with Inertia, Vue pages, Vue forms, or Vue navigation.
 - `tailwindcss-development` — Styles applications using Tailwind CSS v4 utilities. Activates when adding styles, restyling components, working with gradients, spacing, layout, flex, grid, responsive design, dark mode, colors, typography, or borders; or when the user mentions CSS, styling, classes, Tailwind, restyle, hero section, cards, buttons, or any visual/UI changes.
 - `create-adaptable-composable` — Create a library-grade Vue composable that accepts maybe-reactive inputs (MaybeRef / MaybeRefOrGetter) so callers can pass a plain value, ref, or getter. Normalize inputs with toValue()/toRef() inside reactive effects (watch/watchEffect) to keep behavior predictable and reactive. Use this skill when user asks for creating adaptable or reusable composables.
-- `pest-testing` — Tests applications using the Pest 4 PHP framework. Activates when writing tests, creating unit or feature tests, adding assertions, testing Livewire components, browser testing, debugging test failures, working with datasets or mocking; or when the user mentions test, spec, TDD, expects, assertion, coverage, or needs to verify functionality works.
 - `test-skill` — Test skill
 - `vue-best-practices` — MUST be used for Vue.js tasks. Strongly recommends Composition API with `&lt;script setup&gt;` and TypeScript as the standard approach. Covers Vue 3, SSR, Volar, vue-tsc. Load for any Vue, .vue files, Vue Router, Pinia, or Vite with Vue work. ALWAYS use Composition API unless the project explicitly requires Options API.
 - `vue-debug-guides` — Vue 3 debugging and error handling for runtime errors, warnings, async failures, and SSR/hydration issues. Use when diagnosing or fixing Vue issues.
@@ -220,6 +371,13 @@ protected function isAccessible(User $user, ?string $path = null): bool
     - Execute Node commands: `vendor/bin/sail npm run dev`
     - Execute PHP scripts: `vendor/bin/sail php [script]`
 - View all available Sail commands by running `vendor/bin/sail` without arguments.
+
+=== tests rules ===
+
+# Test Enforcement
+
+- Every change must be programmatically tested. Write a new test or update an existing test, then run the affected tests to make sure they pass.
+- Run the minimum number of tests needed to ensure code quality and speed. Use `vendor/bin/sail artisan test --compact` with a specific filename or filter.
 
 === inertia-laravel/core rules ===
 
@@ -353,23 +511,15 @@ Wayfinder generates TypeScript functions for Laravel routes. Import from `@/acti
 - If you have modified any PHP files, you must run `vendor/bin/sail bin pint --dirty --format agent` before finalizing changes to ensure your code matches the project's expected style.
 - Do not run `vendor/bin/sail bin pint --test --format agent`, simply run `vendor/bin/sail bin pint --format agent` to fix any formatting issues.
 
-=== phpunit/core rules ===
+=== pest/core rules ===
 
-# PHPUnit
+## Pest
 
-- This application uses PHPUnit for testing. All tests must be written as PHPUnit classes. Use `vendor/bin/sail artisan make:test --phpunit {name}` to create a new test.
-- If you see a test using "Pest", convert it to PHPUnit.
-- Every time a test has been updated, run that singular test.
-- When the tests relating to your feature are passing, ask the user if they would like to also run the entire test suite to make sure everything is still passing.
-- Tests should cover all happy paths, failure paths, and edge cases.
-- You must not remove any tests or test files from the tests directory without approval. These are not temporary or helper files; these are core to the application.
-
-## Running Tests
-
-- Run the minimal number of tests, using an appropriate filter, before finalizing.
-- To run all tests: `vendor/bin/sail artisan test --compact`.
-- To run all tests in a file: `vendor/bin/sail artisan test --compact tests/Feature/ExampleTest.php`.
-- To filter on a particular test name: `vendor/bin/sail artisan test --compact --filter=testName` (recommended after making a change to a related file).
+- This project uses Pest for testing. Create tests: `vendor/bin/sail artisan make:test --pest {name}`.
+- Run tests: `vendor/bin/sail artisan test --compact` or filter: `vendor/bin/sail artisan test --compact --filter=testName`.
+- Do NOT delete tests without approval.
+- CRITICAL: ALWAYS use `search-docs` tool for version-specific Pest documentation and updated code examples.
+- IMPORTANT: Activate `pest-testing` every time you're working with a Pest or testing-related task.
 
 === inertia-vue/core rules ===
 

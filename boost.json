@@ -9,10 +9,10 @@
     "sail": true,
     "skills": [
         "wayfinder-development",
+        "pest-testing",
         "inertia-vue-development",
         "tailwindcss-development",
         "create-adaptable-composable",
-        "pest-testing",
         "test-skill",
         "vue-best-practices",
         "vue-debug-guides",
