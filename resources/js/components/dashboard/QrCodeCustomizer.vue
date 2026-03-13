@@ -1,6 +1,5 @@
 <script setup>
 import { shallowRef, reactive, watch, nextTick, onBeforeUnmount } from 'vue'
-import QRCodeStyling from 'qr-code-styling'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
@@ -26,6 +25,7 @@ const props = defineProps({
 
 const containerRef = shallowRef(null)
 const qrInstance = shallowRef(null)
+const QRCodeStylingClass = shallowRef(null)
 
 const DOT_STYLES = [
     { value: 'square', label: 'Carré' },
@@ -93,9 +93,18 @@ function buildQrOptions() {
     }
 }
 
-function createQrCode() {
+async function loadQRCodeStyling() {
+    if (!QRCodeStylingClass.value) {
+        const module = await import('qr-code-styling')
+        QRCodeStylingClass.value = module.default
+    }
+    return QRCodeStylingClass.value
+}
+
+async function createQrCode() {
     if (!containerRef.value) return
 
+    const QRCodeStyling = await loadQRCodeStyling()
     containerRef.value.innerHTML = ''
     qrInstance.value = new QRCodeStyling(buildQrOptions())
     qrInstance.value.append(containerRef.value)
