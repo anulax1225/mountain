@@ -50,8 +50,8 @@ defineProps<Props>();
 
             <div v-else class="gap-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                 <Link v-for="project in projects.data" :key="project.id" :href="`/gallery/${project.slug}`"
-                    class="group">
-                    <Card class="hover:shadow-lg overflow-hidden transition-all">
+                    class="group h-full">
+                    <Card class="h-full hover:shadow-lg overflow-hidden transition-all">
                         <div class="relative bg-muted aspect-video overflow-hidden">
                             <AppImage v-if="project.picture_path"
                                 :src="`/projects/${project.slug}/picture`"
@@ -62,7 +62,7 @@ defineProps<Props>();
                             </div>
                         </div>
 
-                        <CardHeader>
+                        <CardHeader class="flex-1">
                             <CardTitle>{{ project.name }}</CardTitle>
                             <CardDescription v-if="project.description">
                                 {{ project.description }}

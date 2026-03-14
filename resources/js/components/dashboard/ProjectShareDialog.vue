@@ -21,9 +21,14 @@ const galleryUrl = computed(() => {
     return `${window.location.origin}/gallery/${props.project.slug}`
 })
 
+const embedUrl = computed(() => {
+    if (!props.project?.slug) return ''
+    return `${window.location.origin}/gallery/${props.project.slug}/embed`
+})
+
 const iframeCode = computed(() => {
-    if (!galleryUrl.value) return ''
-    return `<iframe src="${galleryUrl.value}" width="100%" height="600" frameborder="0" style="border-radius: 8px;" allowfullscreen></iframe>`
+    if (!embedUrl.value) return ''
+    return `<iframe src="${embedUrl.value}" width="100%" height="600" frameborder="0" style="border-radius: 8px;" allowfullscreen></iframe>`
 })
 
 const qrDownloadName = computed(() => `${props.project?.name || 'qrcode'}-qr`)

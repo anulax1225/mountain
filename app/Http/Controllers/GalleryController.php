@@ -27,6 +27,7 @@ class GalleryController extends Controller
         }
 
         $project->load([
+            'user',
             'scenes.images.hotspotsFrom',
             'scenes.images.hotspotsTo',
             'scenes.images.blurRegions',
@@ -35,8 +36,27 @@ class GalleryController extends Controller
             'startImage.blurRegions',
         ]);
 
-        // dd((new ProjectResource($project))->toArray(request()));
         return Inertia::render('gallery/Show', [
+            'project' => (new ProjectResource($project))->toArray(request()),
+        ]);
+    }
+
+    public function embed(Project $project)
+    {
+        if (! $project->is_public) {
+            abort(404);
+        }
+
+        $project->load([
+            'scenes.images.hotspotsFrom',
+            'scenes.images.hotspotsTo',
+            'scenes.images.blurRegions',
+            'scenes.hotspots',
+            'startImage.hotspotsFrom',
+            'startImage.blurRegions',
+        ]);
+
+        return Inertia::render('gallery/Embed', [
             'project' => (new ProjectResource($project))->toArray(request()),
         ]);
     }

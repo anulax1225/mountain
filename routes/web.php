@@ -46,9 +46,10 @@ Route::get('/contact', [ContactRequestController::class, 'show'])->name('contact
 Route::get('/docs', fn () => view('scribe.index'));
 
 Route::get('/gallery', [GalleryController::class, 'index'])->name('gallery.index');
-Route::get('/gallery/{project:slug}', [GalleryController::class, 'show'])
+Route::get('/gallery/{project:slug}', [GalleryController::class, 'show'])->name('gallery.show');
+Route::get('/gallery/{project:slug}/embed', [GalleryController::class, 'embed'])
     ->middleware('allow-iframe')
-    ->name('gallery.show');
+    ->name('gallery.embed');
 
 // ==========================================================================
 // Public actions (no auth)
