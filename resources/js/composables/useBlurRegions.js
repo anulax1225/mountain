@@ -1,7 +1,6 @@
 import { watch, toValue } from 'vue'
 import * as THREE from 'three'
 import { cartesianToUV, angularRadiusToPixels } from '@/lib/spatialMath.js'
-import { BLUR } from '@/lib/editorConstants.js'
 
 /**
  * Composable for applying blur regions to the panorama texture
@@ -63,7 +62,7 @@ export function useBlurRegions(currentMesh, blurRegions) {
             const pr = angularRadiusToPixels(region.radius, canvas.height)
 
             if (region.type === 'pixelate') {
-                applyPixelation(ctx, originalImage, px, py, pr, canvas.width, canvas.height)
+                applyPixelation(ctx, px, py, pr, canvas.width, canvas.height)
             } else {
                 applyGaussianBlur(ctx, originalImage, px, py, pr, region.intensity)
             }
@@ -82,21 +81,45 @@ export function useBlurRegions(currentMesh, blurRegions) {
 
     /**
      * Apply gaussian blur to a circular region
+     *
+     * Uses a temp canvas for the blur to avoid drawing the full-size image
+     * through ctx.filter (browsers may silently drop very large filtered draws).
      */
     function applyGaussianBlur(ctx, image, px, py, pr, intensity) {
+        const canvasW = ctx.canvas.width
+        const canvasH = ctx.canvas.height
+
+        // Expand region by blur intensity to capture blur sampling area
+        const margin = intensity * 2
+        const x1 = Math.max(0, Math.floor(px - pr - margin))
+        const y1 = Math.max(0, Math.floor(py - pr - margin))
+        const x2 = Math.min(canvasW, Math.ceil(px + pr + margin))
+        const y2 = Math.min(canvasH, Math.ceil(py + pr + margin))
+        const w = x2 - x1
+        const h = y2 - y1
+        if (w <= 0 || h <= 0) return
+
+        // Draw just the needed region blurred on a temp canvas
+        const tempCanvas = document.createElement('canvas')
+        tempCanvas.width = w
+        tempCanvas.height = h
+        const tempCtx = tempCanvas.getContext('2d')
+        tempCtx.filter = `blur(${intensity}px)`
+        tempCtx.drawImage(image, x1, y1, w, h, 0, 0, w, h)
+
+        // Composite back onto main canvas with circular clip
         ctx.save()
         ctx.beginPath()
         ctx.arc(px, py, pr, 0, Math.PI * 2)
         ctx.clip()
-        ctx.filter = `blur(${intensity}px)`
-        ctx.drawImage(image, 0, 0)
+        ctx.drawImage(tempCanvas, 0, 0, w, h, x1, y1, w, h)
         ctx.restore()
     }
 
     /**
      * Apply pixelation (mosaic) effect to a circular region
      */
-    function applyPixelation(ctx, image, px, py, pr, canvasWidth, canvasHeight) {
+    function applyPixelation(ctx, px, py, pr, canvasWidth, canvasHeight) {
         const blockSize = Math.max(4, Math.round(pr / 5))
 
         // Define the bounding box of the circular region
