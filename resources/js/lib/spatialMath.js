@@ -158,15 +158,29 @@ export function invertVector(vector) {
 
 /**
  * Convert 3D Cartesian coordinates to equirectangular UV coordinates
- * Accounts for the sphere's X-axis inversion (SPHERE.SCALE_INVERT = -1)
+ *
+ * Three.js SphereGeometry (after geometry.scale(-1, 1, 1)) maps UV as:
+ *   x = r · cos(2πu) · sin(πv)
+ *   z = r · sin(2πu) · sin(πv)
+ *   y = r · cos(πv)
+ *
+ * So the inverse is:
+ *   u = atan2(z, x) / (2π)   (shifted to [0,1])
+ *   v = acos(y / r) / π
+ *
  * @param {Object} position - Cartesian position {x, y, z}
  * @returns {Object} UV coordinates {u, v} in 0-1 range
  */
 export function cartesianToUV(position) {
-    const { azimuthal, polar } = cartesianToSpherical(position)
-    // Account for sphere X-axis inversion
-    const u = 1 - (azimuthal / (2 * Math.PI) + 0.5)
-    const v = polar / Math.PI
+    const { x, y, z } = position
+    const r = Math.sqrt(x * x + y * y + z * z)
+    if (r === 0) return { u: 0, v: 0 }
+
+    const v = Math.acos(Math.max(-1, Math.min(1, y / r))) / Math.PI
+
+    let u = Math.atan2(z, x) / (2 * Math.PI)
+    if (u < 0) u += 1
+
     return { u, v }
 }
 
