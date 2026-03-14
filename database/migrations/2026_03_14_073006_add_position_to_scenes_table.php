@@ -17,14 +17,19 @@ return new class extends Migration
         });
 
         // Backfill existing scenes with sequential positions per project based on created_at
-        DB::statement('
-            UPDATE scenes
-            JOIN (
-                SELECT id, ROW_NUMBER() OVER (PARTITION BY project_id ORDER BY created_at) - 1 AS row_pos
-                FROM scenes
-            ) AS ranked ON scenes.id = ranked.id
-            SET scenes.position = ranked.row_pos
-        ');
+        DB::table('scenes')
+            ->select('id', 'project_id', 'created_at')
+            ->orderBy('project_id')
+            ->orderBy('created_at')
+            ->get()
+            ->groupBy('project_id')
+            ->each(function ($scenes) {
+                $scenes->values()->each(function ($scene, $index) {
+                    DB::table('scenes')
+                        ->where('id', $scene->id)
+                        ->update(['position' => $index]);
+                });
+            });
     }
 
     /**

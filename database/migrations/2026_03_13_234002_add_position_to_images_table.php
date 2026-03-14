@@ -17,14 +17,19 @@ return new class extends Migration
         });
 
         // Backfill existing images with sequential positions per scene based on created_at
-        DB::statement('
-            UPDATE images
-            JOIN (
-                SELECT id, ROW_NUMBER() OVER (PARTITION BY scene_id ORDER BY created_at) - 1 AS row_pos
-                FROM images
-            ) AS ranked ON images.id = ranked.id
-            SET images.position = ranked.row_pos
-        ');
+        DB::table('images')
+            ->select('id', 'scene_id', 'created_at')
+            ->orderBy('scene_id')
+            ->orderBy('created_at')
+            ->get()
+            ->groupBy('scene_id')
+            ->each(function ($images) {
+                $images->values()->each(function ($image, $index) {
+                    DB::table('images')
+                        ->where('id', $image->id)
+                        ->update(['position' => $index]);
+                });
+            });
     }
 
     /**
