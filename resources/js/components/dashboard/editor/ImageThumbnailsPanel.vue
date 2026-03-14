@@ -40,8 +40,8 @@
     </script>
 
     <template>
-      <div class="bottom-0 left-1/2 -translate-x-1/2 absolute pb-2 sm:pb-4 max-w-[calc(100%-1rem)] sm:max-w-[calc(100%-2rem)] md:max-w-[calc(100%-10rem)]">
-        <div class="flex flex-col items-center w-fit mx-auto">
+      <div class="bottom-0 left-0 right-0 absolute pb-2 sm:pb-4 px-2 sm:px-4 md:px-20 lg:px-32 xl:px-48 2xl:px-64 flex justify-center">
+        <div class="flex flex-col items-center max-w-full">
           <button
             @click="collapsed = !collapsed"
             class="mb-1 flex items-center justify-center w-10 h-6 rounded-t-lg bg-card/95 backdrop-blur-lg border border-b-0 border-border shadow-lg hover:bg-card transition-colors"
