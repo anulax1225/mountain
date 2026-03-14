@@ -14,7 +14,7 @@ const props = defineProps({
   <DashboardLayout :auth="auth">
     <div class="mx-auto max-w-4xl">
       <div class="mb-6 md:mb-8">
-        <h1 class="font-bold text-foreground text-2xl md:text-3xl">Paramètres</h1>
+        <h1 class="text-foreground text-2xl md:text-3xl" style="font-family: var(--font-family-display); font-weight: 600;">Paramètres</h1>
         <p class="mt-1 text-muted-foreground">Gérez les paramètres de votre compte et vos préférences</p>
       </div>
 

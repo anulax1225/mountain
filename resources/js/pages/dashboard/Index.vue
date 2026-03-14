@@ -86,7 +86,7 @@ const handleDeleteProject = async (project) => {
   <DashboardLayout :auth="auth">
     <div class="mx-auto max-w-7xl">
       <div class="mb-6 md:mb-8">
-        <h1 class="font-bold text-foreground text-2xl md:text-3xl">Projets</h1>
+        <h1 class="text-foreground text-2xl md:text-3xl" style="font-family: var(--font-family-display); font-weight: 600;">Projets</h1>
         <p class="mt-1 text-muted-foreground">Gérez vos projets de visite virtuelle</p>
       </div>
 

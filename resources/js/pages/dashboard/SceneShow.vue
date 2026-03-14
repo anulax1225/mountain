@@ -102,7 +102,7 @@ const onDragEnd = async () => {
             </Button>
           </Link>
           <div class="flex-1 min-w-0">
-            <h1 class="font-bold text-foreground text-2xl md:text-3xl truncate">{{ scene?.name }}</h1>
+            <h1 class="text-foreground text-2xl md:text-3xl truncate" style="font-family: var(--font-family-display); font-weight: 600;">{{ scene?.name }}</h1>
             <p class="mt-1 text-muted-foreground">{{ localImages.length }} image(s)</p>
           </div>
         </div>

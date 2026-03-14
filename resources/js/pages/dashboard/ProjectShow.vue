@@ -112,7 +112,7 @@ const onDragEnd = async () => {
             </Button>
           </Link>
           <div class="flex-1 min-w-0">
-            <h1 class="font-bold text-foreground text-2xl md:text-3xl truncate">{{ project?.name }}</h1>
+            <h1 class="text-foreground text-2xl md:text-3xl truncate" style="font-family: var(--font-family-display); font-weight: 600;">{{ project?.name }}</h1>
             <p class="mt-1 text-muted-foreground truncate">{{ project?.description || 'No description' }}</p>
           </div>
         </div>

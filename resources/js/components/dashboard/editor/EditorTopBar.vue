@@ -15,7 +15,7 @@
     </script>
 
     <template>
-      <div class="top-0 right-0 left-0 absolute bg-gradient-to-b from-card/80 to-transparent backdrop-blur-sm p-4">
+      <div class="top-0 right-0 left-0 absolute bg-linear-to-b from-card/90 via-card/60 to-transparent backdrop-blur-sm p-4">
         <div class="flex justify-between items-center">
           <div class="flex items-center gap-3">
             <Link :href="`/dashboard/projects/${projectSlug}`">
@@ -25,7 +25,7 @@
             </Link>
             <div class="text-card-foreground">
               <div class="flex items-center gap-2">
-                <h1 class="font-semibold text-sm">{{ projectName }}</h1>
+                <h1 class="text-sm" style="font-family: var(--font-family-display); font-weight: 600;">{{ projectName }}</h1>
                 <Badge :variant="mode === 'edit' ? 'default' : 'secondary'" class="text-xs">
                   {{ mode === 'edit' ? 'Édition' : 'Aperçu' }}
                 </Badge>

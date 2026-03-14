@@ -30,11 +30,11 @@ const submitForm = () => {
 
 <template>
     <LandingLayout>
-        <div class="bg-muted py-24">
+        <div class="bg-muted/50 py-24">
             <div class="mx-auto px-6 max-w-7xl lg:px-8">
                 <!-- Header -->
                 <div class="mx-auto max-w-2xl text-center mb-16">
-                    <h1 class="font-bold text-4xl text-foreground sm:text-5xl">
+                    <h1 class="text-4xl text-foreground sm:text-5xl" style="font-family: var(--font-family-display); font-weight: 800;">
                         Contactez-nous
                     </h1>
                     <p class="mt-6 text-lg text-muted-foreground leading-8">
@@ -44,8 +44,8 @@ const submitForm = () => {
 
                 <div class="gap-x-8 gap-y-20 lg:gap-y-0 grid lg:grid-cols-2 mx-auto max-w-6xl">
                     <!-- Contact Form -->
-                    <div class="bg-card shadow-sm hover:shadow-md p-8 rounded-lg border border-border transition-shadow">
-                        <h2 class="mb-6 font-semibold text-2xl text-foreground">
+                    <div class="bg-card shadow-sm hover:shadow-md p-8 rounded-2xl border border-border transition-shadow">
+                        <h2 class="mb-6 text-2xl text-foreground" style="font-family: var(--font-family-display); font-weight: 600;">
                             Envoyez-nous un message
                         </h2>
 
@@ -173,7 +173,7 @@ const submitForm = () => {
 
                     <!-- Contact Information -->
                     <div class="space-y-8">
-                        <div class="bg-card shadow-sm p-8 rounded-lg border border-border">
+                        <div class="bg-card shadow-sm p-8 rounded-2xl border border-border">
                             <h3 class="mb-6 font-semibold text-xl text-foreground">
                                 Informations de contact
                             </h3>

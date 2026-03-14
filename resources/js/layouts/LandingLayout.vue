@@ -9,7 +9,7 @@ const auth = computed(() => page.props.auth)
 </script>
 
 <template>
-  <div class="bg-background min-h-screen">
+  <div class="min-h-screen">
     <LandingNavigation :auth="auth" />
     <main>
       <slot />

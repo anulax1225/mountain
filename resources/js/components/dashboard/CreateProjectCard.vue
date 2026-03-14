@@ -7,7 +7,7 @@ defineEmits(['create'])
 <template>
   <Card
     @click="$emit('create')"
-    class="border-2 border-border hover:border-primary border-dashed transition-colors cursor-pointer"
+    class="border-2 border-border hover:border-primary hover:shadow-[0_0_20px_oklch(0.5_0.15_var(--primary-hue)/0.15)] border-dashed transition-all cursor-pointer"
   >
     <CardContent class="flex flex-col justify-center items-center py-12 h-full">
       <div class="flex justify-center items-center bg-primary/10 mb-4 rounded-full w-12 h-12">

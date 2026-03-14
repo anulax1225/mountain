@@ -38,7 +38,7 @@
 
     <template>
       <div class="bottom-0 left-0 right-0 absolute px-2 sm:px-4 pb-2 sm:pb-4 md:px-20 lg:px-32 xl:px-48 2xl:px-64">
-        <div class="bg-card/95 backdrop-blur-sm rounded-xl border border-border shadow-2xl">
+        <div class="bg-card/95 backdrop-blur-lg rounded-xl border border-border shadow-2xl">
           <ScrollArea class="w-full">
             <div class="flex items-stretch gap-0 p-2 sm:p-3">
               <template v-for="(group, groupIdx) in sceneGroups" :key="group.sceneSlug">

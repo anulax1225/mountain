@@ -70,7 +70,7 @@ const plans = [
     <div class="pt-24 pb-16">
       <div class="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
         <div class="text-center mb-16">
-          <h1 class="text-4xl sm:text-5xl font-bold text-foreground mb-4">
+          <h1 class="text-4xl sm:text-5xl text-foreground mb-4" style="font-family: var(--font-family-display); font-weight: 800;">
             Des tarifs simples et transparents
           </h1>
           <p class="text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -87,7 +87,7 @@ const plans = [
             :key="plan.name"
             :class="[
               'relative flex flex-col',
-              plan.popular ? 'border-primary border-2 shadow-xl' : ''
+              plan.popular ? 'border-primary border-2 shadow-xl shadow-primary/10' : ''
             ]"
           >
             <Badge
@@ -140,7 +140,7 @@ const plans = [
         </div>
 
         <div class="mt-16 bg-muted rounded-2xl p-8 max-w-4xl mx-auto">
-          <h2 class="text-2xl font-bold text-foreground text-center mb-8">
+          <h2 class="text-2xl text-foreground text-center mb-8" style="font-family: var(--font-family-display); font-weight: 600;">
             Questions fréquentes
           </h2>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">

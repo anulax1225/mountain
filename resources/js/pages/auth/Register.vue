@@ -22,7 +22,7 @@ const submit = () => {
 <template>
   <AuthLayout>
     <div class="mb-8">
-      <h2 class="mb-2 font-bold text-foreground text-3xl">Créer un compte</h2>
+      <h2 class="mb-2 text-foreground text-3xl" style="font-family: var(--font-family-display); font-weight: 800;">Créer un compte</h2>
       <p class="text-muted-foreground">Commencez à créer vos visites virtuelles</p>
     </div>
 
@@ -79,14 +79,14 @@ const submit = () => {
         />
       </div>
 
-      <Button type="submit" class="w-full" :disabled="form.processing">
+      <Button type="submit" class="rounded-full w-full" :disabled="form.processing">
         Créer un compte
       </Button>
     </form>
 
     <div class="mt-6 text-sm text-center">
       <span class="text-muted-foreground">Vous avez déjà un compte? </span>
-      <Link href="/login" class="font-medium text-purple-600 hover:text-purple-700 dark:hover:text-purple-300 dark:text-purple-400">
+      <Link href="/login" class="font-medium text-primary hover:text-primary/80">
         Se connecter
       </Link>
     </div>

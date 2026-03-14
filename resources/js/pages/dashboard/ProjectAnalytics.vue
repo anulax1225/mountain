@@ -66,7 +66,7 @@ const chartHeight = 200
             </Button>
           </Link>
           <div class="flex-1 min-w-0">
-            <h1 class="font-bold text-foreground text-2xl md:text-3xl">Statistiques</h1>
+            <h1 class="text-foreground text-2xl md:text-3xl" style="font-family: var(--font-family-display); font-weight: 600;">Statistiques</h1>
             <p class="mt-1 text-muted-foreground truncate">{{ project?.name }}</p>
           </div>
         </div>

@@ -99,7 +99,7 @@ const getUserGlobalRole = (user) => {
     <div class="mx-auto max-w-7xl">
       <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 md:mb-8">
         <div>
-          <h1 class="font-bold text-foreground text-2xl md:text-3xl">Administration</h1>
+          <h1 class="text-foreground text-2xl md:text-3xl" style="font-family: var(--font-family-display); font-weight: 600;">Administration</h1>
           <p class="mt-1 text-muted-foreground">Gérez les utilisateurs et leurs rôles</p>
         </div>
         <Button @click="createSheetOpen = true">

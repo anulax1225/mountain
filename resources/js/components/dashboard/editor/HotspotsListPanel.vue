@@ -20,7 +20,7 @@
     </script>
     
     <template>
-      <div class="top-20 right-4 absolute bg-card/95 shadow-xl backdrop-blur-sm border border-border p-4 rounded-lg w-80">
+      <div class="top-20 right-4 absolute bg-card/95 shadow-xl backdrop-blur-lg border border-border p-4 rounded-xl w-80">
         <div class="mb-3 pb-2 border-border border-b">
           <div class="flex justify-between items-center">
             <h3 class="font-semibold text-foreground">Points d'accès</h3>

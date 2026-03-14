@@ -153,7 +153,7 @@ const deleteRequest = async (request) => {
         <div class="space-y-6">
             <!-- Header -->
             <div>
-                <h1 class="font-bold text-2xl md:text-3xl text-foreground">
+                <h1 class="text-2xl md:text-3xl text-foreground" style="font-family: var(--font-family-display); font-weight: 600;">
                     Demandes de contact
                 </h1>
                 <p class="mt-2 text-sm text-muted-foreground">

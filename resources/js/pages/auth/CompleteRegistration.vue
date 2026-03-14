@@ -27,7 +27,7 @@ const submit = () => {
 <template>
   <AuthLayout>
     <div class="mb-8">
-      <h2 class="mb-2 font-bold text-foreground text-3xl">Finaliser votre inscription</h2>
+      <h2 class="mb-2 text-foreground text-3xl" style="font-family: var(--font-family-display); font-weight: 800;">Finaliser votre inscription</h2>
       <p class="text-muted-foreground">
         Configurez votre mot de passe pour accéder à votre compte
       </p>
@@ -82,7 +82,7 @@ const submit = () => {
         />
       </div>
 
-      <Button type="submit" class="w-full" :disabled="form.processing">
+      <Button type="submit" class="rounded-full w-full" :disabled="form.processing">
         {{ form.processing ? 'Création en cours...' : 'Créer mon compte' }}
       </Button>
     </form>

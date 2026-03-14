@@ -10,14 +10,14 @@ import LandingLayout from '@/layouts/LandingLayout.vue'
     <div class="pt-24 pb-16">
       <div class="mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
         <div class="text-center mb-16">
-          <h1 class="text-4xl sm:text-5xl font-bold text-foreground mb-4">
+          <h1 class="text-4xl sm:text-5xl text-foreground mb-4" style="font-family: var(--font-family-display); font-weight: 800;">
             À propos d'OwlAround
           </h1>
         </div>
 
         <!-- Notre mission -->
         <section class="mb-16">
-          <h2 class="text-2xl font-bold text-foreground mb-6">Notre mission</h2>
+          <h2 class="text-2xl text-foreground mb-6" style="font-family: var(--font-family-display); font-weight: 600;">Notre mission</h2>
           <div class="space-y-4 text-muted-foreground leading-relaxed">
             <p>
               OwlAround est une plateforme qui permet de créer et partager facilement des visites virtuelles immersives à 360°.
@@ -31,7 +31,7 @@ import LandingLayout from '@/layouts/LandingLayout.vue'
 
         <!-- Le projet TIP -->
         <section class="mb-16">
-          <h2 class="text-2xl font-bold text-foreground mb-6">Le projet TIP</h2>
+          <h2 class="text-2xl text-foreground mb-6" style="font-family: var(--font-family-display); font-weight: 600;">Le projet TIP</h2>
           <div class="space-y-4 text-muted-foreground leading-relaxed">
             <p>
               OwlAround a été développé dans le cadre de notre Travail Interdisciplinaire de Projet (TIP) réalisé en 4ᵉ année de maturité professionnelle au CPNE (Centre professionnel neuchâtelois).
@@ -59,7 +59,7 @@ import LandingLayout from '@/layouts/LandingLayout.vue'
 
         <!-- L'équipe -->
         <section class="mb-16">
-          <h2 class="text-2xl font-bold text-foreground mb-6">L'équipe</h2>
+          <h2 class="text-2xl text-foreground mb-6" style="font-family: var(--font-family-display); font-weight: 600;">L'équipe</h2>
           <p class="text-muted-foreground leading-relaxed mb-8">
             OwlAround est porté par une équipe de quatre étudiants du CPNE, provenant de deux formations complémentaires.
           </p>
@@ -95,7 +95,7 @@ import LandingLayout from '@/layouts/LandingLayout.vue'
 
         <!-- Notre vision -->
         <section class="mb-16">
-          <h2 class="text-2xl font-bold text-foreground mb-6">Notre vision</h2>
+          <h2 class="text-2xl text-foreground mb-6" style="font-family: var(--font-family-display); font-weight: 600;">Notre vision</h2>
           <div class="space-y-4 text-muted-foreground leading-relaxed">
             <p>
               Avec OwlAround, nous souhaitions explorer le potentiel des visites virtuelles immersives et montrer comment cette technologie peut être utilisée dans différents domaines comme l'immobilier, l'événementiel ou la culture.

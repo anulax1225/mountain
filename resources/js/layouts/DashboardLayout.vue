@@ -32,7 +32,7 @@ const toggleSidebar = () => {
 </script>
 
 <template>
-  <div class="bg-background min-h-screen">
+  <div class="min-h-screen">
     <Sidebar
       :is-open="sidebarOpen"
       :auth="auth"
@@ -45,7 +45,7 @@ const toggleSidebar = () => {
       <Transition name="slide-down">
         <header
           v-if="headerVisible || !collapsibleHeader"
-          class="flex justify-between items-center bg-background px-4 md:px-6 border-border/50 border-b h-14"
+          class="relative flex justify-between items-center bg-background/0 backdrop-blur-md px-4 md:px-6 h-14"
         >
           <div class="flex items-center gap-2">
             <Button variant="ghost" size="icon" @click="toggleSidebar">

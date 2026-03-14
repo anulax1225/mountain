@@ -8,7 +8,9 @@
 @source '../../storage/framework/views/*.php';
 
 @theme inline {
-    --font-sans: Instrument Sans, ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: var(--font-family-body);
+    --font-display: var(--font-family-display);
+    --font-mono: var(--font-family-mono);
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -117,16 +119,20 @@
 
 :root {
     /* Customizable hue values (0-360) */
-    --primary-hue: 286;
-    --secondary-hue: 286;
+    --primary-hue: 145;
+    --secondary-hue: 45;
     /* Theme intensity (0-1), controls chroma strength */
     --theme-intensity: 1;
 
     /* Border radius */
     --radius: 0.625rem;
 
-    /* Font family (runtime overridable) */
-    --font-family: Instrument Sans, ui-sans-serif, system-ui, sans-serif;
+    /* Font families (runtime overridable) */
+    --font-family-display: Bricolage Grotesque, ui-sans-serif, system-ui, sans-serif;
+    --font-family-body: Outfit, ui-sans-serif, system-ui, sans-serif;
+    --font-family-mono: IBM Plex Mono, ui-monospace, monospace;
+    /* Legacy alias for useTheme.js compatibility */
+    --font-family: var(--font-family-body);
 
     /* Font weight base (used by @theme inline) */
     --font-weight-base: 400;
@@ -144,7 +150,7 @@
     --chroma-bg: calc(0.003 * var(--theme-intensity));
     --chroma-fg: calc(0.04 * var(--theme-intensity));
     --chroma-card: calc(0.005 * var(--theme-intensity));
-    --chroma-primary: calc(0.20 * var(--theme-intensity));
+    --chroma-primary: calc(0.22 * var(--theme-intensity));
     --chroma-secondary: calc(0.04 * var(--theme-intensity));
     --chroma-secondary-fg: calc(0.12 * var(--theme-intensity));
     --chroma-muted: calc(0.02 * var(--theme-intensity));
@@ -166,7 +172,7 @@
     --popover-foreground: oklch(0.20 var(--chroma-fg) var(--primary-hue));
 
     /* Primary colors - vibrant */
-    --primary: oklch(0.45 var(--chroma-primary) var(--primary-hue));
+    --primary: oklch(0.48 var(--chroma-primary) var(--primary-hue));
     --primary-foreground: oklch(0.98 0 0);
 
     /* Secondary colors - subtle tint */
@@ -189,12 +195,12 @@
     --input: oklch(0.88 var(--chroma-border) var(--primary-hue));
     --ring: oklch(0.55 var(--chroma-ring) var(--primary-hue));
 
-    /* Chart colors (keep original hues for variety) */
-    --chart-1: oklch(0.646 0.222 41.116);
-    --chart-2: oklch(0.6 0.118 184.704);
-    --chart-3: oklch(0.398 0.07 227.392);
-    --chart-4: oklch(0.828 0.189 84.429);
-    --chart-5: oklch(0.769 0.188 70.08);
+    /* Chart colors (solarpunk earth tones) */
+    --chart-1: oklch(0.50 0.20 145);
+    --chart-2: oklch(0.65 0.18 55);
+    --chart-3: oklch(0.45 0.15 160);
+    --chart-4: oklch(0.60 0.19 35);
+    --chart-5: oklch(0.55 0.16 120);
 
     /* Sidebar colors */
     --sidebar: oklch(0.98 var(--chroma-sidebar) var(--primary-hue));
@@ -209,10 +215,10 @@
 
 .dark {
     /* Dark mode chroma values (multiplied by intensity) */
-    --chroma-bg: calc(0.015 * var(--theme-intensity));
+    --chroma-bg: calc(0.018 * var(--theme-intensity));
     --chroma-fg: calc(0.01 * var(--theme-intensity));
-    --chroma-card: calc(0.02 * var(--theme-intensity));
-    --chroma-primary: calc(0.18 * var(--theme-intensity));
+    --chroma-card: calc(0.022 * var(--theme-intensity));
+    --chroma-primary: calc(0.20 * var(--theme-intensity));
     --chroma-primary-fg: calc(0.05 * var(--theme-intensity));
     --chroma-secondary: calc(0.06 * var(--theme-intensity));
     --chroma-secondary-fg: calc(0.03 * var(--theme-intensity));
@@ -223,19 +229,19 @@
     --chroma-sidebar: calc(0.02 * var(--theme-intensity));
 
     /* Base colors - subtle tint */
-    --background: oklch(0.14 var(--chroma-bg) var(--primary-hue));
+    --background: oklch(0.12 var(--chroma-bg) var(--primary-hue));
     --foreground: oklch(0.95 var(--chroma-fg) var(--primary-hue));
 
     /* Card colors - subtle dark tint */
-    --card: oklch(0.18 var(--chroma-card) var(--primary-hue));
+    --card: oklch(0.16 var(--chroma-card) var(--primary-hue));
     --card-foreground: oklch(0.95 var(--chroma-fg) var(--primary-hue));
 
     /* Popover colors */
-    --popover: oklch(0.18 var(--chroma-card) var(--primary-hue));
+    --popover: oklch(0.16 var(--chroma-card) var(--primary-hue));
     --popover-foreground: oklch(0.95 var(--chroma-fg) var(--primary-hue));
 
     /* Primary colors - vibrant */
-    --primary: oklch(0.70 var(--chroma-primary) var(--primary-hue));
+    --primary: oklch(0.72 var(--chroma-primary) var(--primary-hue));
     --primary-foreground: oklch(0.15 var(--chroma-primary-fg) var(--primary-hue));
 
     /* Secondary colors - subtle tint */
@@ -258,12 +264,12 @@
     --input: oklch(0.30 var(--chroma-border) var(--primary-hue));
     --ring: oklch(0.60 var(--chroma-ring) var(--primary-hue));
 
-    /* Chart colors (keep original hues for variety) */
-    --chart-1: oklch(0.488 0.243 264.376);
-    --chart-2: oklch(0.696 0.17 162.48);
-    --chart-3: oklch(0.769 0.188 70.08);
-    --chart-4: oklch(0.627 0.265 303.9);
-    --chart-5: oklch(0.645 0.246 16.439);
+    /* Chart colors (solarpunk earth tones) */
+    --chart-1: oklch(0.72 0.19 145);
+    --chart-2: oklch(0.78 0.16 55);
+    --chart-3: oklch(0.65 0.14 160);
+    --chart-4: oklch(0.70 0.18 35);
+    --chart-5: oklch(0.75 0.15 120);
 
     /* Sidebar colors */
     --sidebar: oklch(0.16 var(--chroma-sidebar) var(--primary-hue));
@@ -365,3 +371,64 @@ html.dark body.bg-mesh {
     var(--background) !important;
   background-attachment: fixed !important;
 }
+
+/* Organic background - soft natural gradient blobs */
+body.bg-organic {
+  background:
+    radial-gradient(ellipse at 20% 80%, oklch(0.90 calc(0.10 * var(--theme-intensity)) var(--primary-hue)) 0px, transparent 50%),
+    radial-gradient(ellipse at 75% 20%, oklch(0.92 calc(0.08 * var(--theme-intensity)) var(--secondary-hue)) 0px, transparent 40%),
+    radial-gradient(circle at 50% 50%, oklch(0.95 calc(0.04 * var(--theme-intensity)) var(--primary-hue)) 0px, transparent 70%),
+    var(--background) !important;
+  background-attachment: fixed !important;
+}
+
+.dark body.bg-organic,
+html.dark body.bg-organic {
+  background:
+    radial-gradient(ellipse at 20% 80%, oklch(0.20 calc(0.10 * var(--theme-intensity)) var(--primary-hue)) 0px, transparent 50%),
+    radial-gradient(ellipse at 75% 20%, oklch(0.18 calc(0.08 * var(--theme-intensity)) var(--secondary-hue)) 0px, transparent 40%),
+    radial-gradient(circle at 50% 50%, oklch(0.16 calc(0.04 * var(--theme-intensity)) var(--primary-hue)) 0px, transparent 70%),
+    var(--background) !important;
+  background-attachment: fixed !important;
+}
+
+/* ===== Animations ===== */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(1.5rem); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.6s ease-out both;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out both;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.4s ease-out both;
+}
+
+/* Stagger delays */
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+.delay-600 { animation-delay: 600ms; }
+.delay-700 { animation-delay: 700ms; }
+
+/* Organic shapes */
+.clip-organic-1 { border-radius: 60% 40% 50% 50% / 50% 60% 40% 50%; }
+.clip-organic-2 { border-radius: 40% 60% 45% 55% / 55% 45% 60% 40%; }

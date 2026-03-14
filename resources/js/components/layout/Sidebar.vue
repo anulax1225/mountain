@@ -15,7 +15,7 @@ defineProps({
 
 <template>
   <aside :class="[
-    'fixed inset-y-0 left-0 z-50 flex flex-col bg-card border-r border-border transition-all duration-300 ease-in-out',
+    'fixed inset-y-0 left-0 z-50 flex flex-col bg-card/80 backdrop-blur-md border-r border-border transition-all duration-300 ease-in-out',
     isOpen ? 'w-64 translate-x-0' : 'w-16 -translate-x-full lg:translate-x-0'
   ]">
     <!-- Brand -->
@@ -25,7 +25,7 @@ defineProps({
     ]">
       <Link href="/" class="group flex items-center gap-2.5">
         <AppLogo class="w-8 h-8 group-hover:scale-105 transition-transform" />
-        <span v-if="isOpen" class="font-semibold text-foreground tracking-tight">Owlaround</span>
+        <span v-if="isOpen" class="font-semibold text-foreground tracking-tight" style="font-family: var(--font-family-display);">Owlaround</span>
       </Link>
     </div>
 

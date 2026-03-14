@@ -7,6 +7,9 @@ import { RotateCcw } from 'lucide-vue-next'
 const { primaryHue, secondaryHue, intensity, radius, fontFamily, fontWeight, borderWidth, shadowIntensity, spacing, backgroundStyle, FONT_STACKS, setPrimaryHue, setSecondaryHue, setIntensity, setRadius, setFontFamily, setFontWeight, setBorderWidth, setShadowIntensity, setSpacing, setBackgroundStyle } = useTheme()
 
 const fontLabels = {
+  'outfit': 'Outfit',
+  'bricolage-grotesque': 'Bricolage',
+  'ibm-plex-mono': 'IBM Plex',
   'instrument-sans': 'Instrument',
   'inter': 'Inter',
   'nunito': 'Nunito',
@@ -17,12 +20,22 @@ const fontLabels = {
 
 const backgroundStyles = [
   { key: 'solid', label: 'Uni' },
+  { key: 'organic', label: 'Organique' },
   { key: 'gradient', label: 'Dégradé' },
   { key: 'radial', label: 'Radial' },
   { key: 'mesh', label: 'Mesh' },
 ]
 
-const presets = [
+const solarpunkPresets = [
+  { name: 'Fougère', primary: 145, secondary: 45 },
+  { name: 'Aurore', primary: 35, secondary: 15 },
+  { name: 'Mousse', primary: 160, secondary: 130 },
+  { name: 'Soleil', primary: 55, secondary: 35 },
+  { name: 'Canopée', primary: 120, secondary: 80 },
+  { name: 'Terre', primary: 30, secondary: 60 },
+]
+
+const classicPresets = [
   { name: 'Violet', primary: 286, secondary: 286 },
   { name: 'Bleu', primary: 230, secondary: 200 },
   { name: 'Vert', primary: 140, secondary: 120 },
@@ -69,16 +82,16 @@ const handleSpacingChange = (event) => {
 }
 
 const resetToDefaults = () => {
-  setPrimaryHue(286)
-  setSecondaryHue(286)
+  setPrimaryHue(145)
+  setSecondaryHue(45)
   setIntensity(100)
   setRadius(0.625)
-  setFontFamily('instrument-sans')
+  setFontFamily('outfit')
   setFontWeight(400)
   setBorderWidth(1)
   setShadowIntensity(100)
   setSpacing(100)
-  setBackgroundStyle('solid')
+  setBackgroundStyle('organic')
 }
 
 const hueGradient = 'linear-gradient(to right, hsl(0, 80%, 50%), hsl(60, 80%, 50%), hsl(120, 80%, 50%), hsl(180, 80%, 50%), hsl(240, 80%, 50%), hsl(300, 80%, 50%), hsl(360, 80%, 50%))'
@@ -166,7 +179,7 @@ const hueGradient = 'linear-gradient(to right, hsl(0, 80%, 50%), hsl(60, 80%, 50
     <!-- Font Family -->
     <div class="space-y-1.5">
       <Label class="text-muted-foreground text-xs">Police</Label>
-      <div class="gap-1.5 grid grid-cols-2">
+      <div class="gap-1.5 grid grid-cols-3">
         <Button
           v-for="(stack, key) in FONT_STACKS"
           :key="key"
@@ -252,7 +265,7 @@ const hueGradient = 'linear-gradient(to right, hsl(0, 80%, 50%), hsl(60, 80%, 50
     <!-- Background Style -->
     <div class="space-y-1.5">
       <Label class="text-muted-foreground text-xs">Arrière-plan</Label>
-      <div class="gap-1.5 grid grid-cols-4">
+      <div class="gap-1.5 grid grid-cols-5">
         <Button
           v-for="style in backgroundStyles"
           :key="style.key"
@@ -274,12 +287,33 @@ const hueGradient = 'linear-gradient(to right, hsl(0, 80%, 50%), hsl(60, 80%, 50
       <div class="flex-1 bg-accent rounded h-6" title="Accent"></div>
     </div>
 
-    <!-- Presets -->
+    <!-- Solarpunk Presets -->
     <div class="space-y-1.5 pt-1 border-border border-t">
-      <Label class="text-muted-foreground text-xs">Préréglages</Label>
+      <Label class="text-muted-foreground text-xs">Solarpunk</Label>
       <div class="gap-1.5 grid grid-cols-3">
         <Button
-          v-for="preset in presets"
+          v-for="preset in solarpunkPresets"
+          :key="preset.name"
+          variant="outline"
+          size="sm"
+          class="h-7 text-xs"
+          @click="applyPreset(preset)"
+        >
+          <span
+            class="mr-1.5 rounded-full w-2.5 h-2.5"
+            :style="{ background: `oklch(0.5 0.2 ${preset.primary})` }"
+          ></span>
+          {{ preset.name }}
+        </Button>
+      </div>
+    </div>
+
+    <!-- Classic Presets -->
+    <div class="space-y-1.5 pt-1 border-border border-t">
+      <Label class="text-muted-foreground text-xs">Classiques</Label>
+      <div class="gap-1.5 grid grid-cols-3">
+        <Button
+          v-for="preset in classicPresets"
           :key="preset.name"
           variant="outline"
           size="sm"

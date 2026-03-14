@@ -18,21 +18,21 @@ const isLoggedIn = computed(() => !!props.auth?.user)
 </script>
 
 <template>
-  <nav class="top-0 z-50 fixed bg-card/80 backdrop-blur-md border-border border-b w-full">
+  <nav class="top-0 z-50 fixed bg-card/50 backdrop-blur-md border-border/50 border-b w-full">
     <div class="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
       <div class="flex justify-between items-center h-16">
         <AppBrand />
         <div class="hidden md:flex items-center gap-8">
-          <a href="/#features" class="text-muted-foreground hover:text-foreground text-sm transition-colors">Fonctionnalités</a>
-          <Link href="/gallery" class="text-muted-foreground hover:text-foreground text-sm transition-colors">Galerie</Link>
-          <Link href="/pricing" class="text-muted-foreground hover:text-foreground text-sm transition-colors">Tarifs</Link>
-          <Link href="/about" class="text-muted-foreground hover:text-foreground text-sm transition-colors">À propos</Link>
-          <Link href="/contact" class="text-muted-foreground hover:text-foreground text-sm transition-colors">Contact</Link>
+          <a href="/#features" class="relative text-muted-foreground hover:text-foreground text-sm transition-colors after:absolute after:-bottom-1 after:left-1/2 after:h-[2px] after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:left-0 hover:after:w-full">Fonctionnalités</a>
+          <Link href="/gallery" class="relative text-muted-foreground hover:text-foreground text-sm transition-colors after:absolute after:-bottom-1 after:left-1/2 after:h-[2px] after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:left-0 hover:after:w-full">Galerie</Link>
+          <Link href="/pricing" class="relative text-muted-foreground hover:text-foreground text-sm transition-colors after:absolute after:-bottom-1 after:left-1/2 after:h-[2px] after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:left-0 hover:after:w-full">Tarifs</Link>
+          <Link href="/about" class="relative text-muted-foreground hover:text-foreground text-sm transition-colors after:absolute after:-bottom-1 after:left-1/2 after:h-[2px] after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:left-0 hover:after:w-full">À propos</Link>
+          <Link href="/contact" class="relative text-muted-foreground hover:text-foreground text-sm transition-colors after:absolute after:-bottom-1 after:left-1/2 after:h-[2px] after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:left-0 hover:after:w-full">Contact</Link>
           <ThemeToggle />
           <div class="flex items-center gap-3 ml-4">
             <template v-if="isLoggedIn">
               <Link href="/dashboard">
-                <Button size="sm" class="bg-primary hover:bg-primary/90 text-primary-foreground">
+                <Button size="sm" class="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground hover:shadow-[0_0_20px_oklch(0.5_0.15_var(--primary-hue)/0.3)]">
                   <LayoutDashboard class="w-4 h-4 mr-2" />
                   Tableau de bord
                 </Button>
@@ -40,7 +40,7 @@ const isLoggedIn = computed(() => !!props.auth?.user)
             </template>
             <template v-else>
               <Link href="/login">
-                <Button size="sm" class="bg-primary hover:bg-primary/90 text-primary-foreground">Connexion</Button>
+                <Button size="sm" class="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground hover:shadow-[0_0_20px_oklch(0.5_0.15_var(--primary-hue)/0.3)]">Connexion</Button>
               </Link>
             </template>
           </div>
@@ -53,7 +53,7 @@ const isLoggedIn = computed(() => !!props.auth?.user)
       </div>
     </div>
 
-    <div v-if="mobileMenuOpen" class="md:hidden bg-background border-border border-t">
+    <div v-if="mobileMenuOpen" class="md:hidden bg-background/50 backdrop-blur-md border-border border-t">
       <div class="space-y-3 px-4 py-4">
         <a href="#features" class="block text-muted-foreground hover:text-foreground text-sm">Fonctionnalités</a>
         <Link href="/gallery" class="block text-muted-foreground hover:text-foreground text-sm">Galerie</Link>
@@ -67,7 +67,7 @@ const isLoggedIn = computed(() => !!props.auth?.user)
         <div class="space-y-2 pt-3 border-border border-t">
           <template v-if="isLoggedIn">
             <Link href="/dashboard" class="block">
-              <Button size="sm" class="bg-primary hover:bg-primary/90 w-full text-primary-foreground">
+              <Button size="sm" class="rounded-full bg-primary hover:bg-primary/90 w-full text-primary-foreground">
                 <LayoutDashboard class="w-4 h-4 mr-2" />
                 Tableau de bord
               </Button>
@@ -75,7 +75,7 @@ const isLoggedIn = computed(() => !!props.auth?.user)
           </template>
           <template v-else>
             <Link href="/login" class="block">
-              <Button size="sm" class="bg-primary hover:bg-primary/90 w-full text-primary-foreground">Connexion</Button>
+              <Button size="sm" class="rounded-full bg-primary hover:bg-primary/90 w-full text-primary-foreground">Connexion</Button>
             </Link>
           </template>
         </div>

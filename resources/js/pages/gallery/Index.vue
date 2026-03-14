@@ -37,7 +37,7 @@ defineProps<Props>();
 
         <div class="container mx-auto px-4 py-8 pt-24">
             <div class="mb-8">
-                <h1 class="text-4xl font-bold mb-2">Galerie</h1>
+                <h1 class="text-4xl mb-2" style="font-family: var(--font-family-display); font-weight: 800;">Galerie</h1>
                 <p class="text-muted-foreground">
                     Explorez les visites virtuelles publiques
                 </p>

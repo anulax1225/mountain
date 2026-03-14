@@ -11,8 +11,8 @@
         <meta name="apple-mobile-web-app-title" content="{{ config('app.name', 'Owlaround') }}">
 
         {{-- Theme color (light + dark) --}}
-        <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-        <meta name="theme-color" content="#231f2b" media="(prefers-color-scheme: dark)">
+        <meta name="theme-color" content="#f8f6f0" media="(prefers-color-scheme: light)">
+        <meta name="theme-color" content="#0f1a14" media="(prefers-color-scheme: dark)">
 
         <title inertia>{{ config('app.name', 'Owlaround') }}</title>
 
@@ -21,7 +21,7 @@
         <link rel="apple-touch-icon" href="/owl-logo.png">
 
         <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600|inter:400,500,600|nunito:400,500,600|poppins:400,500,600|dm-sans:400,500,600" rel="stylesheet" />
+        <link href="https://fonts.bunny.net/css?family=bricolage-grotesque:200,400,600,800|outfit:300,400,500,600|ibm-plex-mono:400,500|instrument-sans:400,500,600|inter:400,500,600|nunito:400,500,600|poppins:400,500,600|dm-sans:400,500,600" rel="stylesheet" />
 
         @vite(['resources/js/app.ts', "resources/js/pages/{$page['component']}.vue"])
         @inertiaHead

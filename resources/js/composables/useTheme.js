@@ -2,18 +2,21 @@ import { ref, watch, onMounted } from 'vue';
 
 const theme = ref('system');
 const isDark = ref(false);
-const primaryHue = ref(286);
-const secondaryHue = ref(286);
+const primaryHue = ref(145);
+const secondaryHue = ref(45);
 const intensity = ref(100); // 0-100, controls chroma multiplier
 const radius = ref(0.625); // in rem, controls border-radius
-const fontFamily = ref('instrument-sans'); // font family key
+const fontFamily = ref('outfit'); // font family key
 const fontWeight = ref(400); // 300-700, controls font boldness
 const borderWidth = ref(1); // 0-3, controls border thickness in px
 const shadowIntensity = ref(100); // 0-200, controls shadow strength
 const spacing = ref(100); // 75-125, controls spacing/density as percentage
-const backgroundStyle = ref('solid'); // solid, gradient, radial, mesh
+const backgroundStyle = ref('organic'); // solid, gradient, radial, mesh, organic
 
 const FONT_STACKS = {
+  'outfit': 'Outfit, ui-sans-serif, system-ui, sans-serif',
+  'bricolage-grotesque': 'Bricolage Grotesque, ui-sans-serif, system-ui, sans-serif',
+  'ibm-plex-mono': 'IBM Plex Mono, ui-monospace, monospace',
   'instrument-sans': 'Instrument Sans, ui-sans-serif, system-ui, sans-serif',
   'inter': 'Inter, ui-sans-serif, system-ui, sans-serif',
   'nunito': 'Nunito, ui-sans-serif, system-ui, sans-serif',
@@ -52,7 +55,6 @@ export function useTheme() {
   };
 
   const setPrimaryHue = (hue) => {
-    // Validate hue is between 0-360
     const validHue = Math.max(0, Math.min(360, hue));
     primaryHue.value = validHue;
     localStorage.setItem('primaryHue', validHue.toString());
@@ -60,7 +62,6 @@ export function useTheme() {
   };
 
   const setSecondaryHue = (hue) => {
-    // Validate hue is between 0-360
     const validHue = Math.max(0, Math.min(360, hue));
     secondaryHue.value = validHue;
     localStorage.setItem('secondaryHue', validHue.toString());
@@ -68,7 +69,6 @@ export function useTheme() {
   };
 
   const setIntensity = (value) => {
-    // Validate intensity is between 0-100
     const validIntensity = Math.max(0, Math.min(100, value));
     intensity.value = validIntensity;
     localStorage.setItem('themeIntensity', validIntensity.toString());
@@ -76,7 +76,6 @@ export function useTheme() {
   };
 
   const setRadius = (value) => {
-    // Validate radius is between 0-2rem
     const validRadius = Math.max(0, Math.min(2, value));
     radius.value = validRadius;
     localStorage.setItem('themeRadius', validRadius.toString());
@@ -120,7 +119,7 @@ export function useTheme() {
   };
 
   const setBackgroundStyle = (style) => {
-    const validStyles = ['solid', 'gradient', 'radial', 'mesh'];
+    const validStyles = ['solid', 'gradient', 'radial', 'mesh', 'organic'];
     if (validStyles.includes(style)) {
       backgroundStyle.value = style;
       localStorage.setItem('themeBackgroundStyle', style);
@@ -130,7 +129,7 @@ export function useTheme() {
 
   const applyBackgroundStyle = () => {
     const body = document.body;
-    body.classList.remove('bg-solid', 'bg-gradient', 'bg-radial', 'bg-mesh');
+    body.classList.remove('bg-solid', 'bg-gradient', 'bg-radial', 'bg-mesh', 'bg-organic');
     body.classList.add(`bg-${backgroundStyle.value}`);
   };
 
@@ -142,9 +141,10 @@ export function useTheme() {
     root.style.setProperty('--theme-intensity', (intensity.value / 100).toString());
     // Border radius
     root.style.setProperty('--radius', `${radius.value}rem`);
-    // Font family
-    const stack = FONT_STACKS[fontFamily.value] || FONT_STACKS['instrument-sans'];
+    // Font family (body font)
+    const stack = FONT_STACKS[fontFamily.value] || FONT_STACKS['outfit'];
     root.style.setProperty('--font-family', stack);
+    root.style.setProperty('--font-family-body', stack);
     // Font weight base
     root.style.setProperty('--font-weight-base', fontWeight.value.toString());
     // Border width base
