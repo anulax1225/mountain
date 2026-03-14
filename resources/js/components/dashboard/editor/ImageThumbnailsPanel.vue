@@ -52,7 +52,7 @@
           </button>
 
           <Transition name="slide">
-            <div v-show="!collapsed" class="bg-card/95 shadow-2xl backdrop-blur-lg border border-border rounded-xl">
+            <div v-show="!collapsed" class="bg-card/95 shadow-2xl backdrop-blur-lg border border-border rounded-xl max-w-96">
               <ScrollArea class="w-full">
                 <div class="flex items-stretch gap-0 p-2 sm:p-3">
                   <template v-for="(group, groupIdx) in sceneGroups" :key="group.sceneSlug">
