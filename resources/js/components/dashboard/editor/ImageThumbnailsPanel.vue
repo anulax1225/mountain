@@ -40,11 +40,11 @@
     </script>
 
     <template>
-      <div class="bottom-0 left-0 right-0 absolute pb-2 sm:pb-4 px-2 sm:px-4 md:px-20 lg:px-32 xl:px-48 2xl:px-64 flex justify-center">
-        <div class="flex flex-col items-center max-w-full">
+      <div class="right-0 bottom-0 left-0 absolute flex justify-center px-2 sm:px-4 md:px-20 lg:px-32 2xl:px-64 xl:px-48 pb-2 sm:pb-4">
+        <div class="flex flex-col items-center max-w-96">
           <button
             @click="collapsed = !collapsed"
-            class="mb-1 flex items-center justify-center w-10 h-6 rounded-t-lg bg-card/95 backdrop-blur-lg border border-b-0 border-border shadow-lg hover:bg-card transition-colors"
+            class="flex justify-center items-center bg-card/95 hover:bg-card shadow-lg backdrop-blur-lg mb-1 border border-border border-b-0 rounded-t-lg w-10 h-6 transition-colors"
             :title="collapsed ? 'Afficher les miniatures' : 'Masquer les miniatures'"
           >
             <ChevronDown v-if="!collapsed" class="w-4 h-4 text-muted-foreground" />
@@ -52,20 +52,20 @@
           </button>
 
           <Transition name="slide">
-            <div v-show="!collapsed" class="bg-card/95 backdrop-blur-lg rounded-xl border border-border shadow-2xl">
+            <div v-show="!collapsed" class="bg-card/95 shadow-2xl backdrop-blur-lg border border-border rounded-xl">
               <ScrollArea class="w-full">
                 <div class="flex items-stretch gap-0 p-2 sm:p-3">
                   <template v-for="(group, groupIdx) in sceneGroups" :key="group.sceneSlug">
                     <!-- Vertical separator between groups -->
                     <div
                       v-if="groupIdx > 0"
-                      class="shrink-0 w-px bg-border mx-2 sm:mx-3"
+                      class="mx-2 sm:mx-3 bg-border w-px shrink-0"
                     ></div>
 
                     <!-- Scene group -->
-                    <div class="shrink-0 flex flex-col gap-1.5">
+                    <div class="flex flex-col gap-1.5 shrink-0">
                       <!-- Scene name on top -->
-                      <div class="text-muted-foreground text-[10px] sm:text-xs font-medium px-1 truncate max-w-32 sm:max-w-none">
+                      <div class="px-1 max-w-32 sm:max-w-none font-medium text-[10px] text-muted-foreground sm:text-xs truncate">
                         {{ group.sceneName }}
                       </div>
 
@@ -89,8 +89,8 @@
                             class="w-full h-full object-cover"
                           />
                           <div class="absolute inset-0 bg-linear-to-t from-card/90 via-transparent to-transparent"></div>
-                          <div class="bottom-0.5 sm:bottom-1 left-1 right-1 sm:left-1.5 sm:right-1.5 absolute">
-                            <p class="font-medium text-card-foreground text-[10px] sm:text-xs truncate drop-shadow-lg">
+                          <div class="right-1 sm:right-1.5 bottom-0.5 sm:bottom-1 left-1 sm:left-1.5 absolute">
+                            <p class="drop-shadow-lg font-medium text-[10px] text-card-foreground sm:text-xs truncate">
                               {{ item.image.name || 'Sans nom' }}
                             </p>
                           </div>
