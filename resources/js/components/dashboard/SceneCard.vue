@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { MoreVertical, Pencil, Trash2, Image as ImageIcon, GripVertical } from 'lucide-vue-next'
 import { useImagePath } from '@/composables/useImagePath'
+import AppImage from '@/components/AppImage.vue'
 
 const { getImagePreview } = useImagePath()
 
@@ -65,7 +66,7 @@ const emit = defineEmits(['edit', 'delete'])
           :key="image.slug"
           class="relative bg-muted rounded-lg aspect-square overflow-hidden"
         >
-          <img
+          <AppImage
             :src="getImagePreview(image)"
             :alt="scene.name"
             class="w-full h-full object-cover"

@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ArrowLeft, TrendingUp, Users, Clock, Eye, MousePointer } from 'lucide-vue-next'
 import { useDateTime } from '@/composables'
+import AppImage from '@/components/AppImage.vue'
 
 const props = defineProps({
   auth: Object,
@@ -231,7 +232,7 @@ const chartHeight = 200
                       </p>
                     </div>
                     <div class="shrink-0 w-24 h-16 bg-muted rounded overflow-hidden">
-                      <img
+                      <AppImage
                         v-if="item.image?.slug"
                         :src="`/images/${item.image.slug}/download`"
                         :alt="item.image.name"

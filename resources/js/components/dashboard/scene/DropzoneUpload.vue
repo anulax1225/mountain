@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { ImagePlus, X, RotateCcw } from 'lucide-vue-next'
 import { Badge } from '@/components/ui/badge'
+import AppImage from '@/components/AppImage.vue'
 import { formatBytes } from '@/composables/useFileSize'
 
 const props = defineProps({
@@ -183,7 +184,7 @@ const maxSizeMB = props.maxFileSize > 0
       <!-- Single select mode: file selected preview -->
       <template v-if="isSelectMode && hasSingleFile">
         <div class="relative rounded-xl overflow-hidden border border-border">
-          <img
+          <AppImage
             v-if="selectedPreview"
             :src="selectedPreview"
             :alt="selectedFile.name"
@@ -221,7 +222,7 @@ const maxSizeMB = props.maxFileSize > 0
             'border-border': !['error', 'ready', 'complete'].includes(singleEntry.status),
           }"
         >
-          <img
+          <AppImage
             v-if="singleEntry.thumbnailUrl"
             :src="singleEntry.thumbnailUrl"
             :alt="singleEntry.file.name"
@@ -409,7 +410,7 @@ const maxSizeMB = props.maxFileSize > 0
             >
               <!-- Thumbnail -->
               <div class="shrink-0 w-10 h-10 rounded-md overflow-hidden bg-muted">
-                <img
+                <AppImage
                   v-if="entry.thumbnailUrl"
                   :src="entry.thumbnailUrl"
                   :alt="entry.file.name"

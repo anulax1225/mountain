@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Globe, MoreVertical, Pencil, Trash2, ExternalLink } from 'lucide-vue-next'
+import AppImage from '@/components/AppImage.vue'
 import { useDateTime } from '@/composables'
 
 const { formatNumericDate } = useDateTime()
@@ -66,7 +67,7 @@ const showMenu = computed(() => canEdit.value || canDelete.value)
     <CardContent>
       <Link :href="`/dashboard/projects/${project.slug}`" class="block">
         <div class="flex justify-center items-center bg-gradient-to-br from-muted to-muted/80 mb-4 rounded-lg aspect-video overflow-hidden group-hover:ring-2 ring-border transition-all">
-          <img
+          <AppImage
             v-if="project.picture_path"
             :src="`/projects/${project.slug}/picture`"
             :alt="project.name"

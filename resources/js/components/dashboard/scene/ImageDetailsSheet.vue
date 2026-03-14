@@ -12,6 +12,7 @@
     import { useConfirm } from '@/composables/useConfirm'
     import { useApiError } from '@/composables/useApiError'
     import DropzoneUpload from '@/components/dashboard/scene/DropzoneUpload.vue'
+    import AppImage from '@/components/AppImage.vue'
 
     const props = defineProps({
       open: Boolean,
@@ -105,7 +106,7 @@
 
           <div v-if="image" class="space-y-6 mt-6">
             <div class="relative bg-muted rounded-lg aspect-video overflow-hidden">
-              <img
+              <AppImage
                 :src="getImagePreview(image)"
                 :alt="image.name || sceneName"
                 class="w-full h-full object-cover"
