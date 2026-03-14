@@ -127,6 +127,31 @@ export function useHoverDetection({
     }
 
     /**
+     * Detect blur region indicator hover using raycaster (edit mode)
+     */
+    const detectBlurRegionHover = () => {
+        const manager = spriteDisplay.blurRegionManager.value
+        if (!manager) return
+
+        const intersects = raycaster.value.intersectObjects(manager.getAll())
+
+        if (intersects.length > 0) {
+            const sprite = intersects[0].object
+            const blurRegion = sprite.userData.blurRegion
+
+            if (blurRegion?.slug !== interaction.hoveredBlurRegionSlug.value) {
+                interaction.setHoveredBlurRegion(blurRegion?.slug)
+            }
+
+            setCursor('pointer')
+        } else {
+            if (interaction.hoveredBlurRegionSlug.value) {
+                interaction.setHoveredBlurRegion(null)
+            }
+        }
+    }
+
+    /**
      * Main mouse move handler for hover detection
      * Call this after drag handling has been checked
      */
@@ -139,11 +164,16 @@ export function useHoverDetection({
             detectHotspotHover(mouseX, mouseY)
         }
 
-        // Edit mode - sticker hover (skip if just finished dragging)
-        if (toValue(mode) === 'edit' && spriteDisplay.stickerManager.value
+        // Edit mode - sticker and blur region hover (skip if just finished dragging)
+        if (toValue(mode) === 'edit'
             && !toValue(isCreatingHotspot) && !toValue(isCreatingSticker)
             && !toValue(justFinishedDrag)) {
-            detectStickerHover()
+            if (spriteDisplay.stickerManager.value) {
+                detectStickerHover()
+            }
+            if (spriteDisplay.blurRegionManager.value) {
+                detectBlurRegionHover()
+            }
         }
     }
 

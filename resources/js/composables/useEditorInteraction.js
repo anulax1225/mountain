@@ -16,8 +16,10 @@ export function useEditorInteraction() {
     const hoveredHotspotSlug = ref(null)
     const hoveredStickerSlug = ref(null)
     const selectedStickerSlug = ref(null)
+    const hoveredBlurRegionSlug = ref(null)
+    const selectedBlurRegionSlug = ref(null)
     const draggedSpriteSlug = ref(null)
-    const draggedSpriteType = ref(null) // 'hotspot' | 'sticker'
+    const draggedSpriteType = ref(null) // 'hotspot' | 'sticker' | 'blurRegion'
 
     // Popover state
     const activePopover = ref(null) // { type: 'hotspot' | 'sticker', slug: string }
@@ -52,6 +54,12 @@ export function useEditorInteraction() {
             if (slug === hoveredHotspotSlug.value) {
                 multiplier = HOVER_SCALE
             }
+        } else if (type === 'blurRegion') {
+            if (slug === selectedBlurRegionSlug.value) {
+                multiplier = SELECTED_SCALE
+            } else if (slug === hoveredBlurRegionSlug.value) {
+                multiplier = HOVER_SCALE
+            }
         }
 
         return multiplier
@@ -66,9 +74,11 @@ export function useEditorInteraction() {
     const applyScale = (sprite, type) => {
         if (!sprite || !sprite.userData) return
 
-        const slug = type === 'sticker'
-            ? sprite.userData.sticker?.slug
-            : sprite.userData.hotspot?.slug
+        const slug = type === 'blurRegion'
+            ? sprite.userData.blurRegion?.slug
+            : type === 'sticker'
+                ? sprite.userData.sticker?.slug
+                : sprite.userData.hotspot?.slug
 
         if (!slug) return
 
@@ -129,9 +139,11 @@ export function useEditorInteraction() {
     const findSpriteBySlug = (manager, type, slug) => {
         if (!manager || !slug) return undefined
         return manager.find(userData => {
-            const spriteSlug = type === 'sticker'
-                ? userData.sticker?.slug
-                : userData.hotspot?.slug
+            const spriteSlug = type === 'blurRegion'
+                ? userData.blurRegion?.slug
+                : type === 'sticker'
+                    ? userData.sticker?.slug
+                    : userData.hotspot?.slug
             return spriteSlug === slug
         })
     }
@@ -149,6 +161,14 @@ export function useEditorInteraction() {
         selectedStickerSlug.value = slug
     }
 
+    const setHoveredBlurRegion = (slug) => {
+        hoveredBlurRegionSlug.value = slug
+    }
+
+    const setSelectedBlurRegion = (slug) => {
+        selectedBlurRegionSlug.value = slug
+    }
+
     const setDraggedSprite = (slug, type) => {
         draggedSpriteSlug.value = slug
         draggedSpriteType.value = type
@@ -160,6 +180,7 @@ export function useEditorInteraction() {
     const clearHoverStates = () => {
         hoveredHotspotSlug.value = null
         hoveredStickerSlug.value = null
+        hoveredBlurRegionSlug.value = null
         hotspotHoverPosition.value = null
         isPopoverHovered.value = false
     }
@@ -170,7 +191,9 @@ export function useEditorInteraction() {
     const clearAllStates = () => {
         hoveredHotspotSlug.value = null
         hoveredStickerSlug.value = null
+        hoveredBlurRegionSlug.value = null
         selectedStickerSlug.value = null
+        selectedBlurRegionSlug.value = null
         draggedSpriteSlug.value = null
         draggedSpriteType.value = null
         activePopover.value = null
@@ -229,11 +252,16 @@ export function useEditorInteraction() {
     const isStickerSelected = computed(() => selectedStickerSlug.value !== null)
     const isDragging = computed(() => draggedSpriteSlug.value !== null)
 
+    const isBlurRegionHovered = computed(() => hoveredBlurRegionSlug.value !== null)
+    const isBlurRegionSelected = computed(() => selectedBlurRegionSlug.value !== null)
+
     return {
         // State
         hoveredHotspotSlug,
         hoveredStickerSlug,
+        hoveredBlurRegionSlug,
         selectedStickerSlug,
+        selectedBlurRegionSlug,
         draggedSpriteSlug,
         draggedSpriteType,
         activePopover,
@@ -244,6 +272,8 @@ export function useEditorInteraction() {
         isHotspotHovered,
         isStickerHovered,
         isStickerSelected,
+        isBlurRegionHovered,
+        isBlurRegionSelected,
         isDragging,
 
         // Constants
@@ -262,7 +292,9 @@ export function useEditorInteraction() {
         // State setters
         setHoveredHotspot,
         setHoveredSticker,
+        setHoveredBlurRegion,
         setSelectedSticker,
+        setSelectedBlurRegion,
         setDraggedSprite,
         setHoveredHotspotWithPosition,
         clearHoverStates,

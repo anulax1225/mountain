@@ -21,18 +21,21 @@ class GalleryController extends Controller
     }
 
     public function show(Project $project)
-    { 
-        if (!$project->is_public) {
+    {
+        if (! $project->is_public) {
             abort(404);
         }
 
         $project->load([
             'scenes.images.hotspotsFrom',
             'scenes.images.hotspotsTo',
+            'scenes.images.blurRegions',
             'scenes.hotspots',
             'startImage.hotspotsFrom',
+            'startImage.blurRegions',
         ]);
-        //dd((new ProjectResource($project))->toArray(request()));
+
+        // dd((new ProjectResource($project))->toArray(request()));
         return Inertia::render('gallery/Show', [
             'project' => (new ProjectResource($project))->toArray(request()),
         ]);

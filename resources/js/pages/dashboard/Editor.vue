@@ -15,6 +15,8 @@ import HotspotCustomizeDialog from '@/components/dashboard/editor/HotspotCustomi
 import StickerCreationDialog from '@/components/dashboard/editor/StickerCreationDialog.vue'
 import StickerEditDialog from '@/components/dashboard/editor/StickerEditDialog.vue'
 import StickerContextMenu from '@/components/dashboard/editor/StickerContextMenu.vue'
+import BlurRegionDialog from '@/components/dashboard/editor/BlurRegionDialog.vue'
+import BlurRegionContextMenu from '@/components/dashboard/editor/BlurRegionContextMenu.vue'
 import EditorZoomControls from '@/components/dashboard/editor/EditorZoomControls.vue'
 import { Maximize, Minimize, VenetianMask, Hd, Loader2 } from 'lucide-vue-next'
 import owl from '@/owl-sdk.js'
@@ -51,6 +53,7 @@ const currentImageIndex = ref(0)
 const mode = ref('view')
 const isCreatingHotspot = ref(false)
 const isCreatingSticker = ref(false)
+const isCreatingBlurRegion = ref(false)
 const targetDialogOpen = ref(false)
 const orientationDialogOpen = ref(false)
 const customizeDialogOpen = ref(false)
@@ -71,6 +74,13 @@ const stickerEditDialogOpen = ref(false)
 const stickerContextMenuVisible = ref(false)
 const stickerContextMenuPosition = ref(null)
 const editingSticker = ref(null)
+
+// Blur region state
+const blurRegionDialogOpen = ref(false)
+const blurRegionContextMenuVisible = ref(false)
+const blurRegionContextMenuPosition = ref(null)
+const pendingBlurRegionPosition = ref(null)
+const editingBlurRegion = ref(null)
 
 // Immersion mode state
 const isImmersive = ref(false)
@@ -113,17 +123,26 @@ watch(() => props.scenes, async () => {
     if (editorCanvasRef.value) {
         editorCanvasRef.value.displayHotspots()
         editorCanvasRef.value.displayStickers()
+        editorCanvasRef.value.displayBlurRegions()
     }
 }, { deep: true })
 
 const startCreatingHotspot = () => {
     isCreatingHotspot.value = true
     isCreatingSticker.value = false
+    isCreatingBlurRegion.value = false
 }
 
 const startCreatingSticker = () => {
     isCreatingSticker.value = true
     isCreatingHotspot.value = false
+    isCreatingBlurRegion.value = false
+}
+
+const startCreatingBlurRegion = () => {
+    isCreatingBlurRegion.value = true
+    isCreatingHotspot.value = false
+    isCreatingSticker.value = false
 }
 
 const handleHotspotPositionSelected = (position) => {
@@ -307,6 +326,64 @@ const handleDeleteSticker = async (sticker) => {
     }
 }
 
+// --- Blur region handlers ---
+const handleBlurRegionPositionSelected = (position) => {
+    pendingBlurRegionPosition.value = position
+    isCreatingBlurRegion.value = false
+    editingBlurRegion.value = null
+    blurRegionDialogOpen.value = true
+}
+
+const handleBlurRegionSaved = async (data) => {
+    if (!currentImage.value) return
+
+    try {
+        if (editingBlurRegion.value) {
+            await owl.blurRegions.update(editingBlurRegion.value.slug, data)
+            editingBlurRegion.value = null
+        } else {
+            await owl.blurRegions.create(currentImage.value.slug, data)
+        }
+
+        blurRegionDialogOpen.value = false
+        pendingBlurRegionPosition.value = null
+
+        reloadImages()
+    } catch (error) {
+        handleError(error, { context: 'Saving blur region', showToast: true })
+    }
+}
+
+const handleBlurRegionClick = ({ blurRegion, position }) => {
+    editingBlurRegion.value = blurRegion
+    blurRegionContextMenuPosition.value = position
+    blurRegionContextMenuVisible.value = true
+    interaction.setSelectedBlurRegion(blurRegion?.slug)
+}
+
+const handleEditBlurRegion = (blurRegion) => {
+    editingBlurRegion.value = blurRegion
+    blurRegionContextMenuVisible.value = false
+    interaction.setSelectedBlurRegion(null)
+    blurRegionDialogOpen.value = true
+}
+
+const handleContextMenuDeleteBlurRegion = async (blurRegion) => {
+    blurRegionContextMenuVisible.value = false
+    interaction.setSelectedBlurRegion(null)
+
+    const confirmed = await confirmDelete('cette zone de flou')
+    if (!confirmed) return
+
+    try {
+        await owl.blurRegions.delete(blurRegion.slug)
+        editingBlurRegion.value = null
+        reloadImages()
+    } catch (error) {
+        handleError(error, { context: 'Deleting blur region', showToast: true })
+    }
+}
+
 const handleHotspotClick = async (hotspot) => {
     const targetIndex = images.value.findIndex(img => img.id === hotspot.to_image_id)
     if (targetIndex !== -1) {
@@ -378,6 +455,12 @@ const handleSpriteDragEnd = async ({ type, data, newPosition, originalPosition }
                 position_y: newPosition.y,
                 position_z: newPosition.z
             })
+        } else if (type === 'blurRegion') {
+            await owl.blurRegions.patch(data.slug, {
+                position_x: newPosition.x,
+                position_y: newPosition.y,
+                position_z: newPosition.z
+            })
         }
 
         reloadImages()
@@ -392,6 +475,7 @@ const toggleMode = () => {
     mode.value = mode.value === 'view' ? 'edit' : 'view'
     isCreatingHotspot.value = false
     isCreatingSticker.value = false
+    isCreatingBlurRegion.value = false
     interaction.clearAllStates()
     if (mode.value === 'edit') {
         isImmersive.value = false
@@ -421,6 +505,13 @@ watch(interaction.selectedStickerSlug, (slug) => {
     }
 })
 
+// Close blur region context menu when interaction state is cleared
+watch(interaction.selectedBlurRegionSlug, (slug) => {
+    if (!slug) {
+        blurRegionContextMenuVisible.value = false
+    }
+})
+
 onMounted(() => {
     document.addEventListener('fullscreenchange', handleFullscreenChange)
 })
@@ -446,9 +537,12 @@ onUnmounted(() => {
             <div v-else class="relative w-full h-full">
                 <EditorCanvas ref="editorCanvasRef" :images="images" :current-index="currentImageIndex" :mode="mode"
                     :is-creating-hotspot="isCreatingHotspot" :is-creating-sticker="isCreatingSticker"
+                    :is-creating-blur-region="isCreatingBlurRegion"
                     @hotspot-click="handleHotspotClick" @hotspot-click-edit="handleHotspotClickEdit"
                     @hotspot-position-selected="handleHotspotPositionSelected"
                     @sticker-position-selected="handleStickerPositionSelected" @sticker-click="handleStickerClick"
+                    @blur-region-click="handleBlurRegionClick"
+                    @blur-region-position-selected="handleBlurRegionPositionSelected"
                     @sprite-drag-end="handleSpriteDragEnd" />
 
                 <!-- HD loading indicator -->
@@ -514,6 +608,7 @@ onUnmounted(() => {
                         :mode="mode"
                         @create-hotspot="startCreatingHotspot"
                         @create-sticker="startCreatingSticker"
+                        @create-blur-region="startCreatingBlurRegion"
                         @toggle-mode="toggleMode"
                     />
                 </Transition>
@@ -570,6 +665,13 @@ onUnmounted(() => {
 
                 <StickerEditDialog v-model:open="stickerEditDialogOpen" :sticker="editingSticker"
                     @save="handleStickerEdited" />
+
+                <BlurRegionDialog v-model:open="blurRegionDialogOpen" :position="pendingBlurRegionPosition"
+                    :blur-region="editingBlurRegion" @save="handleBlurRegionSaved" />
+
+                <BlurRegionContextMenu :blur-region="editingBlurRegion" :position="blurRegionContextMenuPosition"
+                    :visible="blurRegionContextMenuVisible" @edit="handleEditBlurRegion"
+                    @delete="handleContextMenuDeleteBlurRegion" />
             </div>
         </div>
     </DashboardLayout>

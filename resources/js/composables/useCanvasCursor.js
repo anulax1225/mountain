@@ -8,8 +8,9 @@ import { watch, toValue } from 'vue'
  * @param {import('vue').Ref<string>} options.mode - Current editor mode ('view' | 'edit')
  * @param {import('vue').Ref<boolean>} options.isCreatingHotspot - Whether creating a hotspot
  * @param {import('vue').Ref<boolean>} options.isCreatingSticker - Whether creating a sticker
+ * @param {import('vue').Ref<boolean>} options.isCreatingBlurRegion - Whether creating a blur region
  */
-export function useCanvasCursor(containerRef, { mode, isCreatingHotspot, isCreatingSticker }) {
+export function useCanvasCursor(containerRef, { mode, isCreatingHotspot, isCreatingSticker, isCreatingBlurRegion }) {
     const setCursor = (cursor) => {
         if (containerRef.value) {
             containerRef.value.style.cursor = cursor
@@ -17,7 +18,7 @@ export function useCanvasCursor(containerRef, { mode, isCreatingHotspot, isCreat
     }
 
     const resetCursor = () => {
-        if (toValue(isCreatingHotspot) || toValue(isCreatingSticker)) {
+        if (toValue(isCreatingHotspot) || toValue(isCreatingSticker) || toValue(isCreatingBlurRegion)) {
             setCursor('crosshair')
         } else {
             setCursor('default')
@@ -30,15 +31,18 @@ export function useCanvasCursor(containerRef, { mode, isCreatingHotspot, isCreat
     })
 
     // Watch for creation mode changes to update cursor
-    watch([() => toValue(isCreatingHotspot), () => toValue(isCreatingSticker)], ([creatingHotspot, creatingSticker]) => {
-        if (!containerRef.value) return
+    watch(
+        [() => toValue(isCreatingHotspot), () => toValue(isCreatingSticker), () => toValue(isCreatingBlurRegion)],
+        ([creatingHotspot, creatingSticker, creatingBlurRegion]) => {
+            if (!containerRef.value) return
 
-        if (creatingHotspot || creatingSticker) {
-            setCursor('crosshair')
-        } else {
-            setCursor('default')
+            if (creatingHotspot || creatingSticker || creatingBlurRegion) {
+                setCursor('crosshair')
+            } else {
+                setCursor('default')
+            }
         }
-    })
+    )
 
     return { setCursor, resetCursor }
 }

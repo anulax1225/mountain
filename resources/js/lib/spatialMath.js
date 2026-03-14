@@ -157,6 +157,30 @@ export function invertVector(vector) {
 }
 
 /**
+ * Convert 3D Cartesian coordinates to equirectangular UV coordinates
+ * Accounts for the sphere's X-axis inversion (SPHERE.SCALE_INVERT = -1)
+ * @param {Object} position - Cartesian position {x, y, z}
+ * @returns {Object} UV coordinates {u, v} in 0-1 range
+ */
+export function cartesianToUV(position) {
+    const { azimuthal, polar } = cartesianToSpherical(position)
+    // Account for sphere X-axis inversion
+    const u = 1 - (azimuthal / (2 * Math.PI) + 0.5)
+    const v = polar / Math.PI
+    return { u, v }
+}
+
+/**
+ * Convert an angular radius (in radians) to pixel radius on a texture
+ * @param {number} angularRadius - Angular radius in radians
+ * @param {number} textureHeight - Height of the texture in pixels
+ * @returns {number} Pixel radius
+ */
+export function angularRadiusToPixels(angularRadius, textureHeight) {
+    return (angularRadius / Math.PI) * textureHeight
+}
+
+/**
  * Apply camera rotation using spherical coordinates to OrbitControls
  * @param {OrbitControls} controls - Three.js OrbitControls instance
  * @param {Object} rotation - Rotation {x: azimuthal, y: polar, z}

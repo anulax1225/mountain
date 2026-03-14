@@ -2,6 +2,7 @@
 import { ref, onMounted, watch, computed } from 'vue'
 import { useThreeScene } from '@/composables/useThreeScene.js'
 import { usePanoramaLoader } from '@/composables/usePanoramaLoader.js'
+import { useBlurRegions } from '@/composables/useBlurRegions.js'
 import { useInjectedEditorInteraction } from '@/composables/useEditorInteraction.js'
 import { useSpriteDisplay } from '@/composables/useSpriteDisplay.js'
 import { useCanvasCursor } from '@/composables/useCanvasCursor.js'
@@ -21,6 +22,7 @@ const props = defineProps({
     },
     isCreatingHotspot: Boolean,
     isCreatingSticker: Boolean,
+    isCreatingBlurRegion: Boolean,
 })
 
 const emit = defineEmits([
@@ -28,8 +30,10 @@ const emit = defineEmits([
     'hotspot-click',
     'hotspot-click-edit',
     'sticker-click',
+    'blur-region-click',
     'hotspot-position-selected',
     'sticker-position-selected',
+    'blur-region-position-selected',
     'sprite-drag-end',
 ])
 
@@ -45,6 +49,7 @@ const interaction = useInjectedEditorInteraction()
 const currentImage = computed(() => props.images[props.currentIndex])
 const currentHotspots = computed(() => currentImage.value?.hotspots_from || [])
 const currentStickers = computed(() => currentImage.value?.stickers || [])
+const currentBlurRegions = computed(() => currentImage.value?.blur_regions || [])
 
 // --- Core Three.js ---
 const {
@@ -56,8 +61,14 @@ const {
 
 // --- Panorama loader ---
 const {
-    currentMesh, loadPanorama: loadPanoramaBase, preloadImages, cancelPreloads
+    currentMesh, loadPanorama: loadPanoramaBase, preloadImages, cancelPreloads, onTextureReady
 } = usePanoramaLoader(threeScene, textureLoader)
+
+// --- Blur regions (canvas pre-processing) ---
+const { applyBlurRegions } = useBlurRegions(currentMesh, currentBlurRegions)
+
+// Re-apply blur when texture is swapped (preview → full-res)
+onTextureReady(() => applyBlurRegions())
 
 // --- Sprite display ---
 const sprites = useSpriteDisplay(threeScene, interaction)
@@ -67,6 +78,7 @@ const { setCursor, resetCursor } = useCanvasCursor(renderView, {
     mode: () => props.mode,
     isCreatingHotspot: () => props.isCreatingHotspot,
     isCreatingSticker: () => props.isCreatingSticker,
+    isCreatingBlurRegion: () => props.isCreatingBlurRegion,
 })
 
 // --- Pinch zoom ---
@@ -117,12 +129,15 @@ const click = useCanvasClick({
     mode: () => props.mode,
     isCreatingHotspot: () => props.isCreatingHotspot,
     isCreatingSticker: () => props.isCreatingSticker,
+    isCreatingBlurRegion: () => props.isCreatingBlurRegion,
     clearHoverTimeout: hover.clearHoverTimeout,
     onHotspotClick: (hotspot) => emit('hotspot-click', hotspot),
     onHotspotClickEdit: (payload) => emit('hotspot-click-edit', payload),
     onStickerClick: (payload) => emit('sticker-click', payload),
+    onBlurRegionClick: (payload) => emit('blur-region-click', payload),
     onHotspotPositionSelected: (pos) => emit('hotspot-position-selected', pos),
     onStickerPositionSelected: (pos) => emit('sticker-position-selected', pos),
+    onBlurRegionPositionSelected: (pos) => emit('blur-region-position-selected', pos),
 })
 
 // --- Pointer event orchestrators ---
@@ -197,6 +212,10 @@ const loadPanorama = async (index, transition = true, rotation = null, skipWatch
     sprites.displayHotspots(image.hotspots_from || [])
     sprites.displayStickers(image.stickers || [])
 
+    // Display blur region indicators (visible only in edit mode)
+    sprites.displayBlurRegions(image.blur_regions || [])
+    sprites.setBlurIndicatorsVisible(props.mode === 'edit')
+
     isLoadingPanorama.value = false
 
     if (previewUrl) {
@@ -235,6 +254,18 @@ watch(currentStickers, () => {
     }
 }, { deep: true })
 
+watch(currentBlurRegions, () => {
+    if (threeScene.value && !isLoadingPanorama.value) {
+        sprites.displayBlurRegions(currentBlurRegions.value)
+        sprites.setBlurIndicatorsVisible(props.mode === 'edit')
+    }
+}, { deep: true })
+
+// Toggle blur indicators visibility when mode changes
+watch(() => props.mode, (newMode) => {
+    sprites.setBlurIndicatorsVisible(newMode === 'edit')
+})
+
 // --- Lifecycle ---
 onMounted(() => {
     const initialized = initThreeScene()
@@ -256,6 +287,7 @@ onMounted(() => {
                 hover.clearHoverTimeout()
                 interaction.clearHoverStates()
                 interaction.setSelectedSticker(null)
+                interaction.setSelectedBlurRegion(null)
             })
             controls.value.addEventListener('end', () => {
                 isControlsActive = false
@@ -265,6 +297,7 @@ onMounted(() => {
                     hover.clearHoverTimeout()
                     interaction.clearHoverStates()
                     interaction.setSelectedSticker(null)
+                    interaction.setSelectedBlurRegion(null)
                 }
             })
         }
@@ -293,6 +326,7 @@ defineExpose({
     loadPanorama,
     displayHotspots: (image) => sprites.displayHotspots(image ? (image.hotspots_from || []) : currentHotspots.value),
     displayStickers: (image) => sprites.displayStickers(image ? (image.stickers || []) : currentStickers.value),
+    displayBlurRegions: (image) => sprites.displayBlurRegions(image ? (image.blur_regions || []) : currentBlurRegions.value),
     clearSprites: sprites.clearAll,
     isLoadingFullRes,
     controls,
@@ -300,6 +334,7 @@ defineExpose({
     renderView,
     hotspotManager: () => sprites.hotspotManager.value,
     stickerManager: () => sprites.stickerManager.value,
+    blurRegionManager: () => sprites.blurRegionManager.value,
     cleanup
 })
 </script>

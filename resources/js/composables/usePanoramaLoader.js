@@ -75,6 +75,7 @@ export function usePanoramaLoader(sceneRef, textureLoaderRef, options = {}) {
     const currentMesh = shallowRef(null)
     const isTransitioning = ref(false)
     let fullResAbortController = null
+    let textureReadyCallbacks = []
 
     /**
      * Load a panoramic image and create a sphere mesh
@@ -139,9 +140,15 @@ export function usePanoramaLoader(sceneRef, textureLoaderRef, options = {}) {
         const material = new THREE.MeshBasicMaterial({ map: texture })
         const mesh = new THREE.Mesh(geometry, material)
 
+        // Store original image for blur region processing
+        mesh.userData.originalImage = texture.image
+
         // Add to scene
         sceneRef.value.add(mesh)
         currentMesh.value = mesh
+
+        // Notify blur composable that texture is ready
+        textureReadyCallbacks.forEach(cb => cb())
 
         // Fade in if transitioning
         if (transition) {
@@ -181,10 +188,16 @@ export function usePanoramaLoader(sceneRef, textureLoaderRef, options = {}) {
                     imageCache.set(imageUrl, img)
 
                     if (currentMesh.value === mesh) {
+                        // Update original image reference for blur regions
+                        mesh.userData.originalImage = img
+
                         const oldTexture = mesh.material.map
                         mesh.material.map = fullTexture
                         mesh.material.needsUpdate = true
                         oldTexture?.dispose()
+
+                        // Notify blur composable to re-apply with full-res image
+                        textureReadyCallbacks.forEach(cb => cb())
                     } else {
                         fullTexture.dispose()
                     }
@@ -299,6 +312,15 @@ export function usePanoramaLoader(sceneRef, textureLoaderRef, options = {}) {
         activePreloads = 0
     }
 
+    /**
+     * Register a callback to be called when a texture is loaded or swapped
+     * Used by useBlurRegions to re-apply blur after texture changes
+     * @param {Function} callback
+     */
+    const onTextureReady = (callback) => {
+        textureReadyCallbacks.push(callback)
+    }
+
     return {
         currentMesh,
         isTransitioning,
@@ -307,6 +329,7 @@ export function usePanoramaLoader(sceneRef, textureLoaderRef, options = {}) {
         cancelPreloads,
         clear,
         fadeIn,
-        fadeOut
+        fadeOut,
+        onTextureReady
     }
 }

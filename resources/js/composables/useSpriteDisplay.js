@@ -2,7 +2,7 @@ import { shallowRef, watch } from 'vue'
 import { SpriteFactory, SpriteManager } from '@/lib/spriteFactory.js'
 
 /**
- * Composable for managing sprite display (hotspots and stickers) in the 360° editor
+ * Composable for managing sprite display (hotspots, stickers, blur indicators) in the 360° editor
  *
  * @param {import('vue').Ref} sceneRef - Three.js scene ref
  * @param {object} interaction - Editor interaction composable instance
@@ -10,6 +10,7 @@ import { SpriteFactory, SpriteManager } from '@/lib/spriteFactory.js'
 export function useSpriteDisplay(sceneRef, interaction) {
     const hotspotManager = shallowRef(null)
     const stickerManager = shallowRef(null)
+    const blurRegionManager = shallowRef(null)
 
     /**
      * Initialize sprite managers (call after scene is ready)
@@ -17,6 +18,7 @@ export function useSpriteDisplay(sceneRef, interaction) {
     const init = (scene) => {
         hotspotManager.value = new SpriteManager(scene)
         stickerManager.value = new SpriteManager(scene)
+        blurRegionManager.value = new SpriteManager(scene)
     }
 
     /**
@@ -28,6 +30,9 @@ export function useSpriteDisplay(sceneRef, interaction) {
         }
         if (stickerManager.value) {
             interaction.applyAllScales(stickerManager.value, 'sticker')
+        }
+        if (blurRegionManager.value) {
+            interaction.applyAllScales(blurRegionManager.value, 'blurRegion')
         }
     }
 
@@ -78,11 +83,46 @@ export function useSpriteDisplay(sceneRef, interaction) {
     }
 
     /**
+     * Display blur region indicator sprites from data (edit mode only)
+     * @param {Array} blurRegions - Array of blur region objects
+     */
+    const displayBlurRegions = (blurRegions) => {
+        if (!blurRegionManager.value) return
+
+        blurRegionManager.value.clear()
+
+        blurRegions.forEach(blurRegion => {
+            const sprite = SpriteFactory.createBlurIndicatorSprite(blurRegion)
+            SpriteFactory.positionSprite(sprite, {
+                x: blurRegion.position_x,
+                y: blurRegion.position_y,
+                z: blurRegion.position_z
+            })
+
+            blurRegionManager.value.add(sprite, { blurRegion })
+        })
+
+        applyInteractionScales()
+    }
+
+    /**
+     * Show/hide blur region indicators based on editor mode
+     * @param {boolean} visible - Whether indicators should be visible
+     */
+    const setBlurIndicatorsVisible = (visible) => {
+        if (!blurRegionManager.value) return
+        blurRegionManager.value.getAll().forEach(sprite => {
+            sprite.visible = visible
+        })
+    }
+
+    /**
      * Clear all sprites
      */
     const clearAll = () => {
         if (hotspotManager.value) hotspotManager.value.clear()
         if (stickerManager.value) stickerManager.value.clear()
+        if (blurRegionManager.value) blurRegionManager.value.clear()
     }
 
     // Watch interaction state changes to apply scales
@@ -96,9 +136,12 @@ export function useSpriteDisplay(sceneRef, interaction) {
     return {
         hotspotManager,
         stickerManager,
+        blurRegionManager,
         init,
         displayHotspots,
         displayStickers,
+        displayBlurRegions,
+        setBlurIndicatorsVisible,
         clearAll,
         applyInteractionScales,
     }

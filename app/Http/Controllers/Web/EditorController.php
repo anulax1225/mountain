@@ -16,7 +16,7 @@ class EditorController extends Controller
     {
         $this->authorize('update', $project);
 
-        $project->load(['scenes.images.hotspotsFrom', 'scenes.images.hotspotsTo', 'scenes.images.stickers']);
+        $project->load(['scenes.images.hotspotsFrom', 'scenes.images.hotspotsTo', 'scenes.images.stickers', 'scenes.images.blurRegions']);
 
         return Inertia::render('dashboard/Editor', [
             'project' => new ProjectResource($project),

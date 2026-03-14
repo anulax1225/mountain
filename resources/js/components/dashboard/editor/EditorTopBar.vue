@@ -2,7 +2,7 @@
     import { Link } from '@inertiajs/vue3'
     import { Button } from '@/components/ui/button'
     import { Badge } from '@/components/ui/badge'
-    import { ArrowLeft, Plus, Eye, Pencil, Sticker } from 'lucide-vue-next'
+    import { ArrowLeft, Plus, Eye, Pencil, Sticker, Blend } from 'lucide-vue-next'
 
     defineProps({
       projectName: String,
@@ -11,7 +11,7 @@
       mode: String
     })
 
-    const emit = defineEmits(['create-hotspot', 'create-sticker', 'toggle-mode'])
+    const emit = defineEmits(['create-hotspot', 'create-sticker', 'create-blur-region', 'toggle-mode'])
     </script>
 
     <template>
@@ -53,6 +53,15 @@
             >
               <Sticker class="mr-2 w-4 h-4" />
               Sticker
+            </Button>
+            <Button
+              v-if="mode === 'edit'"
+              variant="default"
+              size="sm"
+              @click="emit('create-blur-region')"
+            >
+              <Blend class="mr-2 w-4 h-4" />
+              Flou
             </Button>
             <Button
               variant="secondary"

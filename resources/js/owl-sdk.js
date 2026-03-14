@@ -40,6 +40,7 @@ class OwlAPIClient {
         this.hotspots = new HotspotsAPI(this);
         this.images = new ImagesAPI(this);
         this.stickers = new StickersAPI(this);
+        this.blurRegions = new BlurRegionsAPI(this);
         this.analytics = new AnalyticsAPI(this);
         this.contactRequests = new ContactRequestsAPI(this);
         this.admin = new AdminAPI(this);
@@ -867,6 +868,93 @@ class StickersAPI {
      */
     async delete(stickerSlug) {
         return await this.client.request(`/stickers/${stickerSlug}`, {
+            method: 'DELETE',
+        });
+    }
+}
+
+/**
+ * Blur Regions API endpoints
+ */
+class BlurRegionsAPI {
+    constructor(client) {
+        this.client = client;
+    }
+
+    /**
+     * List all blur regions for an image
+     * @param {string} imageSlug - Image slug
+     * @returns {Promise<Object>}
+     */
+    async list(imageSlug) {
+        return await this.client.request(`/images/${imageSlug}/blur-regions`, {
+            method: 'GET',
+        });
+    }
+
+    /**
+     * Create a new blur region on an image
+     * @param {string} imageSlug - Image slug
+     * @param {Object} data
+     * @param {number} data.position_x - X position
+     * @param {number} data.position_y - Y position
+     * @param {number} data.position_z - Z position
+     * @param {number} [data.radius=0.05] - Angular radius in radians
+     * @param {number} [data.intensity=10] - Blur intensity (px)
+     * @param {string} [data.type='gaussian'] - Blur type: 'gaussian' or 'pixelate'
+     * @returns {Promise<Object>}
+     */
+    async create(imageSlug, data) {
+        return await this.client.request(`/images/${imageSlug}/blur-regions`, {
+            method: 'POST',
+            body: data,
+        });
+    }
+
+    /**
+     * Get a specific blur region by slug
+     * @param {string} blurRegionSlug - Blur region slug
+     * @returns {Promise<Object>}
+     */
+    async get(blurRegionSlug) {
+        return await this.client.request(`/blur-regions/${blurRegionSlug}`, {
+            method: 'GET',
+        });
+    }
+
+    /**
+     * Update a blur region
+     * @param {string} blurRegionSlug - Blur region slug
+     * @param {Object} data - Blur region data to update
+     * @returns {Promise<Object>}
+     */
+    async update(blurRegionSlug, data) {
+        return await this.client.request(`/blur-regions/${blurRegionSlug}`, {
+            method: 'PUT',
+            body: data,
+        });
+    }
+
+    /**
+     * Patch a blur region (partial update)
+     * @param {string} blurRegionSlug - Blur region slug
+     * @param {Object} data - Blur region data to update
+     * @returns {Promise<Object>}
+     */
+    async patch(blurRegionSlug, data) {
+        return await this.client.request(`/blur-regions/${blurRegionSlug}`, {
+            method: 'PATCH',
+            body: data,
+        });
+    }
+
+    /**
+     * Delete a blur region
+     * @param {string} blurRegionSlug - Blur region slug
+     * @returns {Promise<void>}
+     */
+    async delete(blurRegionSlug) {
+        return await this.client.request(`/blur-regions/${blurRegionSlug}`, {
             method: 'DELETE',
         });
     }

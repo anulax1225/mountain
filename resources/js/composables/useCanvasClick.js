@@ -5,9 +5,9 @@ import { SPRITE } from '@/lib/editorConstants.js'
  * Composable for canvas click handling in the 360° editor
  *
  * Routes clicks based on mode and creation state:
- * - Creating hotspot/sticker: position selection on sphere
+ * - Creating hotspot/sticker/blur region: position selection on sphere
  * - View mode: hotspot navigation
- * - Edit mode: hotspot edit, sticker context menu
+ * - Edit mode: hotspot edit, sticker context menu, blur region context menu
  * - Empty space: clear interaction state
  *
  * @param {object} options
@@ -21,12 +21,15 @@ import { SPRITE } from '@/lib/editorConstants.js'
  * @param {import('vue').Ref<string>} options.mode - Editor mode
  * @param {import('vue').Ref<boolean>} options.isCreatingHotspot
  * @param {import('vue').Ref<boolean>} options.isCreatingSticker
+ * @param {import('vue').Ref<boolean>} options.isCreatingBlurRegion
  * @param {Function} options.clearHoverTimeout - From useHoverDetection
  * @param {Function} options.onHotspotClick - Callback for hotspot click (view mode navigation)
  * @param {Function} options.onHotspotClickEdit - Callback for hotspot click (edit mode)
  * @param {Function} options.onStickerClick - Callback for sticker click (edit mode context menu)
+ * @param {Function} options.onBlurRegionClick - Callback for blur region click (edit mode context menu)
  * @param {Function} options.onHotspotPositionSelected - Callback for hotspot position selection
  * @param {Function} options.onStickerPositionSelected - Callback for sticker position selection
+ * @param {Function} options.onBlurRegionPositionSelected - Callback for blur region position selection
  */
 export function useCanvasClick({
     containerRef,
@@ -39,12 +42,15 @@ export function useCanvasClick({
     mode,
     isCreatingHotspot,
     isCreatingSticker,
+    isCreatingBlurRegion,
     clearHoverTimeout,
     onHotspotClick,
     onHotspotClickEdit,
     onStickerClick,
+    onBlurRegionClick,
     onHotspotPositionSelected,
     onStickerPositionSelected,
+    onBlurRegionPositionSelected,
 }) {
     const onClick = (event) => {
         if (!raycaster.value || !camera.value || !currentMesh.value) return
@@ -73,6 +79,17 @@ export function useCanvasClick({
                 const point = intersects[0].point.clone()
                 point.multiplyScalar(SPRITE.POSITION_SCALE)
                 onStickerPositionSelected({ x: point.x, y: point.y, z: point.z })
+            }
+            return
+        }
+
+        // Creating blur region
+        if (toValue(isCreatingBlurRegion)) {
+            const intersects = raycaster.value.intersectObject(currentMesh.value)
+            if (intersects.length > 0) {
+                const point = intersects[0].point.clone()
+                point.multiplyScalar(SPRITE.POSITION_SCALE)
+                onBlurRegionPositionSelected({ x: point.x, y: point.y, z: point.z })
             }
             return
         }
@@ -127,10 +144,34 @@ export function useCanvasClick({
             }
         }
 
+        // Edit mode - blur region indicator click
+        const blurRegionManager = spriteDisplay.blurRegionManager.value
+        if (toValue(mode) === 'edit' && blurRegionManager) {
+            const intersects = raycaster.value.intersectObjects(blurRegionManager.getAll())
+            if (intersects.length > 0) {
+                const sprite = intersects[0].object
+                const blurRegion = sprite.userData.blurRegion
+
+                clearHoverTimeout()
+
+                interaction.setSelectedBlurRegion(blurRegion?.slug)
+
+                const screenPosition = sprite.position.clone()
+                screenPosition.project(camera.value)
+
+                const x = (screenPosition.x * 0.5 + 0.5) * containerRef.value.clientWidth
+                const y = (screenPosition.y * -0.5 + 0.5) * containerRef.value.clientHeight
+
+                onBlurRegionClick({ blurRegion, position: { x, y } })
+                return
+            }
+        }
+
         // Clicked on empty space - clear all interaction states
         clearHoverTimeout()
         interaction.clearHoverStates()
         interaction.setSelectedSticker(null)
+        interaction.setSelectedBlurRegion(null)
     }
 
     return { onClick }

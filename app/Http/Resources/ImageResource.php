@@ -22,6 +22,7 @@ class ImageResource extends JsonResource
             'hotspots_from' => HotspotResource::collection($this->whenLoaded('hotspotsFrom')),
             'hotspots_to' => HotspotResource::collection($this->whenLoaded('hotspotsTo')),
             'stickers' => StickerResource::collection($this->whenLoaded('stickers')),
+            'blur_regions' => BlurRegionResource::collection($this->whenLoaded('blurRegions')),
         ];
     }
 }

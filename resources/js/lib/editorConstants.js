@@ -101,6 +101,21 @@ export const PRELOAD = {
     MAX_CONCURRENT: 1, // Max simultaneous background preloads
 }
 
+// Blur Regions
+export const BLUR = {
+    DEFAULT_RADIUS: 0.05,        // Angular radius in radians (~3 degrees)
+    MIN_RADIUS: 0.01,            // Minimum blur region radius
+    MAX_RADIUS: 0.5,             // Maximum blur region radius
+    DEFAULT_INTENSITY: 10,       // Default gaussian blur px
+    MIN_INTENSITY: 1,
+    MAX_INTENSITY: 50,
+    INDICATOR_COLOR: '#ff4444',  // Color of blur region boundary in edit mode
+    INDICATOR_OPACITY: 0.3,      // Opacity of blur region indicator
+    INDICATOR_SIZE: 128,         // Canvas size for indicator sprite
+    INDICATOR_SCALE: 0.06,       // Base scale for indicator sprite
+    PIXELATE_BLOCK_SIZE: 0.005,  // UV block size for pixelation effect
+}
+
 export const UPLOAD = {
     CHUNK_SIZE: 10 * 1024 * 1024,        // 10MB per chunk
     CHUNKED_THRESHOLD: 50 * 1024 * 1024, // Use multipart above 50MB
@@ -123,5 +138,6 @@ export default {
     TIMING,
     INTERACTION,
     ZOOM,
+    BLUR,
     UPLOAD,
 }

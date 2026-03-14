@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminContactRequestController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BlurRegionController;
 use App\Http\Controllers\ChunkedUploadController;
 use App\Http\Controllers\ContactRequestController;
 use App\Http\Controllers\GalleryController;
@@ -192,4 +193,12 @@ Route::middleware('auth')->group(function () {
     Route::put('/stickers/{sticker:slug}', [StickerController::class, 'update']);
     Route::patch('/stickers/{sticker:slug}', [StickerController::class, 'update']);
     Route::delete('/stickers/{sticker:slug}', [StickerController::class, 'destroy']);
+
+    // Blur Regions API
+    Route::get('/images/{image:slug}/blur-regions', [BlurRegionController::class, 'index']);
+    Route::post('/images/{image:slug}/blur-regions', [BlurRegionController::class, 'store']);
+    Route::get('/blur-regions/{blur_region:slug}', [BlurRegionController::class, 'show']);
+    Route::put('/blur-regions/{blur_region:slug}', [BlurRegionController::class, 'update']);
+    Route::patch('/blur-regions/{blur_region:slug}', [BlurRegionController::class, 'update']);
+    Route::delete('/blur-regions/{blur_region:slug}', [BlurRegionController::class, 'destroy']);
 });

@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { CANVAS, COLORS, SPRITE } from './editorConstants.js'
+import { CANVAS, COLORS, SPRITE, BLUR } from './editorConstants.js'
 
 /**
  * Canvas drawing utilities for creating sprite textures
@@ -209,6 +209,62 @@ export const SpriteFactory = {
         sprite.scale.set(SPRITE.STICKER_BASE_SCALE * scale, SPRITE.STICKER_BASE_SCALE * scale, 1)
 
         // Store base scale for idempotent scale manipulation
+        sprite.userData.baseScale = sprite.scale.clone()
+
+        return sprite
+    },
+
+    /**
+     * Create a blur region indicator sprite (edit mode only)
+     * Semi-transparent circle with dashed border
+     * @param {Object} blurRegion - Blur region data { radius, type }
+     * @returns {THREE.Sprite}
+     */
+    createBlurIndicatorSprite(blurRegion) {
+        const size = BLUR.INDICATOR_SIZE
+        const canvas = document.createElement('canvas')
+        canvas.width = size
+        canvas.height = size
+        const ctx = canvas.getContext('2d')
+
+        const center = size / 2
+        const drawRadius = center - 4
+
+        // Semi-transparent fill
+        ctx.globalAlpha = BLUR.INDICATOR_OPACITY
+        ctx.fillStyle = BLUR.INDICATOR_COLOR
+        ctx.beginPath()
+        ctx.arc(center, center, drawRadius, 0, Math.PI * 2)
+        ctx.fill()
+
+        // Dashed border
+        ctx.globalAlpha = 0.8
+        ctx.strokeStyle = BLUR.INDICATOR_COLOR
+        ctx.lineWidth = 2
+        ctx.setLineDash([6, 4])
+        ctx.beginPath()
+        ctx.arc(center, center, drawRadius, 0, Math.PI * 2)
+        ctx.stroke()
+
+        // Type label
+        ctx.globalAlpha = 1.0
+        ctx.fillStyle = '#ffffff'
+        ctx.font = 'bold 32px Arial'
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.fillText(blurRegion.type === 'pixelate' ? 'P' : 'B', center, center)
+
+        const texture = new THREE.CanvasTexture(canvas)
+        const material = new THREE.SpriteMaterial({
+            map: texture,
+            sizeAttenuation: false,
+            transparent: true,
+        })
+
+        const sprite = new THREE.Sprite(material)
+        const scale = BLUR.INDICATOR_SCALE * (1 + blurRegion.radius * 5)
+        sprite.scale.set(scale, scale, 1)
+
         sprite.userData.baseScale = sprite.scale.clone()
 
         return sprite

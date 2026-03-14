@@ -50,6 +50,9 @@ class Image extends Model
 
             // Delete related stickers
             $image->stickers()->delete();
+
+            // Delete related blur regions
+            $image->blurRegions()->delete();
         });
     }
 
@@ -76,5 +79,10 @@ class Image extends Model
     public function stickers(): HasMany
     {
         return $this->hasMany(Sticker::class);
+    }
+
+    public function blurRegions(): HasMany
+    {
+        return $this->hasMany(BlurRegion::class);
     }
 }

@@ -57,10 +57,11 @@ export function useSpriteDrag({
 
         raycaster.value.setFromCamera(mouse.value, camera.value)
 
-        // Check hotspots first, then stickers
+        // Check hotspots first, then stickers, then blur regions
         const managers = [
             { manager: spriteDisplay.hotspotManager.value, type: 'hotspot', dataKey: 'hotspot' },
             { manager: spriteDisplay.stickerManager.value, type: 'sticker', dataKey: 'sticker' },
+            { manager: spriteDisplay.blurRegionManager.value, type: 'blurRegion', dataKey: 'blurRegion' },
         ]
 
         for (const { manager, type, dataKey } of managers) {
