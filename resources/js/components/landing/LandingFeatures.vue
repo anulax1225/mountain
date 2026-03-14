@@ -23,10 +23,6 @@ const features = [
 
 <template>
   <section id="features" class="relative px-4 sm:px-6 lg:px-8 py-24 overflow-hidden">
-    <!-- Radial gradient background -->
-    <div class="absolute inset-0 -z-10 opacity-60 dark:opacity-40"
-      style="background: radial-gradient(ellipse at 50% 50%, oklch(0.90 0.08 var(--primary-hue)), transparent 70%);"></div>
-
     <div class="mx-auto max-w-7xl">
       <div class="mb-16 text-center">
         <h2 class="mb-4 text-foreground text-3xl sm:text-4xl animate-fade-up" style="font-family: var(--font-family-display); font-weight: 600;">
