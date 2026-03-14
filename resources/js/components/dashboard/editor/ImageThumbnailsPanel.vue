@@ -1,6 +1,7 @@
 <script setup>
     import { computed } from 'vue'
     import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
+    import AppImage from '@/components/AppImage.vue'
     import { useImagePath } from '@/composables/useImagePath'
 
     const props = defineProps({
@@ -69,7 +70,7 @@
                           : 'border-transparent opacity-60 hover:opacity-100 hover:border-muted-foreground hover:scale-102'
                       ]"
                     >
-                      <img
+                      <AppImage
                         :src="getImagePreview(item.image)"
                         :alt="item.image.name"
                         class="w-full h-full object-cover"

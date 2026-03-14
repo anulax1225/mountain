@@ -2,6 +2,7 @@
 import { ref, watch, computed } from 'vue'
 import { Button } from '@/components/ui/button'
 import { X, ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import AppImage from '@/components/AppImage.vue'
 import { useImagePath } from '@/composables/useImagePath'
 
 const props = defineProps({
@@ -89,7 +90,7 @@ const prevSlide = () => {
     </Button>
 
     <div class="flex justify-center items-center w-full h-full">
-      <img
+      <AppImage
         :src="displaySrc"
         :alt="sceneName"
         class="max-w-full max-h-full object-contain transition-[filter] duration-300"

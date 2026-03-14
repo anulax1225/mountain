@@ -1,3 +1,7 @@
+<script setup>
+import AppImage from '@/components/AppImage.vue'
+</script>
+
 <template>
-    <img src="/owl-logo.png">
+    <AppImage src="/owl-logo.png" />
 </template>

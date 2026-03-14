@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Download, Trash2, Maximize2, ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import AppImage from '@/components/AppImage.vue'
 import { useFileSize } from '@/composables/useFileSize'
 import { useImagePath } from '@/composables/useImagePath'
 
@@ -40,7 +41,7 @@ const prevSlide = () => {
   <Card class="overflow-hidden">
     <CardContent class="relative p-0">
       <div class="relative bg-black aspect-video">
-        <img
+        <AppImage
           :src="getImagePreview(currentImage)"
           :alt="sceneName"
           class="w-full h-full object-contain"

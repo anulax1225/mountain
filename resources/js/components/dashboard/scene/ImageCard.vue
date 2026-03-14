@@ -2,6 +2,7 @@
     import { Card, CardContent } from '@/components/ui/card'
     import { Button } from '@/components/ui/button'
     import { Download, Trash2, Navigation } from 'lucide-vue-next'
+    import AppImage from '@/components/AppImage.vue'
     import { useFileSize } from '@/composables/useFileSize'
     import { useImagePath } from '@/composables/useImagePath'
 
@@ -23,7 +24,7 @@
     <template>
       <Card class="hover:shadow-lg overflow-hidden transition-shadow cursor-pointer">
         <div class="relative aspect-video" @click="emit('view', image)">
-          <img
+          <AppImage
             :src="getImagePreview(image)"
             :alt="image.name || sceneName"
             class="w-full h-full object-cover"

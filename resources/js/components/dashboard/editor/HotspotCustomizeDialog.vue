@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Palette, ImageIcon, Circle } from 'lucide-vue-next'
+import AppImage from '@/components/AppImage.vue'
 
 const props = defineProps({
     open: Boolean
@@ -129,7 +130,7 @@ const handleCancel = () => {
                                                 ? 'border-foreground scale-105'
                                                 : 'border-border'
                                         ]">
-                                        <img :src="`/hotspot-icons/${image}`" :alt="image"
+                                        <AppImage :src="`/hotspot-icons/${image}`" :alt="image"
                                             class="w-10 h-10 object-contain" />
                                     </button>
                                 </div>

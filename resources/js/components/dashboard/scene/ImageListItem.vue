@@ -2,6 +2,7 @@
     import { Card, CardContent } from '@/components/ui/card'
     import { Button } from '@/components/ui/button'
     import { Download, Trash2, Navigation, GripVertical } from 'lucide-vue-next'
+    import AppImage from '@/components/AppImage.vue'
     import { useDateTime } from '@/composables/useDateTime'
     import { useFileSize } from '@/composables/useFileSize'
     import { useImagePath } from '@/composables/useImagePath'
@@ -33,7 +34,7 @@
             class="relative flex-shrink-0 bg-muted rounded-lg w-32 h-20 overflow-hidden cursor-pointer"
             @click="emit('view', image)"
           >
-            <img
+            <AppImage
               :src="getImagePreview(image)"
               :alt="image.name || sceneName"
               class="w-full h-full object-cover"

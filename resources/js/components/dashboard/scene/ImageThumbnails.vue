@@ -1,4 +1,5 @@
 <script setup>
+import AppImage from '@/components/AppImage.vue'
 import { useImagePath } from '@/composables/useImagePath'
 
 defineProps({
@@ -25,7 +26,7 @@ const { getImagePreview } = useImagePath()
           : 'opacity-60 hover:opacity-100'
       ]"
     >
-      <img
+      <AppImage
         :src="getImagePreview(image)"
         :alt="sceneName"
         class="w-full h-full object-cover"

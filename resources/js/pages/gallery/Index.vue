@@ -3,6 +3,7 @@ import { Head, Link } from '@inertiajs/vue3';
 import LandingLayout from '@/layouts/LandingLayout.vue';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import AppImage from '@/components/AppImage.vue';
 
 interface Project {
     id: string;
@@ -52,7 +53,7 @@ defineProps<Props>();
                     class="group">
                     <Card class="hover:shadow-lg overflow-hidden transition-all">
                         <div class="relative bg-muted aspect-video overflow-hidden">
-                            <img v-if="project.picture_path"
+                            <AppImage v-if="project.picture_path"
                                 :src="`/projects/${project.slug}/picture`"
                                 :alt="project.name"
                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform" />

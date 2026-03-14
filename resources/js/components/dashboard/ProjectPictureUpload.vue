@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Upload, X } from 'lucide-vue-next';
+import AppImage from '@/components/AppImage.vue';
 
 interface Props {
   projectSlug: string;
@@ -68,7 +69,7 @@ function submit() {
           <Label for="picture">Image</Label>
           
           <div v-if="previewUrl" class="relative aspect-video bg-muted rounded-lg overflow-hidden mb-2">
-            <img :src="previewUrl" alt="Aperçu" class="w-full h-full object-cover" />
+            <AppImage :src="previewUrl" alt="Aperçu" class="w-full h-full object-cover" />
             <Button
               v-if="form.picture"
               type="button"
