@@ -41,7 +41,7 @@
 
     <template>
       <div class="right-0 bottom-0 left-0 absolute flex justify-center px-2 sm:px-4 md:px-20 lg:px-32 2xl:px-64 xl:px-48 pb-2 sm:pb-4">
-        <div class="flex flex-col items-center max-w-full overflow-hidden">
+        <div class="flex flex-col items-center max-w-full">
           <button
             @click="collapsed = !collapsed"
             class="flex justify-center items-center bg-card/95 hover:bg-card shadow-lg backdrop-blur-lg mb-1 border border-border border-b-0 rounded-t-lg w-10 h-6 transition-colors"
@@ -52,8 +52,8 @@
           </button>
 
           <Transition name="slide">
-            <div v-show="!collapsed" class="bg-card/95 shadow-2xl backdrop-blur-lg border border-border rounded-xl overflow-hidden">
-              <ScrollArea class="w-full">
+            <div v-show="!collapsed" class="bg-card/95 shadow-2xl backdrop-blur-lg border border-border rounded-xl max-w-full">
+              <ScrollArea class="max-w-full">
                 <div class="flex items-stretch gap-0 p-2 sm:p-3">
                   <template v-for="(group, groupIdx) in sceneGroups" :key="group.sceneSlug">
                     <!-- Vertical separator between groups -->
