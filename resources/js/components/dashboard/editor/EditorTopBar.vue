@@ -8,7 +8,8 @@
       projectName: String,
       projectSlug: String,
       currentSceneName: String,
-      mode: String
+      mode: String,
+      canEdit: { type: Boolean, default: true }
     })
 
     const emit = defineEmits(['create-hotspot', 'create-sticker', 'create-blur-region', 'toggle-mode'])
@@ -64,6 +65,7 @@
               Flou
             </Button>
             <Button
+              v-if="canEdit"
               variant="secondary"
               size="sm"
               @click="emit('toggle-mode')"

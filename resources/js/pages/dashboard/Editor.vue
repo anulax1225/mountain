@@ -31,6 +31,7 @@ const props = defineProps({
     auth: Object,
     project: Object,
     scenes: Array,
+    canEdit: Boolean,
 })
 
 // Flatten images from scenes into a single array for navigation
@@ -472,6 +473,7 @@ const handleSpriteDragEnd = async ({ type, data, newPosition, originalPosition }
 }
 
 const toggleMode = () => {
+    if (!props.canEdit) return
     mode.value = mode.value === 'view' ? 'edit' : 'view'
     isCreatingHotspot.value = false
     isCreatingSticker.value = false
@@ -606,6 +608,7 @@ onUnmounted(() => {
                         :project-slug="project?.slug"
                         :current-scene-name="currentImage?.sceneName"
                         :mode="mode"
+                        :can-edit="canEdit"
                         @create-hotspot="startCreatingHotspot"
                         @create-sticker="startCreatingSticker"
                         @create-blur-region="startCreatingBlurRegion"

@@ -35,6 +35,7 @@ it('allows project creator to access the editor with correct props', function ()
             ->component('dashboard/Editor')
             ->has('project')
             ->has('scenes', 2)
+            ->where('canEdit', true)
         );
 });
 
@@ -53,19 +54,25 @@ it('allows assigned project owner to access the editor', function () {
         );
 });
 
-it('returns 403 for project viewer attempting to access the editor', function () {
+it('allows project viewer to access the editor in view-only mode', function () {
     $project = Project::factory()->create();
     $viewer = createProjectViewer($project);
 
     $response = $this->actingAs($viewer)
         ->get(route('dashboard.editor', $project));
 
-    $response->assertForbidden();
+    $response->assertSuccessful()
+        ->assertInertia(fn ($page) => $page
+            ->component('dashboard/Editor')
+            ->has('project')
+            ->has('scenes')
+            ->where('canEdit', false)
+        );
 });
 
 it('returns 403 for client not assigned to project when accessing the editor', function () {
     $client = createClient();
-    $project = Project::factory()->create();
+    $project = Project::factory()->private()->create();
 
     $response = $this->actingAs($client)
         ->get(route('dashboard.editor', $project));

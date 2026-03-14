@@ -14,13 +14,14 @@ class EditorController extends Controller
 {
     public function show(Request $request, Project $project): Response
     {
-        $this->authorize('update', $project);
+        $this->authorize('view', $project);
 
         $project->load(['scenes.images.hotspotsFrom', 'scenes.images.hotspotsTo', 'scenes.images.stickers', 'scenes.images.blurRegions']);
 
         return Inertia::render('dashboard/Editor', [
             'project' => new ProjectResource($project),
             'scenes' => SceneResource::collection($project->scenes),
+            'canEdit' => $request->user()->can('update', $project),
         ]);
     }
 }
