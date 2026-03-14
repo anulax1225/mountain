@@ -220,7 +220,7 @@ const getUserGlobalRole = (user) => {
               </Select>
               <p v-if="createForm.errors.role_id" class="text-sm text-red-500">{{ createForm.errors.role_id }}</p>
             </div>
-            <Button type="submit" class="w-full" :disabled="createForm.processing || !createForm.role_id">
+            <Button type="submit" class="w-full" :disabled="createForm.processing">
               {{ createForm.processing ? 'Création...' : 'Créer l\'utilisateur' }}
             </Button>
           </form>

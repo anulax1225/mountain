@@ -25,7 +25,9 @@ class CreateUser
             'invitation_sent_at' => now(),
         ]);
 
-        $user->roles()->attach($data['role_id']);
+        if (! empty($data['role_id'])) {
+            $user->roles()->attach($data['role_id']);
+        }
 
         $invitationUrl = url('/register/invitation/'.$invitationToken);
         Mail::to($user->email)->send(new UserInvitation($user, $invitationUrl));

@@ -55,7 +55,7 @@ class AdminUserController extends Controller
 
         $validated = $request->validate([
             'email' => 'required|email|unique:users,email',
-            'role_id' => 'required|exists:roles,id',
+            'role_id' => 'nullable|exists:roles,id',
             'name' => 'nullable|string|max:255',
         ]);
 

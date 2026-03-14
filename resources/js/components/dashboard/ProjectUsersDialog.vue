@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Trash2, UserPlus } from 'lucide-vue-next'
 import { useConfirm } from '@/composables'
 
@@ -21,8 +22,8 @@ const emit = defineEmits(['update:open'])
 const { confirmDelete } = useConfirm()
 
 const form = useForm({
-  user_id: null,
-  role_id: null,
+  user_id: '',
+  role_id: '',
 })
 
 const getRoleName = (roleId) => {
@@ -80,28 +81,30 @@ const removeUser = async (userId) => {
           <div class="grid grid-cols-2 gap-3">
             <div class="space-y-2">
               <Label>Utilisateur</Label>
-              <select
-                v-model="form.user_id"
-                class="w-full px-3 py-2 border rounded-md bg-card border-border"
-              >
-                <option :value="null">-- Sélectionner --</option>
-                <option v-for="user in availableUsers" :key="user.id" :value="user.id">
-                  {{ user.name }} ({{ user.email }})
-                </option>
-              </select>
+              <Select v-model="form.user_id">
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionner un utilisateur" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem v-for="user in availableUsers" :key="user.id" :value="String(user.id)">
+                    {{ user.name }} ({{ user.email }})
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div class="space-y-2">
               <Label>Rôle</Label>
-              <select
-                v-model="form.role_id"
-                class="w-full px-3 py-2 border rounded-md bg-card border-border"
-              >
-                <option :value="null">-- Sélectionner --</option>
-                <option v-for="role in availableRoles" :key="role.id" :value="role.id">
-                  {{ role.name }}
-                </option>
-              </select>
+              <Select v-model="form.role_id">
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionner un rôle" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem v-for="role in availableRoles" :key="role.id" :value="String(role.id)">
+                    {{ role.name }}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 

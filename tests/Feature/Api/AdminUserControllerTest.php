@@ -106,15 +106,18 @@ it('store validation fails when email is missing', function () {
         ->assertJsonValidationErrors('email');
 });
 
-it('store validation fails when role_id is missing', function () {
+it('store allows creating user without role_id', function () {
+    Mail::fake();
     $admin = createAdmin();
 
     $this->actingAs($admin)
         ->postJson('/admin/users', [
             'email' => 'test@example.com',
         ])
-        ->assertUnprocessable()
-        ->assertJsonValidationErrors('role_id');
+        ->assertCreated();
+
+    $this->assertDatabaseHas('users', ['email' => 'test@example.com']);
+    expect(\App\Models\User::where('email', 'test@example.com')->first()->roles)->toBeEmpty();
 });
 
 it('store validation fails for duplicate email', function () {
