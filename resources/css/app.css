@@ -119,8 +119,8 @@
 
 :root {
     /* Customizable hue values (0-360) */
-    --primary-hue: 145;
-    --secondary-hue: 45;
+    --primary-hue: 35;
+    --secondary-hue: 15;
     /* Theme intensity (0-1), controls chroma strength */
     --theme-intensity: 1;
 
@@ -305,7 +305,8 @@
     }
 }
 
-/* Background styles - use !important to override @layer base bg-background */
+/* Background styles - use !important to override @layer base bg-background
+   --bg-intensity (0-2) controls how visible the gradient is */
 body.bg-solid {
   background: var(--background) !important;
 }
@@ -314,7 +315,7 @@ body.bg-gradient {
   background: linear-gradient(
     180deg,
     var(--background) 0%,
-    oklch(0.92 calc(0.03 * var(--theme-intensity)) var(--primary-hue)) 100%
+    oklch(0.92 calc(0.03 * var(--theme-intensity) * var(--bg-intensity, 1)) var(--primary-hue)) 100%
   ) !important;
   background-attachment: fixed !important;
 }
@@ -323,18 +324,18 @@ body.bg-radial {
   background: radial-gradient(
     ellipse at top center,
     var(--background) 0%,
-    oklch(0.90 calc(0.04 * var(--theme-intensity)) var(--primary-hue)) 100%
+    oklch(0.90 calc(0.04 * var(--theme-intensity) * var(--bg-intensity, 1)) var(--primary-hue)) 100%
   ) !important;
   background-attachment: fixed !important;
 }
 
 body.bg-mesh {
   background:
-    radial-gradient(at 40% 20%, oklch(0.95 calc(0.08 * var(--theme-intensity)) var(--primary-hue)) 0px, transparent 50%),
-    radial-gradient(at 80% 0%, oklch(0.93 calc(0.06 * var(--theme-intensity)) var(--secondary-hue)) 0px, transparent 50%),
-    radial-gradient(at 0% 50%, oklch(0.96 calc(0.05 * var(--theme-intensity)) var(--primary-hue)) 0px, transparent 50%),
-    radial-gradient(at 80% 50%, oklch(0.94 calc(0.05 * var(--theme-intensity)) var(--secondary-hue)) 0px, transparent 50%),
-    radial-gradient(at 0% 100%, oklch(0.95 calc(0.08 * var(--theme-intensity)) var(--primary-hue)) 0px, transparent 50%),
+    radial-gradient(at 40% 20%, oklch(0.95 calc(0.08 * var(--theme-intensity) * var(--bg-intensity, 1)) var(--primary-hue)) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, oklch(0.93 calc(0.06 * var(--theme-intensity) * var(--bg-intensity, 1)) var(--secondary-hue)) 0px, transparent 50%),
+    radial-gradient(at 0% 50%, oklch(0.96 calc(0.05 * var(--theme-intensity) * var(--bg-intensity, 1)) var(--primary-hue)) 0px, transparent 50%),
+    radial-gradient(at 80% 50%, oklch(0.94 calc(0.05 * var(--theme-intensity) * var(--bg-intensity, 1)) var(--secondary-hue)) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, oklch(0.95 calc(0.08 * var(--theme-intensity) * var(--bg-intensity, 1)) var(--primary-hue)) 0px, transparent 50%),
     var(--background) !important;
   background-attachment: fixed !important;
 }
@@ -345,7 +346,7 @@ html.dark body.bg-gradient {
   background: linear-gradient(
     180deg,
     var(--background) 0%,
-    oklch(0.20 calc(0.04 * var(--theme-intensity)) var(--primary-hue)) 100%
+    oklch(0.20 calc(0.04 * var(--theme-intensity) * var(--bg-intensity, 1)) var(--primary-hue)) 100%
   ) !important;
   background-attachment: fixed !important;
 }
@@ -355,7 +356,7 @@ html.dark body.bg-radial {
   background: radial-gradient(
     ellipse at top center,
     var(--background) 0%,
-    oklch(0.22 calc(0.05 * var(--theme-intensity)) var(--primary-hue)) 100%
+    oklch(0.22 calc(0.05 * var(--theme-intensity) * var(--bg-intensity, 1)) var(--primary-hue)) 100%
   ) !important;
   background-attachment: fixed !important;
 }
@@ -363,11 +364,11 @@ html.dark body.bg-radial {
 .dark body.bg-mesh,
 html.dark body.bg-mesh {
   background:
-    radial-gradient(at 40% 20%, oklch(0.22 calc(0.08 * var(--theme-intensity)) var(--primary-hue)) 0px, transparent 50%),
-    radial-gradient(at 80% 0%, oklch(0.20 calc(0.06 * var(--theme-intensity)) var(--secondary-hue)) 0px, transparent 50%),
-    radial-gradient(at 0% 50%, oklch(0.21 calc(0.05 * var(--theme-intensity)) var(--primary-hue)) 0px, transparent 50%),
-    radial-gradient(at 80% 50%, oklch(0.19 calc(0.05 * var(--theme-intensity)) var(--secondary-hue)) 0px, transparent 50%),
-    radial-gradient(at 0% 100%, oklch(0.22 calc(0.08 * var(--theme-intensity)) var(--primary-hue)) 0px, transparent 50%),
+    radial-gradient(at 40% 20%, oklch(0.22 calc(0.08 * var(--theme-intensity) * var(--bg-intensity, 1)) var(--primary-hue)) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, oklch(0.20 calc(0.06 * var(--theme-intensity) * var(--bg-intensity, 1)) var(--secondary-hue)) 0px, transparent 50%),
+    radial-gradient(at 0% 50%, oklch(0.21 calc(0.05 * var(--theme-intensity) * var(--bg-intensity, 1)) var(--primary-hue)) 0px, transparent 50%),
+    radial-gradient(at 80% 50%, oklch(0.19 calc(0.05 * var(--theme-intensity) * var(--bg-intensity, 1)) var(--secondary-hue)) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, oklch(0.22 calc(0.08 * var(--theme-intensity) * var(--bg-intensity, 1)) var(--primary-hue)) 0px, transparent 50%),
     var(--background) !important;
   background-attachment: fixed !important;
 }
@@ -375,9 +376,9 @@ html.dark body.bg-mesh {
 /* Organic background - soft natural gradient blobs */
 body.bg-organic {
   background:
-    radial-gradient(ellipse at 20% 80%, oklch(0.90 calc(0.10 * var(--theme-intensity)) var(--primary-hue)) 0px, transparent 50%),
-    radial-gradient(ellipse at 75% 20%, oklch(0.92 calc(0.08 * var(--theme-intensity)) var(--secondary-hue)) 0px, transparent 40%),
-    radial-gradient(circle at 50% 50%, oklch(0.95 calc(0.04 * var(--theme-intensity)) var(--primary-hue)) 0px, transparent 70%),
+    radial-gradient(ellipse at 20% 80%, oklch(0.90 calc(0.10 * var(--theme-intensity) * var(--bg-intensity, 1)) var(--primary-hue)) 0px, transparent 50%),
+    radial-gradient(ellipse at 75% 20%, oklch(0.92 calc(0.08 * var(--theme-intensity) * var(--bg-intensity, 1)) var(--secondary-hue)) 0px, transparent 40%),
+    radial-gradient(circle at 50% 50%, oklch(0.95 calc(0.04 * var(--theme-intensity) * var(--bg-intensity, 1)) var(--primary-hue)) 0px, transparent 70%),
     var(--background) !important;
   background-attachment: fixed !important;
 }
@@ -385,9 +386,9 @@ body.bg-organic {
 .dark body.bg-organic,
 html.dark body.bg-organic {
   background:
-    radial-gradient(ellipse at 20% 80%, oklch(0.20 calc(0.10 * var(--theme-intensity)) var(--primary-hue)) 0px, transparent 50%),
-    radial-gradient(ellipse at 75% 20%, oklch(0.18 calc(0.08 * var(--theme-intensity)) var(--secondary-hue)) 0px, transparent 40%),
-    radial-gradient(circle at 50% 50%, oklch(0.16 calc(0.04 * var(--theme-intensity)) var(--primary-hue)) 0px, transparent 70%),
+    radial-gradient(ellipse at 20% 80%, oklch(0.20 calc(0.10 * var(--theme-intensity) * var(--bg-intensity, 1)) var(--primary-hue)) 0px, transparent 50%),
+    radial-gradient(ellipse at 75% 20%, oklch(0.18 calc(0.08 * var(--theme-intensity) * var(--bg-intensity, 1)) var(--secondary-hue)) 0px, transparent 40%),
+    radial-gradient(circle at 50% 50%, oklch(0.16 calc(0.04 * var(--theme-intensity) * var(--bg-intensity, 1)) var(--primary-hue)) 0px, transparent 70%),
     var(--background) !important;
   background-attachment: fixed !important;
 }

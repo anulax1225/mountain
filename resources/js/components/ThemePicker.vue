@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { RotateCcw } from 'lucide-vue-next'
 
-const { primaryHue, secondaryHue, intensity, radius, fontFamily, fontWeight, borderWidth, shadowIntensity, spacing, backgroundStyle, FONT_STACKS, setPrimaryHue, setSecondaryHue, setIntensity, setRadius, setFontFamily, setFontWeight, setBorderWidth, setShadowIntensity, setSpacing, setBackgroundStyle } = useTheme()
+const { isDark, primaryHue, secondaryHue, intensity, radius, fontFamily, fontWeight, borderWidth, shadowIntensity, spacing, backgroundStyle, bgIntensity, FONT_STACKS, setPrimaryHue, setSecondaryHue, setIntensity, setRadius, setFontFamily, setFontWeight, setBorderWidth, setShadowIntensity, setSpacing, setBackgroundStyle, setBgIntensity, resetToDefaults } = useTheme()
 
 const fontLabels = {
   'outfit': 'Outfit',
@@ -81,17 +81,8 @@ const handleSpacingChange = (event) => {
   setSpacing(parseInt(event.target.value))
 }
 
-const resetToDefaults = () => {
-  setPrimaryHue(145)
-  setSecondaryHue(45)
-  setIntensity(100)
-  setRadius(0.625)
-  setFontFamily('outfit')
-  setFontWeight(400)
-  setBorderWidth(1)
-  setShadowIntensity(100)
-  setSpacing(100)
-  setBackgroundStyle('organic')
+const handleBgIntensityChange = (event) => {
+  setBgIntensity(parseInt(event.target.value))
 }
 
 const hueGradient = 'linear-gradient(to right, hsl(0, 80%, 50%), hsl(60, 80%, 50%), hsl(120, 80%, 50%), hsl(180, 80%, 50%), hsl(240, 80%, 50%), hsl(300, 80%, 50%), hsl(360, 80%, 50%))'
@@ -100,7 +91,15 @@ const hueGradient = 'linear-gradient(to right, hsl(0, 80%, 50%), hsl(60, 80%, 50
 <template>
   <div class="space-y-4 p-3 min-w-72">
     <div class="flex justify-between items-center">
-      <span class="font-medium text-foreground text-sm">Personnalisation du thème</span>
+      <div class="flex items-center gap-2">
+        <span class="font-medium text-foreground text-sm">Personnalisation</span>
+        <span
+          class="px-1.5 py-0.5 rounded font-semibold text-[10px] uppercase tracking-wider"
+          :class="isDark ? 'bg-zinc-700 text-zinc-300' : 'bg-amber-100 text-amber-700'"
+        >
+          {{ isDark ? 'Sombre' : 'Clair' }}
+        </span>
+      </div>
       <Button variant="ghost" size="icon" class="w-7 h-7" @click="resetToDefaults" title="Réinitialiser">
         <RotateCcw class="w-3.5 h-3.5" />
       </Button>
@@ -154,7 +153,7 @@ const hueGradient = 'linear-gradient(to right, hsl(0, 80%, 50%), hsl(60, 80%, 50
         min="0"
         max="100"
         step="1"
-        class="bg-gradient-to-r from-muted to-primary rounded-full w-full h-2 appearance-none cursor-pointer"
+        class="bg-linear-to-r from-muted to-primary rounded-full w-full h-2 appearance-none cursor-pointer"
         @input="handleIntensityChange"
       />
     </div>
@@ -277,6 +276,23 @@ const hueGradient = 'linear-gradient(to right, hsl(0, 80%, 50%), hsl(60, 80%, 50
           {{ style.label }}
         </Button>
       </div>
+    </div>
+
+    <!-- Background Intensity -->
+    <div class="space-y-1.5">
+      <div class="flex justify-between items-center">
+        <Label class="text-muted-foreground text-xs">Intensité arrière-plan</Label>
+        <span class="tabular-nums text-muted-foreground text-xs">{{ bgIntensity }}%</span>
+      </div>
+      <input
+        type="range"
+        :value="bgIntensity"
+        min="0"
+        max="200"
+        step="10"
+        class="bg-linear-to-r from-muted to-primary/50 rounded-full w-full h-2 appearance-none cursor-pointer"
+        @input="handleBgIntensityChange"
+      />
     </div>
 
     <!-- Preview -->
