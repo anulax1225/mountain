@@ -23,11 +23,15 @@ const onMediaChange = (e) => { isMobile.value = e.matches }
 onMounted(() => mobileQuery?.addEventListener('change', onMediaChange))
 onUnmounted(() => mobileQuery?.removeEventListener('change', onMediaChange))
 
-const sidebarOpen = ref(!isMobile.value)
+const storedSidebar = localStorage.getItem('sidebarOpen')
+const sidebarOpen = ref(storedSidebar !== null ? storedSidebar === 'true' : !isMobile.value)
 const { isVisible: headerVisible, toggle: toggleHeader } = useHeaderVisibility('dashboardHeaderVisible', true)
 
 const toggleSidebar = () => {
   sidebarOpen.value = !sidebarOpen.value
+  if (!isMobile.value) {
+    localStorage.setItem('sidebarOpen', sidebarOpen.value.toString())
+  }
 }
 </script>
 
