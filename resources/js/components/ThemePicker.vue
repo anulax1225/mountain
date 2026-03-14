@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { RotateCcw } from 'lucide-vue-next'
 
-const { isDark, primaryHue, secondaryHue, intensity, radius, fontFamily, fontWeight, borderWidth, shadowIntensity, spacing, backgroundStyle, bgIntensity, FONT_STACKS, setPrimaryHue, setSecondaryHue, setIntensity, setRadius, setFontFamily, setFontWeight, setBorderWidth, setShadowIntensity, setSpacing, setBackgroundStyle, setBgIntensity, resetToDefaults } = useTheme()
+const { isDark, primaryHue, secondaryHue, intensity, radius, fontFamily, fontWeight, borderWidth, shadowIntensity, spacing, backgroundStyle, bgIntensity, cursorGlow, FONT_STACKS, setPrimaryHue, setSecondaryHue, setIntensity, setRadius, setFontFamily, setFontWeight, setBorderWidth, setShadowIntensity, setSpacing, setBackgroundStyle, setBgIntensity, setCursorGlow, resetToDefaults } = useTheme()
 
 const fontLabels = {
   'outfit': 'Outfit',
@@ -89,8 +89,9 @@ const hueGradient = 'linear-gradient(to right, hsl(0, 80%, 50%), hsl(60, 80%, 50
 </script>
 
 <template>
-  <div class="space-y-4 p-3 min-w-72">
-    <div class="flex justify-between items-center">
+  <div class="flex flex-col max-h-[80vh] sm:max-h-[70vh] w-72 sm:w-80">
+    <!-- Sticky header -->
+    <div class="flex justify-between items-center p-3 pb-2 border-b border-border shrink-0">
       <div class="flex items-center gap-2">
         <span class="font-medium text-foreground text-sm">Personnalisation</span>
         <span
@@ -105,243 +106,264 @@ const hueGradient = 'linear-gradient(to right, hsl(0, 80%, 50%), hsl(60, 80%, 50
       </Button>
     </div>
 
-    <!-- Primary Hue -->
-    <div class="space-y-1.5">
+    <!-- Scrollable content -->
+    <div class="overflow-y-auto overscroll-contain p-3 space-y-4">
+      <!-- Primary Hue -->
+      <div class="space-y-1.5">
+        <div class="flex justify-between items-center">
+          <Label class="text-muted-foreground text-xs">Teinte primaire</Label>
+          <span class="tabular-nums text-muted-foreground text-xs">{{ primaryHue }}°</span>
+        </div>
+        <input
+          type="range"
+          :value="primaryHue"
+          min="0"
+          max="360"
+          step="1"
+          class="rounded-full w-full h-2 appearance-none cursor-pointer"
+          :style="{ background: hueGradient }"
+          @input="handlePrimaryChange"
+        />
+      </div>
+
+      <!-- Secondary Hue -->
+      <div class="space-y-1.5">
+        <div class="flex justify-between items-center">
+          <Label class="text-muted-foreground text-xs">Teinte secondaire</Label>
+          <span class="tabular-nums text-muted-foreground text-xs">{{ secondaryHue }}°</span>
+        </div>
+        <input
+          type="range"
+          :value="secondaryHue"
+          min="0"
+          max="360"
+          step="1"
+          class="rounded-full w-full h-2 appearance-none cursor-pointer"
+          :style="{ background: hueGradient }"
+          @input="handleSecondaryChange"
+        />
+      </div>
+
+      <!-- Intensity -->
+      <div class="space-y-1.5">
+        <div class="flex justify-between items-center">
+          <Label class="text-muted-foreground text-xs">Intensité</Label>
+          <span class="tabular-nums text-muted-foreground text-xs">{{ intensity }}%</span>
+        </div>
+        <input
+          type="range"
+          :value="intensity"
+          min="0"
+          max="100"
+          step="1"
+          class="bg-linear-to-r from-muted to-primary rounded-full w-full h-2 appearance-none cursor-pointer"
+          @input="handleIntensityChange"
+        />
+      </div>
+
+      <!-- Roundedness -->
+      <div class="space-y-1.5">
+        <div class="flex justify-between items-center">
+          <Label class="text-muted-foreground text-xs">Arrondi</Label>
+          <span class="tabular-nums text-muted-foreground text-xs">{{ radius.toFixed(2) }}rem</span>
+        </div>
+        <input
+          type="range"
+          :value="radius"
+          min="0"
+          max="2"
+          step="0.05"
+          class="bg-muted rounded-full w-full h-2 appearance-none cursor-pointer"
+          @input="handleRadiusChange"
+        />
+      </div>
+
+      <!-- Font Family -->
+      <div class="space-y-1.5">
+        <Label class="text-muted-foreground text-xs">Police</Label>
+        <div class="flex gap-1.5 overflow-x-auto pb-1 -mx-3 px-3 scrollbar-thin">
+          <Button
+            v-for="(stack, key) in FONT_STACKS"
+            :key="key"
+            :variant="fontFamily === key ? 'default' : 'outline'"
+            size="sm"
+            class="h-7 text-xs shrink-0"
+            :style="{ fontFamily: stack }"
+            @click="setFontFamily(key)"
+          >
+            {{ fontLabels[key] }}
+          </Button>
+        </div>
+      </div>
+
+      <!-- Font Weight -->
+      <div class="space-y-1.5">
+        <div class="flex justify-between items-center">
+          <Label class="text-muted-foreground text-xs">Graisse</Label>
+          <span class="tabular-nums text-muted-foreground text-xs">{{ fontWeight }}</span>
+        </div>
+        <input
+          type="range"
+          :value="fontWeight"
+          min="300"
+          max="700"
+          step="100"
+          class="bg-muted rounded-full w-full h-2 appearance-none cursor-pointer"
+          @input="handleFontWeightChange"
+        />
+      </div>
+
+      <!-- Border Width -->
+      <div class="space-y-1.5">
+        <div class="flex justify-between items-center">
+          <Label class="text-muted-foreground text-xs">Bordures</Label>
+          <span class="tabular-nums text-muted-foreground text-xs">{{ borderWidth }}px</span>
+        </div>
+        <input
+          type="range"
+          :value="borderWidth"
+          min="0"
+          max="10"
+          step="0.5"
+          class="bg-muted rounded-full w-full h-2 appearance-none cursor-pointer"
+          @input="handleBorderWidthChange"
+        />
+      </div>
+
+      <!-- Shadow Intensity -->
+      <div class="space-y-1.5">
+        <div class="flex justify-between items-center">
+          <Label class="text-muted-foreground text-xs">Ombres</Label>
+          <span class="tabular-nums text-muted-foreground text-xs">{{ shadowIntensity }}%</span>
+        </div>
+        <input
+          type="range"
+          :value="shadowIntensity"
+          min="0"
+          max="200"
+          step="10"
+          class="bg-muted rounded-full w-full h-2 appearance-none cursor-pointer"
+          @input="handleShadowIntensityChange"
+        />
+      </div>
+
+      <!-- Spacing / Density -->
+      <div class="space-y-1.5">
+        <div class="flex justify-between items-center">
+          <Label class="text-muted-foreground text-xs">Densité</Label>
+          <span class="tabular-nums text-muted-foreground text-xs">{{ spacing }}%</span>
+        </div>
+        <input
+          type="range"
+          :value="spacing"
+          min="75"
+          max="125"
+          step="5"
+          class="bg-muted rounded-full w-full h-2 appearance-none cursor-pointer"
+          @input="handleSpacingChange"
+        />
+      </div>
+
+      <!-- Background Style -->
+      <div class="space-y-1.5">
+        <Label class="text-muted-foreground text-xs">Arrière-plan</Label>
+        <div class="flex gap-1.5 overflow-x-auto pb-1 -mx-3 px-3 scrollbar-thin">
+          <Button
+            v-for="style in backgroundStyles"
+            :key="style.key"
+            :variant="backgroundStyle === style.key ? 'default' : 'outline'"
+            size="sm"
+            class="h-7 text-xs shrink-0"
+            @click="setBackgroundStyle(style.key)"
+          >
+            {{ style.label }}
+          </Button>
+        </div>
+      </div>
+
+      <!-- Background Intensity -->
+      <div class="space-y-1.5">
+        <div class="flex justify-between items-center">
+          <Label class="text-muted-foreground text-xs">Intensité arrière-plan</Label>
+          <span class="tabular-nums text-muted-foreground text-xs">{{ bgIntensity }}%</span>
+        </div>
+        <input
+          type="range"
+          :value="bgIntensity"
+          min="0"
+          max="200"
+          step="10"
+          class="bg-linear-to-r from-muted to-primary/50 rounded-full w-full h-2 appearance-none cursor-pointer"
+          @input="handleBgIntensityChange"
+        />
+      </div>
+
+      <!-- Cursor Glow -->
       <div class="flex justify-between items-center">
-        <Label class="text-muted-foreground text-xs">Teinte primaire</Label>
-        <span class="tabular-nums text-muted-foreground text-xs">{{ primaryHue }}°</span>
-      </div>
-      <input
-        type="range"
-        :value="primaryHue"
-        min="0"
-        max="360"
-        step="1"
-        class="rounded-full w-full h-2 appearance-none cursor-pointer"
-        :style="{ background: hueGradient }"
-        @input="handlePrimaryChange"
-      />
-    </div>
-
-    <!-- Secondary Hue -->
-    <div class="space-y-1.5">
-      <div class="flex justify-between items-center">
-        <Label class="text-muted-foreground text-xs">Teinte secondaire</Label>
-        <span class="tabular-nums text-muted-foreground text-xs">{{ secondaryHue }}°</span>
-      </div>
-      <input
-        type="range"
-        :value="secondaryHue"
-        min="0"
-        max="360"
-        step="1"
-        class="rounded-full w-full h-2 appearance-none cursor-pointer"
-        :style="{ background: hueGradient }"
-        @input="handleSecondaryChange"
-      />
-    </div>
-
-    <!-- Intensity -->
-    <div class="space-y-1.5">
-      <div class="flex justify-between items-center">
-        <Label class="text-muted-foreground text-xs">Intensité</Label>
-        <span class="tabular-nums text-muted-foreground text-xs">{{ intensity }}%</span>
-      </div>
-      <input
-        type="range"
-        :value="intensity"
-        min="0"
-        max="100"
-        step="1"
-        class="bg-linear-to-r from-muted to-primary rounded-full w-full h-2 appearance-none cursor-pointer"
-        @input="handleIntensityChange"
-      />
-    </div>
-
-    <!-- Roundedness -->
-    <div class="space-y-1.5">
-      <div class="flex justify-between items-center">
-        <Label class="text-muted-foreground text-xs">Arrondi</Label>
-        <span class="tabular-nums text-muted-foreground text-xs">{{ radius.toFixed(2) }}rem</span>
-      </div>
-      <input
-        type="range"
-        :value="radius"
-        min="0"
-        max="2"
-        step="0.05"
-        class="bg-muted rounded-full w-full h-2 appearance-none cursor-pointer"
-        @input="handleRadiusChange"
-      />
-    </div>
-
-    <!-- Font Family -->
-    <div class="space-y-1.5">
-      <Label class="text-muted-foreground text-xs">Police</Label>
-      <div class="gap-1.5 grid grid-cols-3">
-        <Button
-          v-for="(stack, key) in FONT_STACKS"
-          :key="key"
-          :variant="fontFamily === key ? 'default' : 'outline'"
-          size="sm"
-          class="h-7 text-xs"
-          :style="{ fontFamily: stack }"
-          @click="setFontFamily(key)"
-        >
-          {{ fontLabels[key] }}
-        </Button>
-      </div>
-    </div>
-
-    <!-- Font Weight -->
-    <div class="space-y-1.5">
-      <div class="flex justify-between items-center">
-        <Label class="text-muted-foreground text-xs">Graisse</Label>
-        <span class="tabular-nums text-muted-foreground text-xs">{{ fontWeight }}</span>
-      </div>
-      <input
-        type="range"
-        :value="fontWeight"
-        min="300"
-        max="700"
-        step="100"
-        class="bg-muted rounded-full w-full h-2 appearance-none cursor-pointer"
-        @input="handleFontWeightChange"
-      />
-    </div>
-
-    <!-- Border Width -->
-    <div class="space-y-1.5">
-      <div class="flex justify-between items-center">
-        <Label class="text-muted-foreground text-xs">Bordures</Label>
-        <span class="tabular-nums text-muted-foreground text-xs">{{ borderWidth }}px</span>
-      </div>
-      <input
-        type="range"
-        :value="borderWidth"
-        min="0"
-        max="10"
-        step="0.5"
-        class="bg-muted rounded-full w-full h-2 appearance-none cursor-pointer"
-        @input="handleBorderWidthChange"
-      />
-    </div>
-
-    <!-- Shadow Intensity -->
-    <div class="space-y-1.5">
-      <div class="flex justify-between items-center">
-        <Label class="text-muted-foreground text-xs">Ombres</Label>
-        <span class="tabular-nums text-muted-foreground text-xs">{{ shadowIntensity }}%</span>
-      </div>
-      <input
-        type="range"
-        :value="shadowIntensity"
-        min="0"
-        max="200"
-        step="10"
-        class="bg-muted rounded-full w-full h-2 appearance-none cursor-pointer"
-        @input="handleShadowIntensityChange"
-      />
-    </div>
-
-    <!-- Spacing / Density -->
-    <div class="space-y-1.5">
-      <div class="flex justify-between items-center">
-        <Label class="text-muted-foreground text-xs">Densité</Label>
-        <span class="tabular-nums text-muted-foreground text-xs">{{ spacing }}%</span>
-      </div>
-      <input
-        type="range"
-        :value="spacing"
-        min="75"
-        max="125"
-        step="5"
-        class="bg-muted rounded-full w-full h-2 appearance-none cursor-pointer"
-        @input="handleSpacingChange"
-      />
-    </div>
-
-    <!-- Background Style -->
-    <div class="space-y-1.5">
-      <Label class="text-muted-foreground text-xs">Arrière-plan</Label>
-      <div class="gap-1.5 grid grid-cols-5">
-        <Button
-          v-for="style in backgroundStyles"
-          :key="style.key"
-          :variant="backgroundStyle === style.key ? 'default' : 'outline'"
-          size="sm"
-          class="h-7 text-xs"
-          @click="setBackgroundStyle(style.key)"
-        >
-          {{ style.label }}
-        </Button>
-      </div>
-    </div>
-
-    <!-- Background Intensity -->
-    <div class="space-y-1.5">
-      <div class="flex justify-between items-center">
-        <Label class="text-muted-foreground text-xs">Intensité arrière-plan</Label>
-        <span class="tabular-nums text-muted-foreground text-xs">{{ bgIntensity }}%</span>
-      </div>
-      <input
-        type="range"
-        :value="bgIntensity"
-        min="0"
-        max="200"
-        step="10"
-        class="bg-linear-to-r from-muted to-primary/50 rounded-full w-full h-2 appearance-none cursor-pointer"
-        @input="handleBgIntensityChange"
-      />
-    </div>
-
-    <!-- Preview -->
-    <div class="flex gap-1.5 pt-1">
-      <div class="flex-1 bg-primary rounded h-6" title="Primaire"></div>
-      <div class="flex-1 bg-secondary border border-border rounded h-6" title="Secondaire"></div>
-      <div class="flex-1 bg-muted rounded h-6" title="Atténué"></div>
-      <div class="flex-1 bg-accent rounded h-6" title="Accent"></div>
-    </div>
-
-    <!-- Solarpunk Presets -->
-    <div class="space-y-1.5 pt-1 border-border border-t">
-      <Label class="text-muted-foreground text-xs">Solarpunk</Label>
-      <div class="gap-1.5 grid grid-cols-3">
-        <Button
-          v-for="preset in solarpunkPresets"
-          :key="preset.name"
-          variant="outline"
-          size="sm"
-          class="h-7 text-xs"
-          @click="applyPreset(preset)"
+        <Label class="text-muted-foreground text-xs">Halo du curseur</Label>
+        <button
+          type="button"
+          role="switch"
+          :aria-checked="cursorGlow"
+          class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          :class="cursorGlow ? 'bg-primary' : 'bg-muted'"
+          @click="setCursorGlow(!cursorGlow)"
         >
           <span
-            class="mr-1.5 rounded-full w-2.5 h-2.5"
-            :style="{ background: `oklch(0.5 0.2 ${preset.primary})` }"
-          ></span>
-          {{ preset.name }}
-        </Button>
+            class="pointer-events-none block h-4 w-4 rounded-full bg-background shadow-lg ring-0 transition-transform"
+            :class="cursorGlow ? 'translate-x-4' : 'translate-x-0'"
+          />
+        </button>
       </div>
-    </div>
 
-    <!-- Classic Presets -->
-    <div class="space-y-1.5 pt-1 border-border border-t">
-      <Label class="text-muted-foreground text-xs">Classiques</Label>
-      <div class="gap-1.5 grid grid-cols-3">
-        <Button
-          v-for="preset in classicPresets"
-          :key="preset.name"
-          variant="outline"
-          size="sm"
-          class="h-7 text-xs"
-          @click="applyPreset(preset)"
-        >
-          <span
-            class="mr-1.5 rounded-full w-2.5 h-2.5"
-            :style="{ background: `oklch(0.5 0.2 ${preset.primary})` }"
-          ></span>
-          {{ preset.name }}
-        </Button>
+      <!-- Preview -->
+      <div class="flex gap-1.5 pt-1">
+        <div class="flex-1 bg-primary rounded h-6" title="Primaire"></div>
+        <div class="flex-1 bg-secondary border border-border rounded h-6" title="Secondaire"></div>
+        <div class="flex-1 bg-muted rounded h-6" title="Atténué"></div>
+        <div class="flex-1 bg-accent rounded h-6" title="Accent"></div>
+      </div>
+
+      <!-- Solarpunk Presets -->
+      <div class="space-y-1.5 pt-1 border-border border-t">
+        <Label class="text-muted-foreground text-xs">Solarpunk</Label>
+        <div class="flex gap-1.5 overflow-x-auto pb-1 -mx-3 px-3 scrollbar-thin">
+          <Button
+            v-for="preset in solarpunkPresets"
+            :key="preset.name"
+            variant="outline"
+            size="sm"
+            class="h-7 text-xs shrink-0"
+            @click="applyPreset(preset)"
+          >
+            <span
+              class="mr-1.5 rounded-full w-2.5 h-2.5"
+              :style="{ background: `oklch(0.5 0.2 ${preset.primary})` }"
+            ></span>
+            {{ preset.name }}
+          </Button>
+        </div>
+      </div>
+
+      <!-- Classic Presets -->
+      <div class="space-y-1.5 pt-1 border-border border-t">
+        <Label class="text-muted-foreground text-xs">Classiques</Label>
+        <div class="flex gap-1.5 overflow-x-auto pb-1 -mx-3 px-3 scrollbar-thin">
+          <Button
+            v-for="preset in classicPresets"
+            :key="preset.name"
+            variant="outline"
+            size="sm"
+            class="h-7 text-xs shrink-0"
+            @click="applyPreset(preset)"
+          >
+            <span
+              class="mr-1.5 rounded-full w-2.5 h-2.5"
+              :style="{ background: `oklch(0.5 0.2 ${preset.primary})` }"
+            ></span>
+            {{ preset.name }}
+          </Button>
+        </div>
       </div>
     </div>
   </div>
@@ -367,5 +389,23 @@ input[type="range"]::-moz-range-thumb {
   border: 2px solid oklch(0.5 0.15 var(--primary-hue));
   cursor: pointer;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: oklch(0.5 0.05 var(--primary-hue) / 0.3) transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  height: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: oklch(0.5 0.05 var(--primary-hue) / 0.3);
+  border-radius: 2px;
 }
 </style>

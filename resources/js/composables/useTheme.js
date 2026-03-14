@@ -2,8 +2,8 @@ import { ref } from 'vue';
 
 const theme = ref('system');
 const isDark = ref(false);
-const primaryHue = ref(35);
-const secondaryHue = ref(15);
+const primaryHue = ref(230);
+const secondaryHue = ref(200);
 const intensity = ref(100);
 const radius = ref(0.625);
 const fontFamily = ref('outfit');
@@ -13,6 +13,7 @@ const shadowIntensity = ref(100);
 const spacing = ref(100);
 const backgroundStyle = ref('organic');
 const bgIntensity = ref(100);
+const cursorGlow = ref(true);
 
 const FONT_STACKS = {
   'outfit': 'Outfit, ui-sans-serif, system-ui, sans-serif',
@@ -27,8 +28,8 @@ const FONT_STACKS = {
 };
 
 const DEFAULTS = {
-  primaryHue: 35,
-  secondaryHue: 15,
+  primaryHue: 230,
+  secondaryHue: 200,
   intensity: 100,
   radius: 0.625,
   fontFamily: 'outfit',
@@ -38,6 +39,7 @@ const DEFAULTS = {
   spacing: 100,
   backgroundStyle: 'organic',
   bgIntensity: 100,
+  cursorGlow: true,
 };
 
 function modePrefix() {
@@ -220,6 +222,16 @@ export function useTheme() {
     applyHues();
   };
 
+  const setCursorGlow = (enabled) => {
+    cursorGlow.value = !!enabled;
+    storeSharedValue('cursorGlow', cursorGlow.value ? '1' : '0');
+    applyCursorGlow();
+  };
+
+  const applyCursorGlow = () => {
+    document.documentElement.style.setProperty('--cursor-glow-enabled', cursorGlow.value ? '1' : '0');
+  };
+
   const setBgIntensity = (value) => {
     const valid = Math.max(0, Math.min(200, value));
     bgIntensity.value = valid;
@@ -295,6 +307,9 @@ export function useTheme() {
     if (storedFontWeight) fontWeight.value = parseInt(storedFontWeight, 10);
     if (storedBorderWidth) borderWidth.value = parseFloat(storedBorderWidth);
     if (storedSpacing) spacing.value = parseInt(storedSpacing, 10);
+    const storedCursorGlow = loadSharedValue('cursorGlow');
+    if (storedCursorGlow !== null) cursorGlow.value = storedCursorGlow === '1';
+    applyCursorGlow();
 
     // Load per-mode settings
     loadModeSettings();
@@ -322,6 +337,7 @@ export function useTheme() {
     setFontWeight(DEFAULTS.fontWeight);
     setBorderWidth(DEFAULTS.borderWidth);
     setSpacing(DEFAULTS.spacing);
+    setCursorGlow(DEFAULTS.cursorGlow);
   };
 
   return {
@@ -338,6 +354,7 @@ export function useTheme() {
     spacing,
     backgroundStyle,
     bgIntensity,
+    cursorGlow,
     FONT_STACKS,
     DEFAULTS,
     setTheme,
@@ -352,6 +369,7 @@ export function useTheme() {
     setSpacing,
     setBackgroundStyle,
     setBgIntensity,
+    setCursorGlow,
     resetToDefaults,
     initTheme,
   };

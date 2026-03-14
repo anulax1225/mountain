@@ -16,6 +16,16 @@ configure({
 const { initTheme } = useTheme();
 initTheme();
 
+// Cursor glow: track mouse position via CSS custom properties
+document.addEventListener('mousemove', (e) => {
+    document.body.style.setProperty('--mouse-x', `${e.clientX}px`);
+    document.body.style.setProperty('--mouse-y', `${e.clientY}px`);
+    document.body.style.setProperty('--cursor-glow-opacity', '1');
+});
+document.addEventListener('mouseleave', () => {
+    document.body.style.setProperty('--cursor-glow-opacity', '0');
+});
+
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
     resolve: (name) => resolvePageComponent(`./pages/${name}.vue`, import.meta.glob<DefineComponent>('./pages/**/*.vue')),

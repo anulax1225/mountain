@@ -433,3 +433,37 @@ html.dark body.bg-organic {
 /* Organic shapes */
 .clip-organic-1 { border-radius: 60% 40% 50% 50% / 50% 60% 40% 50%; }
 .clip-organic-2 { border-radius: 40% 60% 45% 55% / 55% 45% 60% 40%; }
+
+/* ===== Cursor glow ===== */
+body::before {
+  content: '';
+  position: fixed;
+  top: var(--mouse-y, -200px);
+  left: var(--mouse-x, -200px);
+  width: 300px;
+  height: 300px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    oklch(0.85 calc(0.12 * var(--theme-intensity, 1)) var(--primary-hue, 145) / 0.12) 0%,
+    oklch(0.80 calc(0.08 * var(--theme-intensity, 1)) var(--secondary-hue, 45) / 0.05) 40%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 9999;
+  transition: top 0.08s linear, left 0.08s linear, opacity 0.3s ease;
+  opacity: calc(var(--cursor-glow-opacity, 0) * var(--cursor-glow-enabled, 1));
+  mix-blend-mode: screen;
+}
+
+.dark body::before,
+html.dark body::before {
+  background: radial-gradient(
+    circle,
+    oklch(0.55 calc(0.15 * var(--theme-intensity, 1)) var(--primary-hue, 145) / 0.18) 0%,
+    oklch(0.45 calc(0.10 * var(--theme-intensity, 1)) var(--secondary-hue, 45) / 0.07) 40%,
+    transparent 70%
+  );
+  mix-blend-mode: screen;
+}
