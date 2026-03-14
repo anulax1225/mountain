@@ -1,7 +1,7 @@
 <script setup>
     import { Card, CardContent } from '@/components/ui/card'
     import { Button } from '@/components/ui/button'
-    import { Download, Trash2, Navigation } from 'lucide-vue-next'
+    import { Download, Trash2, Navigation, GripVertical } from 'lucide-vue-next'
     import { useDateTime } from '@/composables/useDateTime'
     import { useFileSize } from '@/composables/useFileSize'
     import { useImagePath } from '@/composables/useImagePath'
@@ -25,6 +25,10 @@
     <template>
       <Card class="hover:shadow-md transition-shadow">
         <CardContent class="flex items-center gap-4 p-4">
+          <GripVertical
+            v-if="canEdit"
+            class="drag-handle shrink-0 w-5 h-5 text-muted-foreground cursor-grab active:cursor-grabbing"
+          />
           <div
             class="relative flex-shrink-0 bg-muted rounded-lg w-32 h-20 overflow-hidden cursor-pointer"
             @click="emit('view', image)"

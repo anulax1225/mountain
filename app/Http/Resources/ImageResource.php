@@ -16,6 +16,7 @@ class ImageResource extends JsonResource
             'path' => $this->path,
             'preview_path' => $this->preview_path,
             'size' => $this->size,
+            'position' => $this->position,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'hotspots_from' => HotspotResource::collection($this->whenLoaded('hotspotsFrom')),

@@ -1,6 +1,7 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { Link, router } from '@inertiajs/vue3'
+import draggable from 'vuedraggable'
 import DashboardLayout from '@/layouts/DashboardLayout.vue'
 import { Button } from '@/components/ui/button'
 import EmptyState from '@/components/common/EmptyState.vue'
@@ -24,7 +25,13 @@ const props = defineProps({
 })
 
 const project = computed(() => props.scene?.project || null)
-const images = computed(() => props.scene?.images || [])
+const localImages = ref([...(props.scene?.images || [])])
+
+watch(() => props.scene?.images, (newImages) => {
+  if (newImages) {
+    localImages.value = [...newImages]
+  }
+})
 
 const currentSlideIndex = ref(0)
 const uploadSheetOpen = ref(false)
@@ -72,6 +79,16 @@ const viewImage = (image) => {
 const handleImageReplaced = () => {
   router.reload()
 }
+
+const onDragEnd = async () => {
+  const slugs = localImages.value.map(img => img.slug)
+  try {
+    await owl.images.reorder(props.scene.slug, slugs)
+  } catch (error) {
+    console.error('Failed to reorder images:', error)
+    router.reload()
+  }
+}
 </script>
 
 <template>
@@ -86,7 +103,7 @@ const handleImageReplaced = () => {
           </Link>
           <div class="flex-1 min-w-0">
             <h1 class="font-bold text-foreground text-2xl md:text-3xl truncate">{{ scene?.name }}</h1>
-            <p class="mt-1 text-muted-foreground">{{ images.length }} image(s)</p>
+            <p class="mt-1 text-muted-foreground">{{ localImages.length }} image(s)</p>
           </div>
         </div>
         <div class="flex flex-wrap items-center gap-2">
@@ -106,9 +123,9 @@ const handleImageReplaced = () => {
         </div>
       </div>
 
-      <div v-if="viewMode === 'slider' && images.length > 0" class="space-y-4">
+      <div v-if="viewMode === 'slider' && localImages.length > 0" class="space-y-4">
         <ImageSlider
-          :images="images"
+          :images="localImages"
           v-model:current-index="currentSlideIndex"
           :scene-name="scene.name"
           :can-edit="canEdit"
@@ -117,41 +134,58 @@ const handleImageReplaced = () => {
           @fullscreen="fullscreenOpen = true"
         />
         <ImageThumbnails
-          :images="images"
+          :images="localImages"
           :current-index="currentSlideIndex"
           :scene-name="scene.name"
           @select="currentSlideIndex = $event"
         />
       </div>
 
-      <div v-else-if="viewMode === 'grid'" class="gap-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        <ImageCard
-          v-for="image in images"
-          :key="image.slug"
-          :image="image"
-          :scene-name="scene.name"
-          :can-edit="canEdit"
-          @view="viewImage"
-          @download="downloadImage"
-          @delete="deleteImage"
-        />
-      </div>
+      <draggable
+        v-else-if="viewMode === 'grid'"
+        v-model="localImages"
+        item-key="slug"
+        :disabled="!canEdit"
+        class="gap-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+        ghost-class="opacity-30"
+        @end="onDragEnd"
+      >
+        <template #item="{ element: image }">
+          <ImageCard
+            :image="image"
+            :scene-name="scene.name"
+            :can-edit="canEdit"
+            @view="viewImage"
+            @download="downloadImage"
+            @delete="deleteImage"
+          />
+        </template>
+      </draggable>
 
-      <div v-else-if="viewMode === 'list'" class="space-y-4">
-        <ImageListItem
-          v-for="image in images"
-          :key="image.slug"
-          :image="image"
-          :scene-name="scene.name"
-          :can-edit="canEdit"
-          @view="viewImage"
-          @download="downloadImage"
-          @delete="deleteImage"
-        />
-      </div>
+      <draggable
+        v-else-if="viewMode === 'list'"
+        v-model="localImages"
+        item-key="slug"
+        :disabled="!canEdit"
+        class="space-y-4"
+        ghost-class="opacity-30"
+        handle=".drag-handle"
+        @end="onDragEnd"
+      >
+        <template #item="{ element: image }">
+          <ImageListItem
+            :image="image"
+            :scene-name="scene.name"
+            :can-edit="canEdit"
+            @view="viewImage"
+            @download="downloadImage"
+            @delete="deleteImage"
+          />
+        </template>
+      </draggable>
 
       <EmptyState
-        v-if="images.length === 0"
+        v-if="localImages.length === 0"
         :icon="Upload"
         title="Aucune image"
         :description="canEdit ? 'Commencez par ajouter des images panoramiques à cette scène' : 'Cette scène ne contient pas encore d\'images'"
@@ -180,7 +214,7 @@ const handleImageReplaced = () => {
 
       <ImageFullscreen
         v-model:open="fullscreenOpen"
-        :images="images"
+        :images="localImages"
         v-model:current-index="currentSlideIndex"
         :scene-name="scene?.name"
       />

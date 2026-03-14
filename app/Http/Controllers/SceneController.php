@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Actions\Scene\CreateScene;
 use App\Actions\Scene\DeleteScene;
 use App\Actions\Scene\ListScenes;
+use App\Actions\Scene\ReorderScenes;
 use App\Actions\Scene\UpdateScene;
+use App\Http\Requests\ReorderScenesRequest;
 use App\Http\Requests\StoreSceneRequest;
 use App\Http\Requests\UpdateSceneRequest;
 use App\Http\Resources\SceneResource;
@@ -99,6 +101,22 @@ class SceneController extends Controller
         $scene = $updateScene($scene, $request->validated());
 
         return new SceneResource($scene);
+    }
+
+    /**
+     * Reorder scenes within a project
+     *
+     * @authenticated
+     *
+     * @response 204
+     */
+    public function reorder(ReorderScenesRequest $request, Project $project, ReorderScenes $reorderScenes): Response
+    {
+        $this->authorize('update', $project);
+
+        $reorderScenes($project, $request->validated()['slugs']);
+
+        return response()->noContent();
     }
 
     /**

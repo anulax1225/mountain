@@ -4,7 +4,6 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Http\Resources\MissingValue;
 
 class SceneResource extends JsonResource
 {
@@ -18,6 +17,7 @@ class SceneResource extends JsonResource
         return [
             'slug' => $this->slug,
             'name' => $this->name,
+            'position' => $this->position,
             'images' => ImageResource::collection($this->whenLoaded('images')),
             'hotspots' => HotspotResource::collection($this->whenLoaded('hotspots')),
             'project' => new ProjectResource($this->whenLoaded('project')),

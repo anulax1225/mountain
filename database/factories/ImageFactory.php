@@ -22,6 +22,7 @@ class ImageFactory extends Factory
             'name' => fake()->words(3, true),
             'scene_id' => \App\Models\Scene::factory(),
             // Path and size will be set by withFile() state method
+            'position' => 0,
             'path' => null,
             'preview_path' => null,
             'size' => 0,

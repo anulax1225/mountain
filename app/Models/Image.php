@@ -20,6 +20,7 @@ class Image extends Model
         'name',
         'path',
         'preview_path',
+        'position',
     ];
 
     protected static function boot()

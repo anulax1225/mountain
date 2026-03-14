@@ -20,12 +20,13 @@ class SceneFactory extends Factory
             'Living Room', 'Kitchen', 'Bedroom', 'Bathroom', 'Hallway', 'Office',
             'Garden', 'Balcony', 'Garage', 'Basement', 'Attic', 'Dining Room',
             'Lobby', 'Conference Room', 'Reception', 'Showroom', 'Gallery',
-            'Main Entrance', 'Back Entrance', 'Rooftop', 'Terrace', 'Studio'
+            'Main Entrance', 'Back Entrance', 'Rooftop', 'Terrace', 'Studio',
         ];
 
         return [
             'name' => fake()->randomElement($locations),
             'project_id' => \App\Models\Project::factory(),
+            'position' => 0,
         ];
     }
 }

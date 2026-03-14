@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class Project extends Model
 {
@@ -27,7 +27,7 @@ class Project extends Model
     protected static function boot()
     {
         parent::boot();
-        
+
         static::creating(function ($project) {
             if (empty($project->slug)) {
                 $project->slug = (string) Str::uuid();
@@ -57,7 +57,7 @@ class Project extends Model
 
     public function scenes(): HasMany
     {
-        return $this->hasMany(Scene::class);
+        return $this->hasMany(Scene::class)->orderBy('position');
     }
 
     public function startImage(): BelongsTo

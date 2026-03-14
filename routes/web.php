@@ -156,6 +156,7 @@ Route::middleware('auth')->group(function () {
     // Scenes API
     Route::get('/projects/{project:slug}/scenes', [SceneController::class, 'index']);
     Route::post('/projects/{project:slug}/scenes', [SceneController::class, 'store']);
+    Route::post('/projects/{project:slug}/scenes/reorder', [SceneController::class, 'reorder']);
     Route::get('/scenes/{scene:slug}', [SceneController::class, 'show']);
     Route::put('/scenes/{scene:slug}', [SceneController::class, 'update']);
     Route::patch('/scenes/{scene:slug}', [SceneController::class, 'update']);
@@ -171,6 +172,7 @@ Route::middleware('auth')->group(function () {
     // Images API
     Route::get('/scenes/{scene:slug}/images', [ImageController::class, 'index']);
     Route::post('/scenes/{scene:slug}/images', [ImageController::class, 'store']);
+    Route::post('/scenes/{scene:slug}/images/reorder', [ImageController::class, 'reorder']);
     Route::get('/images/{image:slug}', [ImageController::class, 'show']);
     Route::post('/images/{image:slug}', [ImageController::class, 'update']); // POST for file uploads
     Route::delete('/images/{image:slug}', [ImageController::class, 'destroy']);

@@ -1,6 +1,7 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useForm, router } from '@inertiajs/vue3'
+import draggable from 'vuedraggable'
 import DashboardLayout from '@/layouts/DashboardLayout.vue'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, Settings, Users, Edit, Share2, Globe, BarChart3 } from 'lucide-vue-next'
@@ -13,6 +14,7 @@ import ProjectUsersDialog from '@/components/dashboard/ProjectUsersDialog.vue'
 import ProjectEditDialog from '@/components/dashboard/ProjectEditDialog.vue'
 import ProjectShareDialog from '@/components/dashboard/ProjectShareDialog.vue'
 import { useConfirm } from '@/composables'
+import owl from '@/owl-sdk.js'
 
 const props = defineProps({
   auth: Object,
@@ -25,6 +27,14 @@ const props = defineProps({
 })
 
 const { confirmDelete } = useConfirm()
+
+const localScenes = ref([...(props.scenes || [])])
+
+watch(() => props.scenes, (newScenes) => {
+  if (newScenes) {
+    localScenes.value = [...newScenes]
+  }
+})
 
 const sceneSheetOpen = ref(false)
 const settingsDialogOpen = ref(false)
@@ -78,6 +88,16 @@ const deleteScene = async (sceneSlug) => {
   if (!confirmed) return
 
   router.delete(`/dashboard/scenes/${sceneSlug}`)
+}
+
+const onDragEnd = async () => {
+  const slugs = localScenes.value.map(s => s.slug)
+  try {
+    await owl.scenes.reorder(props.project.slug, slugs)
+  } catch (error) {
+    console.error('Failed to reorder scenes:', error)
+    router.reload()
+  }
 }
 </script>
 
@@ -145,14 +165,23 @@ const deleteScene = async (sceneSlug) => {
           <h2 class="mb-4 font-semibold text-foreground text-xl">Scènes</h2>
 
           <div class="gap-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-            <SceneCard
-              v-for="scene in scenes"
-              :key="scene.slug"
-              :scene="scene"
-              :can-edit="canEdit"
-              @edit="openEditScene"
-              @delete="deleteScene"
-            />
+            <draggable
+              v-model="localScenes"
+              item-key="slug"
+              :disabled="!canEdit"
+              class="gap-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 col-span-full"
+              ghost-class="opacity-30"
+              @end="onDragEnd"
+            >
+              <template #item="{ element: scene }">
+                <SceneCard
+                  :scene="scene"
+                  :can-edit="canEdit"
+                  @edit="openEditScene"
+                  @delete="deleteScene"
+                />
+              </template>
+            </draggable>
 
             <CreateSceneCard v-if="canEdit" @create="openCreateScene" />
           </div>

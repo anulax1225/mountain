@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { MoreVertical, Pencil, Trash2, Image as ImageIcon } from 'lucide-vue-next'
+import { MoreVertical, Pencil, Trash2, Image as ImageIcon, GripVertical } from 'lucide-vue-next'
 import { useImagePath } from '@/composables/useImagePath'
 
 const { getImagePreview } = useImagePath()
@@ -27,8 +27,12 @@ const emit = defineEmits(['edit', 'delete'])
 <template>
   <Card class="hover:shadow-lg h-full transition-shadow">
     <CardHeader>
-      <div class="flex justify-between items-start">
-        <div class="flex-1">
+      <div class="flex justify-between items-start gap-2">
+        <GripVertical
+          v-if="canEdit"
+          class="drag-handle shrink-0 mt-1 w-5 h-5 text-muted-foreground cursor-grab active:cursor-grabbing"
+        />
+        <div class="flex-1 min-w-0">
           <CardTitle class="text-lg">{{ scene.name || 'Sans nom' }}</CardTitle>
           <CardDescription>{{ scene.images?.length || 0 }} image(s)</CardDescription>
         </div>

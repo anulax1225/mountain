@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Actions\Image\DeleteImage;
 use App\Actions\Image\ListImages;
+use App\Actions\Image\ReorderImages;
 use App\Actions\Image\StoreImage;
 use App\Actions\Image\UpdateImage;
+use App\Http\Requests\ReorderImagesRequest;
 use App\Http\Requests\StoreImageRequest;
 use App\Http\Requests\UpdateImageRequest;
 use App\Http\Resources\ImageResource;
@@ -154,6 +156,22 @@ class ImageController extends Controller
         );
 
         return new ImageResource($image);
+    }
+
+    /**
+     * Reorder images within a scene
+     *
+     * @authenticated
+     *
+     * @response 204
+     */
+    public function reorder(ReorderImagesRequest $request, Scene $scene, ReorderImages $reorderImages): Response
+    {
+        $this->authorize('update', $scene->project);
+
+        $reorderImages($scene, $request->validated()['slugs']);
+
+        return response()->noContent();
     }
 
     /**

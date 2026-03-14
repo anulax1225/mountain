@@ -18,10 +18,13 @@ class StoreImage
         $disk->copy($stagingKey, $permanentPath);
         $disk->delete($stagingKey);
 
+        $nextPosition = ($scene->images()->max('position') ?? -1) + 1;
+
         $image = $scene->images()->create([
             'name' => $name ?? $filename,
             'path' => $permanentPath,
             'size' => $size,
+            'position' => $nextPosition,
         ]);
 
         GenerateImagePreview::dispatch($image);

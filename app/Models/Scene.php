@@ -17,6 +17,7 @@ class Scene extends Model
         'slug',
         'name',
         'project_id',
+        'position',
     ];
 
     protected static function boot()
@@ -49,7 +50,7 @@ class Scene extends Model
 
     public function images(): HasMany
     {
-        return $this->hasMany(Image::class);
+        return $this->hasMany(Image::class)->orderBy('position');
     }
 
     public function hotspots(): HasMany

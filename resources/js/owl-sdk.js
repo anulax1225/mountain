@@ -512,6 +512,19 @@ class ScenesAPI {
     }
 
     /**
+     * Reorder scenes within a project
+     * @param {string} projectSlug - Project slug
+     * @param {string[]} slugs - Ordered array of scene slugs
+     * @returns {Promise<void>}
+     */
+    async reorder(projectSlug, slugs) {
+        return await this.client.request(`/projects/${projectSlug}/scenes/reorder`, {
+            method: 'POST',
+            body: { slugs },
+        });
+    }
+
+    /**
      * Get a specific scene by slug
      * @param {string} sceneSlug - Scene slug
      * @returns {Promise<Object>}
@@ -727,6 +740,19 @@ class ImagesAPI {
             method: 'POST',
             body: formData,
             isFormData: true,
+        });
+    }
+
+    /**
+     * Reorder images within a scene
+     * @param {string} sceneSlug - Scene slug
+     * @param {string[]} slugs - Ordered array of image slugs
+     * @returns {Promise<void>}
+     */
+    async reorder(sceneSlug, slugs) {
+        return await this.client.request(`/scenes/${sceneSlug}/images/reorder`, {
+            method: 'POST',
+            body: { slugs },
         });
     }
 
