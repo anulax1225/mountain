@@ -277,6 +277,9 @@
 }
 
 @layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
   * {
     @apply border-border outline-ring/50;
     }
@@ -284,6 +287,15 @@
     @apply bg-background text-foreground;
     font-family: var(--font-family);
     font-weight: var(--font-weight-base);
+    -webkit-tap-highlight-color: transparent;
+    padding:
+      env(safe-area-inset-top)
+      env(safe-area-inset-right)
+      env(safe-area-inset-bottom)
+      env(safe-area-inset-left);
+    }
+  a, button, input, select, textarea, [role="button"] {
+    touch-action: manipulation;
     }
 }
 

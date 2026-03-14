@@ -434,7 +434,7 @@ onUnmounted(() => {
     <DashboardLayout :auth="auth" :project="project" :collapsible-header="true">
         <div ref="editorContainer" :class="[
             'relative -m-6 w-[calc(100%+3rem)]',
-            isFullscreen || !headerVisible ? 'h-screen' : 'h-[calc(100vh-4rem)]'
+            isFullscreen || !headerVisible ? 'h-screen' : 'h-[calc(100dvh-4rem)]'
         ]">
             <EmptyState v-if="images.length === 0" title="Aucune image dans ce projet"
                 class="absolute inset-0 bg-zinc-950 text-white">

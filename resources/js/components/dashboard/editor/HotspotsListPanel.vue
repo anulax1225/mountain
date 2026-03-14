@@ -29,7 +29,7 @@
           <p class="text-muted-foreground text-xs">Image actuelle</p>
         </div>
 
-        <ScrollArea class="max-h-[calc(100vh-16rem)]">
+        <ScrollArea class="max-h-[calc(100dvh-16rem)]">
           <div v-if="currentHotspots.length === 0" class="py-8 text-center">
             <p class="text-muted-foreground text-sm">Aucun point d'accès</p>
           </div>
