@@ -31,7 +31,7 @@ const closePicker = () => {
 <template>
   <div class="flex items-center gap-1">
     <!-- Theme Picker Toggle (admin only) -->
-    <div v-if="isAdmin" class="relative">
+    <div v-if="isAdmin" class="z-20 relative">
       <Button variant="ghost" size="icon" @click="togglePicker" title="Personnaliser le thème">
         <Palette class="w-5 h-5" />
       </Button>
@@ -40,7 +40,7 @@ const closePicker = () => {
       <Transition name="picker">
         <div
           v-if="pickerOpen"
-          class="absolute right-0 top-full mt-2 z-50 bg-popover border border-border rounded-lg shadow-lg"
+          class="top-full right-0 z-50 absolute bg-popover shadow-lg mt-2 border border-border rounded-lg"
         >
           <ThemePicker />
         </div>
@@ -49,7 +49,7 @@ const closePicker = () => {
       <!-- Click outside to close -->
       <div
         v-if="pickerOpen"
-        class="fixed inset-0 z-40"
+        class="z-40 fixed inset-0"
         @click="closePicker"
       ></div>
     </div>

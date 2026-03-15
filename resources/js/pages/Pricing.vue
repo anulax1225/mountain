@@ -69,19 +69,19 @@ const plans = [
 
     <div class="pt-24 pb-16">
       <div class="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-        <div class="text-center mb-16">
-          <h1 class="text-4xl sm:text-5xl text-foreground mb-4" style="font-family: var(--font-family-display); font-weight: 800;">
+        <div class="mb-16 text-center">
+          <h1 class="mb-4 text-foreground text-4xl sm:text-5xl" style="font-family: var(--font-family-display); font-weight: 800;">
             Des tarifs simples et transparents
           </h1>
-          <p class="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p class="mx-auto max-w-2xl text-muted-foreground text-xl">
             Choisissez le plan qui correspond à vos besoins. Évoluez à tout moment.
           </p>
-          <p class="mt-4 text-sm text-muted-foreground/70 italic">
+          <p class="mt-4 text-muted-foreground/70 text-sm italic">
             Cette page est un exemple fictif. Les tarifs ne sont pas encore disponibles.
           </p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div class="gap-8 grid grid-cols-1 md:grid-cols-3 mx-auto max-w-6xl">
           <Card
             v-for="plan in plans"
             :key="plan.name"
@@ -92,25 +92,25 @@ const plans = [
           >
             <Badge
               v-if="plan.popular"
-              class="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground"
+              class="-top-3 left-1/2 absolute bg-primary text-primary-foreground -translate-x-1/2"
             >
               Le plus populaire
             </Badge>
 
-            <CardHeader class="text-center pb-2">
+            <CardHeader class="pb-2 text-center">
               <CardTitle class="text-2xl">{{ plan.name }}</CardTitle>
               <CardDescription>{{ plan.description }}</CardDescription>
             </CardHeader>
 
             <CardContent class="flex-1">
-              <div class="text-center mb-6">
-                <span class="text-5xl font-bold text-foreground">{{ plan.price }}€</span>
+              <div class="mb-6 text-center">
+                <span class="font-bold text-foreground text-5xl">{{ plan.price }}€</span>
                 <span class="text-muted-foreground">{{ plan.period }}</span>
               </div>
 
               <ul class="space-y-3">
                 <li v-for="feature in plan.features" :key="feature" class="flex items-start gap-3">
-                  <Check class="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
+                  <Check class="mt-0.5 w-5 h-5 text-green-500 shrink-0" />
                   <span class="text-foreground text-sm">{{ feature }}</span>
                 </li>
               </ul>
@@ -131,52 +131,14 @@ const plans = [
         </div>
 
         <div class="mt-16 text-center">
-          <p class="text-muted-foreground mb-4">
+          <p class="mb-4 text-muted-foreground">
             Besoin d'un plan personnalisé pour votre organisation ?
           </p>
-          <Button variant="link" class="text-foreground">
-            Contactez-nous pour un devis sur mesure
-          </Button>
-        </div>
-
-        <div class="mt-16 bg-muted rounded-2xl p-8 max-w-4xl mx-auto">
-          <h2 class="text-2xl text-foreground text-center mb-8" style="font-family: var(--font-family-display); font-weight: 600;">
-            Questions fréquentes
-          </h2>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h3 class="font-semibold text-foreground mb-2">
-                Puis-je changer de plan à tout moment ?
-              </h3>
-              <p class="text-muted-foreground text-sm">
-                Oui, vous pouvez upgrader ou downgrader votre plan à tout moment. Les changements prennent effet immédiatement.
-              </p>
-            </div>
-            <div>
-              <h3 class="font-semibold text-foreground mb-2">
-                Y a-t-il un engagement ?
-              </h3>
-              <p class="text-muted-foreground text-sm">
-                Non, tous nos plans sont sans engagement. Vous pouvez annuler à tout moment.
-              </p>
-            </div>
-            <div>
-              <h3 class="font-semibold text-foreground mb-2">
-                Comment fonctionne l'essai gratuit ?
-              </h3>
-              <p class="text-muted-foreground text-sm">
-                L'essai Pro de 14 jours vous donne accès à toutes les fonctionnalités. Aucune carte bancaire requise.
-              </p>
-            </div>
-            <div>
-              <h3 class="font-semibold text-foreground mb-2">
-                Proposez-vous des réductions ?
-              </h3>
-              <p class="text-muted-foreground text-sm">
-                Oui, nous offrons 20% de réduction sur les abonnements annuels et des tarifs spéciaux pour l'éducation.
-              </p>
-            </div>
-          </div>
+          <Link href="/contact">
+            <Button variant="link" class="text-foreground">
+              Contactez-nous pour un devis sur mesure
+            </Button>
+          </Link>
         </div>
       </div>
     </div>

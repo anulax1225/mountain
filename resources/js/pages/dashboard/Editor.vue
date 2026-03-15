@@ -549,9 +549,9 @@ onUnmounted(() => {
 
                 <!-- HD loading indicator -->
                 <Transition name="fade">
-                    <div v-if="editorCanvasRef?.isLoadingFullRes" class="absolute top-16 left-4 z-40 flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-white backdrop-blur">
-                        <Hd class="h-4 w-4" />
-                        <Loader2 class="h-3.5 w-3.5 animate-spin" />
+                    <div v-if="editorCanvasRef?.isLoadingFullRes" class="top-16 left-4 z-40 absolute flex items-center gap-1.5 bg-black/60 backdrop-blur px-2.5 py-1 rounded-full text-white">
+                        <Hd class="w-4 h-4" />
+                        <Loader2 class="w-3.5 h-3.5 animate-spin" />
                     </div>
                 </Transition>
 
