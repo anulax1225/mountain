@@ -7,13 +7,13 @@ import AppLogo from '@/components/AppLogo.vue';
 <template>
   <div class="flex min-h-screen">
     <!-- Left side - Branding/Visual -->
-    <div class="hidden relative lg:flex lg:w-1/2 overflow-hidden" style="background: linear-gradient(to bottom right, oklch(0.25 0.06 145), oklch(0.15 0.04 45));">
+    <div class="auth-panel hidden relative lg:flex lg:w-1/2 overflow-hidden">
       <!-- Organic topographic pattern -->
       <div class="absolute inset-0 opacity-[0.06]" style="background-image: radial-gradient(circle at 25% 25%, rgba(255,255,255,0.3) 1px, transparent 1px), radial-gradient(circle at 75% 75%, rgba(255,255,255,0.2) 1px, transparent 1px); background-size: 3rem 3rem, 2rem 2rem;"></div>
 
       <!-- Decorative organic blob -->
-      <div class="absolute -top-20 -right-20 w-80 h-80 clip-organic-1 opacity-10" style="background: linear-gradient(135deg, oklch(0.6 0.18 145), oklch(0.5 0.15 45));"></div>
-      <div class="absolute -bottom-16 -left-16 w-64 h-64 clip-organic-2 opacity-[0.07]" style="background: linear-gradient(135deg, oklch(0.7 0.15 45), oklch(0.5 0.12 145));"></div>
+      <div class="auth-blob-1 absolute -top-20 -right-20 w-80 h-80 clip-organic-1 opacity-10"></div>
+      <div class="auth-blob-2 absolute -bottom-16 -left-16 w-64 h-64 clip-organic-2 opacity-[0.07]"></div>
 
       <div class="z-10 relative flex flex-col justify-center px-12 py-16 text-white">
         <div class="mb-8">
@@ -25,8 +25,8 @@ import AppLogo from '@/components/AppLogo.vue';
         </div>
         <div class="space-y-6 max-w-md">
           <div class="flex items-start gap-4">
-            <div class="flex flex-shrink-0 justify-center items-center rounded-xl w-10 h-10" style="background: oklch(0.65 0.15 45 / 0.2);">
-              <Globe class="w-5 h-5 text-amber-300/80" />
+            <div class="auth-icon-box flex shrink-0 justify-center items-center rounded-xl w-10 h-10">
+              <Globe class="auth-icon w-5 h-5" />
             </div>
             <div>
               <h3 class="mb-1 font-semibold">Expériences immersives en 360°</h3>
@@ -34,8 +34,8 @@ import AppLogo from '@/components/AppLogo.vue';
             </div>
           </div>
           <div class="flex items-start gap-4">
-            <div class="flex flex-shrink-0 justify-center items-center rounded-xl w-10 h-10" style="background: oklch(0.65 0.15 45 / 0.2);">
-              <Layers class="w-5 h-5 text-amber-300/80" />
+            <div class="auth-icon-box flex shrink-0 justify-center items-center rounded-xl w-10 h-10">
+              <Layers class="auth-icon w-5 h-5" />
             </div>
             <div>
               <h3 class="mb-1 font-semibold">Organisation de projets</h3>
@@ -43,8 +43,8 @@ import AppLogo from '@/components/AppLogo.vue';
             </div>
           </div>
           <div class="flex items-start gap-4">
-            <div class="flex flex-shrink-0 justify-center items-center rounded-xl w-10 h-10" style="background: oklch(0.65 0.15 45 / 0.2);">
-              <Zap class="w-5 h-5 text-amber-300/80" />
+            <div class="auth-icon-box flex shrink-0 justify-center items-center rounded-xl w-10 h-10">
+              <Zap class="auth-icon w-5 h-5" />
             </div>
             <div>
               <h3 class="mb-1 font-semibold">Propulsé par Three.js</h3>
@@ -66,3 +66,37 @@ import AppLogo from '@/components/AppLogo.vue';
     </div>
   </div>
 </template>
+
+<style scoped>
+.auth-panel {
+  background: linear-gradient(
+    to bottom right,
+    oklch(0.25 calc(0.06 * var(--theme-intensity, 1)) var(--primary-hue, 35)),
+    oklch(0.15 calc(0.04 * var(--theme-intensity, 1)) var(--secondary-hue, 15))
+  );
+}
+
+.auth-blob-1 {
+  background: linear-gradient(
+    135deg,
+    oklch(0.6 calc(0.18 * var(--theme-intensity, 1)) var(--primary-hue, 35)),
+    oklch(0.5 calc(0.15 * var(--theme-intensity, 1)) var(--secondary-hue, 15))
+  );
+}
+
+.auth-blob-2 {
+  background: linear-gradient(
+    135deg,
+    oklch(0.7 calc(0.15 * var(--theme-intensity, 1)) var(--secondary-hue, 15)),
+    oklch(0.5 calc(0.12 * var(--theme-intensity, 1)) var(--primary-hue, 35))
+  );
+}
+
+.auth-icon-box {
+  background: oklch(0.65 calc(0.15 * var(--theme-intensity, 1)) var(--secondary-hue, 15) / 0.2);
+}
+
+.auth-icon {
+  color: oklch(0.80 calc(0.15 * var(--theme-intensity, 1)) var(--secondary-hue, 15));
+}
+</style>
