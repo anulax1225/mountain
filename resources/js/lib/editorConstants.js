@@ -114,6 +114,9 @@ export const BLUR = {
     INDICATOR_SIZE: 128,         // Canvas size for indicator sprite
     INDICATOR_SCALE: 0.06,       // Base scale for indicator sprite
     PIXELATE_BLOCK_SIZE: 0.005,  // UV block size for pixelation effect
+    MAX_CANVAS_WIDTH: 4096,          // Max processing canvas width (mobile-safe)
+    MAX_CANVAS_PIXELS: 16_000_000,   // Max total pixel count for canvas
+    FALLBACK_BLUR_DOWNSCALE: 4,      // Downscale factor for manual blur fallback
 }
 
 export const UPLOAD = {

@@ -1,6 +1,23 @@
 import { watch, toValue } from 'vue'
 import * as THREE from 'three'
 import { cartesianToUV, angularRadiusToPixels } from '@/lib/spatialMath.js'
+import { BLUR } from '@/lib/editorConstants.js'
+
+/**
+ * Detect ctx.filter support once at module level.
+ * Safari < 17.5 does not support CanvasRenderingContext2D.filter.
+ */
+const supportsCtxFilter = (() => {
+    try {
+        const c = document.createElement('canvas')
+        c.width = 1
+        c.height = 1
+        const ctx = c.getContext('2d')
+        return ctx && typeof ctx.filter === 'string'
+    } catch {
+        return false
+    }
+})()
 
 /**
  * Composable for applying blur regions to the panorama texture
@@ -9,10 +26,66 @@ import { cartesianToUV, angularRadiusToPixels } from '@/lib/spatialMath.js'
  * applies circular blur regions using ctx.filter, then creates a CanvasTexture.
  * Re-renders only when blur regions change or the texture is swapped.
  *
+ * Canvas dimensions are capped to mobile-safe limits to prevent tab crashes
+ * on devices with restricted canvas memory budgets.
+ *
  * @param {import('vue').Ref} currentMesh - Current panorama mesh ref
  * @param {import('vue').Ref|import('vue').ComputedRef} blurRegions - Reactive array of blur region data
  */
 export function useBlurRegions(currentMesh, blurRegions) {
+    // Reusable canvas elements to avoid repeated allocations
+    let cachedCanvas = null
+    let cachedCtx = null
+    let cachedTempCanvas = null
+    let cachedTempCtx = null
+
+    function getCanvas(width, height) {
+        if (!cachedCanvas) {
+            cachedCanvas = document.createElement('canvas')
+        }
+        if (cachedCanvas.width !== width || cachedCanvas.height !== height) {
+            cachedCanvas.width = width
+            cachedCanvas.height = height
+        }
+        cachedCtx = cachedCanvas.getContext('2d')
+        return { canvas: cachedCanvas, ctx: cachedCtx }
+    }
+
+    function getTempCanvas(width, height) {
+        if (!cachedTempCanvas) {
+            cachedTempCanvas = document.createElement('canvas')
+        }
+        if (cachedTempCanvas.width !== width || cachedTempCanvas.height !== height) {
+            cachedTempCanvas.width = width
+            cachedTempCanvas.height = height
+        }
+        cachedTempCtx = cachedTempCanvas.getContext('2d')
+        return { canvas: cachedTempCanvas, ctx: cachedTempCtx }
+    }
+
+    /**
+     * Compute mobile-safe canvas dimensions and scale factor
+     */
+    function computeCanvasDimensions(origWidth, origHeight) {
+        let width = origWidth
+        let height = origHeight
+        let scale = 1
+
+        if (width > BLUR.MAX_CANVAS_WIDTH) {
+            scale = BLUR.MAX_CANVAS_WIDTH / width
+            width = BLUR.MAX_CANVAS_WIDTH
+            height = Math.round(origHeight * scale)
+        }
+
+        if (width * height > BLUR.MAX_CANVAS_PIXELS) {
+            const pixelScale = Math.sqrt(BLUR.MAX_CANVAS_PIXELS / (width * height))
+            scale *= pixelScale
+            width = Math.round(width * pixelScale)
+            height = Math.round(height * pixelScale)
+        }
+
+        return { width, height, scale }
+    }
 
     /**
      * Apply blur regions to the mesh texture
@@ -41,42 +114,61 @@ export function useBlurRegions(currentMesh, blurRegions) {
             return
         }
 
-        const canvas = document.createElement('canvas')
-        canvas.width = originalImage.width
-        canvas.height = originalImage.height
-        const ctx = canvas.getContext('2d')
+        try {
+            const { width: canvasWidth, height: canvasHeight } = computeCanvasDimensions(
+                originalImage.width,
+                originalImage.height
+            )
 
-        // Draw original image
-        ctx.drawImage(originalImage, 0, 0)
+            const { canvas, ctx } = getCanvas(canvasWidth, canvasHeight)
 
-        // Apply each blur region
-        for (const region of regions) {
-            const { u, v } = cartesianToUV({
-                x: region.position_x,
-                y: region.position_y,
-                z: region.position_z,
-            })
+            // Draw original image (downscaled if canvas is capped)
+            ctx.drawImage(originalImage, 0, 0, canvasWidth, canvasHeight)
 
-            const px = u * canvas.width
-            const py = v * canvas.height
-            const pr = angularRadiusToPixels(region.radius, canvas.height)
+            // Apply each blur region
+            for (const region of regions) {
+                const { u, v } = cartesianToUV({
+                    x: region.position_x,
+                    y: region.position_y,
+                    z: region.position_z,
+                })
 
-            if (region.type === 'pixelate') {
-                applyPixelation(ctx, px, py, pr, canvas.width, canvas.height)
-            } else {
-                applyGaussianBlur(ctx, originalImage, px, py, pr, region.intensity)
+                const px = u * canvasWidth
+                const py = v * canvasHeight
+                const pr = angularRadiusToPixels(region.radius, canvasHeight)
+
+                if (region.type === 'pixelate') {
+                    applyPixelation(ctx, px, py, pr, canvasWidth, canvasHeight)
+                } else {
+                    applyGaussianBlur(ctx, px, py, pr, region.intensity)
+                }
+            }
+
+            const newTexture = new THREE.CanvasTexture(canvas)
+            newTexture.colorSpace = THREE.SRGBColorSpace
+            newTexture.minFilter = THREE.LinearFilter
+            newTexture.magFilter = THREE.LinearFilter
+
+            const oldTexture = mesh.material.map
+            mesh.material.map = newTexture
+            mesh.material.needsUpdate = true
+            oldTexture?.dispose()
+        } catch (error) {
+            console.error('[useBlurRegions] Failed to apply blur regions:', error)
+
+            // Fallback: show original unblurred texture rather than crash
+            try {
+                const texture = new THREE.Texture(originalImage)
+                texture.colorSpace = THREE.SRGBColorSpace
+                texture.needsUpdate = true
+                const old = mesh.material.map
+                mesh.material.map = texture
+                mesh.material.needsUpdate = true
+                old?.dispose()
+            } catch {
+                // Last resort: do nothing
             }
         }
-
-        const newTexture = new THREE.CanvasTexture(canvas)
-        newTexture.colorSpace = THREE.SRGBColorSpace
-        newTexture.minFilter = THREE.LinearFilter
-        newTexture.magFilter = THREE.LinearFilter
-
-        const oldTexture = mesh.material.map
-        mesh.material.map = newTexture
-        mesh.material.needsUpdate = true
-        oldTexture?.dispose()
     }
 
     /**
@@ -84,8 +176,9 @@ export function useBlurRegions(currentMesh, blurRegions) {
      *
      * Uses a temp canvas for the blur to avoid drawing the full-size image
      * through ctx.filter (browsers may silently drop very large filtered draws).
+     * Falls back to downscale-upscale technique when ctx.filter is unsupported.
      */
-    function applyGaussianBlur(ctx, image, px, py, pr, intensity) {
+    function applyGaussianBlur(ctx, px, py, pr, intensity) {
         const canvasW = ctx.canvas.width
         const canvasH = ctx.canvas.height
 
@@ -99,13 +192,21 @@ export function useBlurRegions(currentMesh, blurRegions) {
         const h = y2 - y1
         if (w <= 0 || h <= 0) return
 
-        // Draw just the needed region blurred on a temp canvas
-        const tempCanvas = document.createElement('canvas')
-        tempCanvas.width = w
-        tempCanvas.height = h
-        const tempCtx = tempCanvas.getContext('2d')
-        tempCtx.filter = `blur(${intensity}px)`
-        tempCtx.drawImage(image, x1, y1, w, h, 0, 0, w, h)
+        const { canvas: tempCanvas, ctx: tempCtx } = getTempCanvas(w, h)
+
+        if (supportsCtxFilter) {
+            tempCtx.filter = `blur(${intensity}px)`
+            tempCtx.drawImage(ctx.canvas, x1, y1, w, h, 0, 0, w, h)
+            tempCtx.filter = 'none'
+        } else {
+            // Fallback: downscale then upscale (bilinear interpolation creates blur)
+            const ds = BLUR.FALLBACK_BLUR_DOWNSCALE
+            const smallW = Math.max(1, Math.round(w / ds))
+            const smallH = Math.max(1, Math.round(h / ds))
+
+            tempCtx.drawImage(ctx.canvas, x1, y1, w, h, 0, 0, smallW, smallH)
+            tempCtx.drawImage(tempCanvas, 0, 0, smallW, smallH, 0, 0, w, h)
+        }
 
         // Composite back onto main canvas with circular clip
         ctx.save()
