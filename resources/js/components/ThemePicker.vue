@@ -5,6 +5,10 @@ import { Button } from '@/components/ui/button'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { RotateCcw } from 'lucide-vue-next'
 
+defineProps({
+  mobile: { type: Boolean, default: false },
+})
+
 const {
   isDark, primaryHue, secondaryHue, intensity, radius, fontFamily, fontWeight, borderWidth,
   shadowIntensity, spacing, backgroundStyle, bgIntensity, cursorGlow,
@@ -105,7 +109,12 @@ const hueGradient = 'linear-gradient(to right, hsl(0, 80%, 50%), hsl(60, 80%, 50
 </script>
 
 <template>
-  <div class="flex flex-col max-h-[80vh] sm:max-h-[70vh] w-72 sm:w-80">
+  <div class="flex flex-col" :class="mobile ? 'max-h-[70vh]' : 'max-h-[80vh] w-80'">
+    <!-- Mobile drag handle -->
+    <div v-if="mobile" class="flex justify-center pt-2 shrink-0">
+      <div class="bg-muted-foreground/30 rounded-full w-10 h-1"></div>
+    </div>
+
     <!-- Sticky header -->
     <div class="flex justify-between items-center p-3 pb-2 border-b border-border shrink-0">
       <div class="flex items-center gap-2">
@@ -593,8 +602,8 @@ const hueGradient = 'linear-gradient(to right, hsl(0, 80%, 50%), hsl(60, 80%, 50
 <style scoped>
 input[type="range"]::-webkit-slider-thumb {
   appearance: none;
-  width: 14px;
-  height: 14px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background: white;
   border: 2px solid oklch(0.5 0.15 var(--primary-hue));
@@ -603,13 +612,18 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 input[type="range"]::-moz-range-thumb {
-  width: 14px;
-  height: 14px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background: white;
   border: 2px solid oklch(0.5 0.15 var(--primary-hue));
   cursor: pointer;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Larger touch area for range track */
+input[type="range"] {
+  min-height: 2rem;
 }
 
 .scrollbar-thin {

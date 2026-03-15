@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, nextTick, onBeforeUnmount } from 'vue'
 import { usePage } from '@inertiajs/vue3'
 import { useTheme } from '@/composables/useTheme'
 import { Moon, Sun, Monitor, Palette } from 'lucide-vue-next'
@@ -17,10 +17,34 @@ const { theme, setTheme } = useTheme()
 const page = usePage()
 const isAdmin = computed(() => !!page.props.auth?.user?.is_admin)
 
-const pickerOpen = ref(false)
+const SM_BREAKPOINT = 640
+const isMobile = ref(window.innerWidth < SM_BREAKPOINT)
 
-const togglePicker = () => {
+const onResize = () => {
+  isMobile.value = window.innerWidth < SM_BREAKPOINT
+}
+window.addEventListener('resize', onResize)
+onBeforeUnmount(() => window.removeEventListener('resize', onResize))
+
+const pickerOpen = ref(false)
+const triggerRef = ref(null)
+const panelStyle = ref({})
+
+const updatePanelPosition = () => {
+  if (isMobile.value || !triggerRef.value?.$el) return
+  const rect = triggerRef.value.$el.getBoundingClientRect()
+  panelStyle.value = {
+    top: `${rect.bottom + 8}px`,
+    right: `${window.innerWidth - rect.right}px`,
+  }
+}
+
+const togglePicker = async () => {
   pickerOpen.value = !pickerOpen.value
+  if (pickerOpen.value) {
+    await nextTick()
+    updatePanelPosition()
+  }
 }
 
 const closePicker = () => {
@@ -31,27 +55,36 @@ const closePicker = () => {
 <template>
   <div class="flex items-center gap-1">
     <!-- Theme Picker Toggle (admin only) -->
-    <div v-if="isAdmin" class="z-20 relative">
-      <Button variant="ghost" size="icon" @click="togglePicker" title="Personnaliser le thème">
+    <div v-if="isAdmin" class="relative">
+      <Button ref="triggerRef" variant="ghost" size="icon" @click="togglePicker" title="Personnaliser le thème">
         <Palette class="w-5 h-5" />
       </Button>
 
-      <!-- Theme Picker Panel -->
-      <Transition name="picker">
-        <div
-          v-if="pickerOpen"
-          class="top-full right-0 z-50 absolute bg-popover shadow-lg mt-2 border border-border rounded-lg"
-        >
-          <ThemePicker />
-        </div>
-      </Transition>
+      <Teleport to="body">
+        <!-- Backdrop -->
+        <Transition name="fade">
+          <div
+            v-if="pickerOpen"
+            class="fixed inset-0 z-90"
+            :class="isMobile ? 'bg-black/30' : 'bg-transparent'"
+            @click="closePicker"
+          />
+        </Transition>
 
-      <!-- Click outside to close -->
-      <div
-        v-if="pickerOpen"
-        class="z-40 fixed inset-0"
-        @click="closePicker"
-      ></div>
+        <!-- Panel: bottom sheet on mobile, anchored dropdown on desktop -->
+        <Transition :name="isMobile ? 'sheet' : 'picker'">
+          <div
+            v-if="pickerOpen"
+            class="fixed z-100 bg-popover border border-border shadow-lg"
+            :class="isMobile
+              ? 'inset-x-2 bottom-2 rounded-xl'
+              : 'rounded-lg w-80'"
+            :style="!isMobile ? panelStyle : undefined"
+          >
+            <ThemePicker :mobile="isMobile" />
+          </div>
+        </Transition>
+      </Teleport>
     </div>
 
     <!-- Light/Dark Mode Toggle -->
@@ -81,14 +114,35 @@ const closePicker = () => {
 </template>
 
 <style scoped>
+/* Dropdown (desktop) */
 .picker-enter-active,
 .picker-leave-active {
   transition: all 0.2s ease;
 }
-
 .picker-enter-from,
 .picker-leave-to {
   opacity: 0;
   transform: translateY(-8px);
+}
+
+/* Bottom sheet (mobile) */
+.sheet-enter-active,
+.sheet-leave-active {
+  transition: all 0.25s ease;
+}
+.sheet-enter-from,
+.sheet-leave-to {
+  opacity: 0;
+  transform: translateY(100%);
+}
+
+/* Backdrop fade */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>
