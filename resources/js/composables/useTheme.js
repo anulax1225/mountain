@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 
-const theme = ref('system');
+const theme = ref('dark');
 const isDark = ref(false);
 const primaryHue = ref(230);
 const secondaryHue = ref(200);
@@ -14,6 +14,25 @@ const spacing = ref(100);
 const backgroundStyle = ref('organic');
 const bgIntensity = ref(100);
 const cursorGlow = ref(true);
+const bubblesEnabled = ref(true);
+const bubblesRepulse = ref(4);
+const bubblesDrift = ref(0.05);
+const bubblesMerge = ref(0.7);
+const bubblesSat = ref(1.2);
+const bubblesSpec = ref(3.0);
+const bubblesFresnel = ref(0.35);
+const bubblesSize = ref(0.20);
+const bubblesFlick = ref(15);
+const bubblesSpring = ref(0.8);
+const bubblesDamp = ref(0.92);
+const bubblesContact = ref(1.2);
+const bubblesSharp = ref(0.08);
+const bubblesNormal = ref(3.0);
+const bubblesRmin = ref(0.02);
+const bubblesVignette = ref(0.28);
+const bubblesBallCount = ref(32);
+const bubblesNoise = ref(0.04);
+const bubblesParallax = ref(0.0002);
 
 const FONT_STACKS = {
   'outfit': 'Outfit, ui-sans-serif, system-ui, sans-serif',
@@ -40,6 +59,25 @@ const DEFAULTS = {
   backgroundStyle: 'organic',
   bgIntensity: 100,
   cursorGlow: true,
+  bubblesEnabled: true,
+  bubblesRepulse: 4,
+  bubblesDrift: 0.05,
+  bubblesMerge: 0.7,
+  bubblesSat: 1.2,
+  bubblesSpec: 3.0,
+  bubblesFresnel: 0.35,
+  bubblesSize: 0.20,
+  bubblesFlick: 15,
+  bubblesSpring: 0.8,
+  bubblesDamp: 0.92,
+  bubblesContact: 1.2,
+  bubblesSharp: 0.08,
+  bubblesNormal: 3.0,
+  bubblesRmin: 0.02,
+  bubblesVignette: 0.28,
+  bubblesBallCount: 32,
+  bubblesNoise: 0.04,
+  bubblesParallax: 0.0002,
 };
 
 function modePrefix() {
@@ -232,6 +270,101 @@ export function useTheme() {
     document.documentElement.style.setProperty('--cursor-glow-enabled', cursorGlow.value ? '1' : '0');
   };
 
+  const setBubblesEnabled = (enabled) => {
+    bubblesEnabled.value = !!enabled;
+    storeSharedValue('bubblesEnabled', bubblesEnabled.value ? '1' : '0');
+  };
+
+  const setBubblesRepulse = (value) => {
+    bubblesRepulse.value = Math.max(1, Math.min(15, value));
+    storeSharedValue('bubblesRepulse', bubblesRepulse.value);
+  };
+
+  const setBubblesDrift = (value) => {
+    bubblesDrift.value = Math.max(0.01, Math.min(0.20, value));
+    storeSharedValue('bubblesDrift', bubblesDrift.value);
+  };
+
+  const setBubblesMerge = (value) => {
+    bubblesMerge.value = Math.max(0.3, Math.min(1.0, value));
+    storeSharedValue('bubblesMerge', bubblesMerge.value);
+  };
+
+  const setBubblesSat = (value) => {
+    bubblesSat.value = Math.max(0.5, Math.min(2.5, value));
+    storeSharedValue('bubblesSat', bubblesSat.value);
+  };
+
+  const setBubblesSpec = (value) => {
+    bubblesSpec.value = Math.max(0, Math.min(5, value));
+    storeSharedValue('bubblesSpec', bubblesSpec.value);
+  };
+
+  const setBubblesFresnel = (value) => {
+    bubblesFresnel.value = Math.max(0, Math.min(1, value));
+    storeSharedValue('bubblesFresnel', bubblesFresnel.value);
+  };
+
+  const setBubblesSize = (value) => {
+    bubblesSize.value = Math.max(0.08, Math.min(0.30, value));
+    storeSharedValue('bubblesSize', bubblesSize.value);
+  };
+
+  const setBubblesFlick = (value) => {
+    bubblesFlick.value = Math.max(0, Math.min(30, value));
+    storeSharedValue('bubblesFlick', bubblesFlick.value);
+  };
+
+  const setBubblesSpring = (value) => {
+    bubblesSpring.value = Math.max(0.1, Math.min(3, value));
+    storeSharedValue('bubblesSpring', bubblesSpring.value);
+  };
+
+  const setBubblesDamp = (value) => {
+    bubblesDamp.value = Math.max(0.80, Math.min(0.99, value));
+    storeSharedValue('bubblesDamp', bubblesDamp.value);
+  };
+
+  const setBubblesContact = (value) => {
+    bubblesContact.value = Math.max(0.8, Math.min(3.0, value));
+    storeSharedValue('bubblesContact', bubblesContact.value);
+  };
+
+  const setBubblesSharp = (value) => {
+    bubblesSharp.value = Math.max(0.02, Math.min(0.25, value));
+    storeSharedValue('bubblesSharp', bubblesSharp.value);
+  };
+
+  const setBubblesNormal = (value) => {
+    bubblesNormal.value = Math.max(1.0, Math.min(6.0, value));
+    storeSharedValue('bubblesNormal', bubblesNormal.value);
+  };
+
+  const setBubblesRmin = (value) => {
+    bubblesRmin.value = Math.max(0.01, Math.min(0.08, value));
+    storeSharedValue('bubblesRmin', bubblesRmin.value);
+  };
+
+  const setBubblesVignette = (value) => {
+    bubblesVignette.value = Math.max(0, Math.min(0.5, value));
+    storeSharedValue('bubblesVignette', bubblesVignette.value);
+  };
+
+  const setBubblesBallCount = (value) => {
+    bubblesBallCount.value = Math.max(8, Math.min(32, Math.round(value)));
+    storeSharedValue('bubblesBallCount', bubblesBallCount.value);
+  };
+
+  const setBubblesNoise = (value) => {
+    bubblesNoise.value = Math.max(0, Math.min(0.15, value));
+    storeSharedValue('bubblesNoise', bubblesNoise.value);
+  };
+
+  const setBubblesParallax = (value) => {
+    bubblesParallax.value = Math.max(0, Math.min(0.001, value));
+    storeSharedValue('bubblesParallax', bubblesParallax.value);
+  };
+
   const setBgIntensity = (value) => {
     const valid = Math.max(0, Math.min(200, value));
     bgIntensity.value = valid;
@@ -311,6 +444,45 @@ export function useTheme() {
     if (storedCursorGlow !== null) cursorGlow.value = storedCursorGlow === '1';
     applyCursorGlow();
 
+    const storedBubblesEnabled = loadSharedValue('bubblesEnabled');
+    if (storedBubblesEnabled !== null) bubblesEnabled.value = storedBubblesEnabled === '1';
+    const storedBubblesRepulse = loadSharedValue('bubblesRepulse');
+    if (storedBubblesRepulse) bubblesRepulse.value = parseFloat(storedBubblesRepulse);
+    const storedBubblesDrift = loadSharedValue('bubblesDrift');
+    if (storedBubblesDrift) bubblesDrift.value = parseFloat(storedBubblesDrift);
+    const storedBubblesMerge = loadSharedValue('bubblesMerge');
+    if (storedBubblesMerge) bubblesMerge.value = parseFloat(storedBubblesMerge);
+    const storedBubblesSat = loadSharedValue('bubblesSat');
+    if (storedBubblesSat) bubblesSat.value = parseFloat(storedBubblesSat);
+    const storedBubblesSpec = loadSharedValue('bubblesSpec');
+    if (storedBubblesSpec) bubblesSpec.value = parseFloat(storedBubblesSpec);
+    const storedBubblesFresnel = loadSharedValue('bubblesFresnel');
+    if (storedBubblesFresnel) bubblesFresnel.value = parseFloat(storedBubblesFresnel);
+    const storedBubblesSize = loadSharedValue('bubblesSize');
+    if (storedBubblesSize) bubblesSize.value = parseFloat(storedBubblesSize);
+    const storedBubblesFlick = loadSharedValue('bubblesFlick');
+    if (storedBubblesFlick) bubblesFlick.value = parseFloat(storedBubblesFlick);
+    const storedBubblesSpring = loadSharedValue('bubblesSpring');
+    if (storedBubblesSpring) bubblesSpring.value = parseFloat(storedBubblesSpring);
+    const storedBubblesDamp = loadSharedValue('bubblesDamp');
+    if (storedBubblesDamp) bubblesDamp.value = parseFloat(storedBubblesDamp);
+    const storedBubblesContact = loadSharedValue('bubblesContact');
+    if (storedBubblesContact) bubblesContact.value = parseFloat(storedBubblesContact);
+    const storedBubblesSharp = loadSharedValue('bubblesSharp');
+    if (storedBubblesSharp) bubblesSharp.value = parseFloat(storedBubblesSharp);
+    const storedBubblesNormal = loadSharedValue('bubblesNormal');
+    if (storedBubblesNormal) bubblesNormal.value = parseFloat(storedBubblesNormal);
+    const storedBubblesRmin = loadSharedValue('bubblesRmin');
+    if (storedBubblesRmin) bubblesRmin.value = parseFloat(storedBubblesRmin);
+    const storedBubblesVignette = loadSharedValue('bubblesVignette');
+    if (storedBubblesVignette) bubblesVignette.value = parseFloat(storedBubblesVignette);
+    const storedBubblesBallCount = loadSharedValue('bubblesBallCount');
+    if (storedBubblesBallCount) bubblesBallCount.value = parseInt(storedBubblesBallCount, 10);
+    const storedBubblesNoise = loadSharedValue('bubblesNoise');
+    if (storedBubblesNoise) bubblesNoise.value = parseFloat(storedBubblesNoise);
+    const storedBubblesParallax = loadSharedValue('bubblesParallax');
+    if (storedBubblesParallax) bubblesParallax.value = parseFloat(storedBubblesParallax);
+
     // Load per-mode settings
     loadModeSettings();
 
@@ -338,6 +510,25 @@ export function useTheme() {
     setBorderWidth(DEFAULTS.borderWidth);
     setSpacing(DEFAULTS.spacing);
     setCursorGlow(DEFAULTS.cursorGlow);
+    setBubblesEnabled(DEFAULTS.bubblesEnabled);
+    setBubblesRepulse(DEFAULTS.bubblesRepulse);
+    setBubblesDrift(DEFAULTS.bubblesDrift);
+    setBubblesMerge(DEFAULTS.bubblesMerge);
+    setBubblesSat(DEFAULTS.bubblesSat);
+    setBubblesSpec(DEFAULTS.bubblesSpec);
+    setBubblesFresnel(DEFAULTS.bubblesFresnel);
+    setBubblesSize(DEFAULTS.bubblesSize);
+    setBubblesFlick(DEFAULTS.bubblesFlick);
+    setBubblesSpring(DEFAULTS.bubblesSpring);
+    setBubblesDamp(DEFAULTS.bubblesDamp);
+    setBubblesContact(DEFAULTS.bubblesContact);
+    setBubblesSharp(DEFAULTS.bubblesSharp);
+    setBubblesNormal(DEFAULTS.bubblesNormal);
+    setBubblesRmin(DEFAULTS.bubblesRmin);
+    setBubblesVignette(DEFAULTS.bubblesVignette);
+    setBubblesBallCount(DEFAULTS.bubblesBallCount);
+    setBubblesNoise(DEFAULTS.bubblesNoise);
+    setBubblesParallax(DEFAULTS.bubblesParallax);
   };
 
   return {
@@ -355,6 +546,25 @@ export function useTheme() {
     backgroundStyle,
     bgIntensity,
     cursorGlow,
+    bubblesEnabled,
+    bubblesRepulse,
+    bubblesDrift,
+    bubblesMerge,
+    bubblesSat,
+    bubblesSpec,
+    bubblesFresnel,
+    bubblesSize,
+    bubblesFlick,
+    bubblesSpring,
+    bubblesDamp,
+    bubblesContact,
+    bubblesSharp,
+    bubblesNormal,
+    bubblesRmin,
+    bubblesVignette,
+    bubblesBallCount,
+    bubblesNoise,
+    bubblesParallax,
     FONT_STACKS,
     DEFAULTS,
     setTheme,
@@ -370,6 +580,25 @@ export function useTheme() {
     setBackgroundStyle,
     setBgIntensity,
     setCursorGlow,
+    setBubblesEnabled,
+    setBubblesRepulse,
+    setBubblesDrift,
+    setBubblesMerge,
+    setBubblesSat,
+    setBubblesSpec,
+    setBubblesFresnel,
+    setBubblesSize,
+    setBubblesFlick,
+    setBubblesSpring,
+    setBubblesDamp,
+    setBubblesContact,
+    setBubblesSharp,
+    setBubblesNormal,
+    setBubblesRmin,
+    setBubblesVignette,
+    setBubblesBallCount,
+    setBubblesNoise,
+    setBubblesParallax,
     resetToDefaults,
     initTheme,
   };

@@ -3,12 +3,16 @@ import { Link } from '@inertiajs/vue3'
 import { Button } from '@/components/ui/button'
 import PlaceholderPattern from '@/components/PlaceholderPattern.vue'
 import { ArrowRight } from 'lucide-vue-next'
+
+defineProps({
+    webglActive: { type: Boolean, default: false },
+})
 </script>
 
 <template>
     <section class="relative flex flex-col justify-center px-4 sm:px-6 lg:px-8 min-h-screen overflow-hidden">
-        <!-- Organic gradient blobs background -->
-        <div class="-z-10 absolute inset-0">
+        <!-- Organic gradient blobs background (fallback when WebGL unavailable) -->
+        <div v-if="!webglActive" class="-z-10 absolute inset-0">
             <div class="absolute inset-0 bg-background/60"></div>
             <!-- Primary blob top-left -->
             <div class="absolute -top-24 -left-24 w-[40rem] h-[40rem] rounded-full opacity-[0.15] dark:opacity-[0.25]"
