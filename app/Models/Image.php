@@ -18,6 +18,7 @@ class Image extends Model
         'scene_id',
         'size',
         'name',
+        'original_name',
         'path',
         'preview_path',
         'position',

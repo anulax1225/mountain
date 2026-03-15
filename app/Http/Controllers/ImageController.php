@@ -103,7 +103,7 @@ class ImageController extends Controller
             fclose($stream);
         }, 200, [
             'Content-Type' => 'image/jpeg',
-            'Content-Disposition' => 'inline; filename="'.basename($image->path).'"',
+            'Content-Disposition' => 'inline; filename="'.($image->original_name ?? basename($image->path)).'"',
             'Cache-Control' => 'public, max-age=60',
         ]);
     }

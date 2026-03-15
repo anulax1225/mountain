@@ -6,6 +6,7 @@ use App\Jobs\GenerateImagePreview;
 use App\Models\Image;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class UpdateImage
 {
@@ -25,9 +26,11 @@ class UpdateImage
                 $updateData['preview_path'] = null;
             }
 
-            $path = $file->store('images', 's3');
+            $extension = $file->guessExtension() ?: 'jpg';
+            $path = $file->storeAs('images', Str::uuid().'.'.$extension, 's3');
             $updateData['path'] = $path;
             $updateData['size'] = $file->getSize();
+            $updateData['original_name'] = $file->getClientOriginalName();
         }
 
         if (! empty($updateData)) {

@@ -89,8 +89,8 @@ it('generates preview and updates image record', function () {
 
     $image->refresh();
 
-    expect($image->preview_path)->toBe('previews/test.jpg');
-    Storage::disk('s3')->assertExists('previews/test.jpg');
+    expect($image->preview_path)->toMatch('/^previews\/[0-9a-f\-]{36}\.jpg$/');
+    Storage::disk('s3')->assertExists($image->preview_path);
 });
 
 it('skips gracefully when source image does not exist on S3', function () {
@@ -130,8 +130,11 @@ it('deletes old preview when regenerating', function () {
     $job = new GenerateImagePreview($image);
     $job->handle();
 
+    $image->refresh();
+
     Storage::disk('s3')->assertMissing('previews/old-preview.jpg');
-    Storage::disk('s3')->assertExists('previews/test.jpg');
+    expect($image->preview_path)->toMatch('/^previews\/[0-9a-f\-]{36}\.jpg$/');
+    Storage::disk('s3')->assertExists($image->preview_path);
 });
 
 // ===========================================================================

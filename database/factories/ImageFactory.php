@@ -20,6 +20,7 @@ class ImageFactory extends Factory
     {
         return [
             'name' => fake()->words(3, true),
+            'original_name' => fake()->word().'.jpg',
             'scene_id' => \App\Models\Scene::factory(),
             // Path and size will be set by withFile() state method
             'position' => 0,
@@ -59,6 +60,7 @@ class ImageFactory extends Factory
                 'path' => $storedPath,
                 'size' => $fileSize,
                 'name' => $name,
+                'original_name' => basename($sourceFilePath),
             ];
         });
     }
@@ -70,8 +72,9 @@ class ImageFactory extends Factory
     public function fake(): static
     {
         return $this->state(fn (array $attributes) => [
-            'path' => 'images/fake_'.fake()->uuid().'.jpg',
-            'preview_path' => 'previews/fake_'.fake()->uuid().'.jpg',
+            'path' => 'images/'.fake()->uuid().'.jpg',
+            'preview_path' => 'previews/'.fake()->uuid().'.jpg',
+            'original_name' => fake()->word().'_panorama.jpg',
             'size' => fake()->numberBetween(1000000, 50000000), // 1MB to 50MB
         ]);
     }

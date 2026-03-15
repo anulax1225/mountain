@@ -7,6 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Intervention\Image\Drivers\Imagick\Driver;
 use Intervention\Image\Exceptions\DecoderException;
 use Intervention\Image\ImageManager;
@@ -52,8 +53,7 @@ class GenerateImagePreview implements ShouldQueue
             $processed->toJpeg($quality)->save($tempOutput);
             unset($processed);
 
-            $originalFilename = pathinfo($this->image->path, PATHINFO_FILENAME);
-            $previewPath = "previews/{$originalFilename}.jpg";
+            $previewPath = 'previews/'.Str::uuid().'.jpg';
 
             if ($this->image->preview_path && $disk->exists($this->image->preview_path)) {
                 $disk->delete($this->image->preview_path);
